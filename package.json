@@ -1,4 +1,5 @@
 {
+    "name": "idreno",
     "private": true,
     "type": "module",
     "scripts": {
@@ -13,7 +14,6 @@
         "tailwindcss": "^4.0.0",
         "vite": "^6.2.4"
     },
-    "packageManager": "pnpm@8.15.3+sha256.fc4a49bd609550a41e14d20efbce802a4b892aa4cac877322de2f0924f122991",
     "dependencies": {
         "sweetalert2": "^11.22.3"
     }
