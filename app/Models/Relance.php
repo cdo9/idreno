@@ -4,6 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $client_id
+ * @property int $commercial_id
+ * @property int $relance
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Client $client
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereCommercialId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereRelance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Relance whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Relance extends Model
 {
     protected $table = 'relances';

@@ -11,17 +11,25 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Objectif
- * 
+ *
  * @property int $id
  * @property int $id_commercial
  * @property Carbon $date
  * @property int $ca
  * @property int $rdv
  * @property int $secteur
- * 
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereCa($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereRdv($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereSecteur($value)
+ * @mixin \Eloquent
  */
 class Objectif extends Model
 {

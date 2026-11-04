@@ -35,10 +35,41 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $quantite2
  * @property string $quantite3
  * @property int $secteur
- *
  * @property Client $client
- *
  * @package App\Models
+ * @property int|null $date_realisation_du_projet
+ * @property string|null $pourquoi
+ * @property int|null $partage_avec
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereCompteRendu($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereCouplePresent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereDateAjout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereDateConfirmation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereDateRealisation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereDateRealisationDuProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereEstimation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereHeure($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereIdClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet wherePartageAvec($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet wherePourquoi($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet wherePriorite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereProjet2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereProjet3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereQuantite1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereQuantite2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereQuantite3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereRaison($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereRdvAnnule($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereRdvConfirme($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereTempsDisponible($value)
+ * @mixin \Eloquent
  */
 class Projet extends Model
 {

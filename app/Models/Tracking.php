@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Tracking
- * 
+ *
  * @property int $id
  * @property int $id_client
  * @property int $id_commercial
@@ -21,11 +21,22 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $user_lat
  * @property string|null $user_lng
  * @property int $secteur
- * 
  * @property Client $client
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereDatetime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereGpsLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereGpsLng($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereIdClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereUserLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereUserLng($value)
+ * @mixin \Eloquent
  */
 class Tracking extends Model
 {

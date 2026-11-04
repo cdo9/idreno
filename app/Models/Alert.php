@@ -7,6 +7,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string|null $message
+ * @property Type $type
+ * @property int $id_commercial
+ * @property array<array-key, mixed>|null $details
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\User|null $idCommercial
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereDetails($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Alert withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Alert extends Model
 {
     use SoftDeletes;

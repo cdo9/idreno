@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Evaluation
- * 
+ *
  * @property int $id
  * @property int $id_argu
  * @property int $id_vendeur
@@ -19,11 +19,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $fait_par
  * @property int $acquis
  * @property int $secteur
- * 
  * @property Client $client
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereAcquis($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereFaitPar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereIdArgu($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereIdFormateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereIdVendeur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereSecteur($value)
+ * @mixin \Eloquent
  */
 class Evaluation extends Model
 {

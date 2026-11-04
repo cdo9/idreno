@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Prospection
- * 
+ *
  * @property int $id
  * @property int $id_commercial
  * @property string $commune
@@ -22,10 +22,22 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $heure_debut
  * @property string $heure_fin
  * @property int $secteur
- * 
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereCommune($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereHeureDebut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereHeureFin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereTermine($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereZone($value)
+ * @mixin \Eloquent
  */
 class Prospection extends Model
 {

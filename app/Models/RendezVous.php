@@ -27,12 +27,29 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $devis_total_ht
  * @property string|null $produits
  * @property int $secteur
- *
  * @property Client $client
  * @property User $user
  * @property Collection|Vente[] $ventes
- *
  * @package App\Models
+ * @property-read int|null $ventes_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereCommentaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereDateRelance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereDevisTotalHt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereIdClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous wherePartageAvec($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereProduits($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereRelanceConfirme($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereResultat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereTarifTotalHt($value)
+ * @mixin \Eloquent
  */
 class RendezVous extends Model
 {

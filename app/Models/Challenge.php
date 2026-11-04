@@ -15,8 +15,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string|null $challenge
  * @property Carbon $date
- *
  * @package App\Models
+ * @property int $secteur
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge whereChallenge($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Challenge whereSecteur($value)
+ * @mixin \Eloquent
  */
 class Challenge extends Model
 {

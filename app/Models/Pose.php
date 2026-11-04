@@ -26,13 +26,31 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $id_commercial_visite
  * @property int|null $avis_facebook
  * @property int $secteur
- *
  * @property Client $client
  * @property User|null $user
  * @property Vente $vente
  * @property PoseDetail|null $pose_detail
- *
  * @package App\Models
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Poseur> $poseurs
+ * @property-read int|null $poseurs_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereAvisClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereAvisFacebook($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereDateDebut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereDateFin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereIdClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereIdCommercialVisite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereIdVente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereIndicateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereProduit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereProduit2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereProduit3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereVisiteChantier($value)
+ * @mixin \Eloquent
  */
 class Pose extends Model
 {

@@ -10,11 +10,16 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ProspectionCase
- * 
+ *
  * @property string $nom
  * @property bool $actif
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCase newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCase newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCase query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCase whereActif($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCase whereNom($value)
+ * @mixin \Eloquent
  */
 class ProspectionCase extends Model
 {

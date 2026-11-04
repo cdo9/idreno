@@ -10,14 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class PoseDetail
- * 
+ *
  * @property int $id_pose
  * @property int $id_poseur
- * 
  * @property Pose $pose
  * @property Poseur $poseur
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail whereIdPose($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail whereIdPoseur($value)
+ * @mixin \Eloquent
  */
 class PoseDetail extends Model
 {

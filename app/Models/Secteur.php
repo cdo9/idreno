@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string|null $nom
  * @property string $couleur
- *
  * @property Collection|Client[] $clients
  * @property Collection|Evaluation[] $evaluations
  * @property Collection|Groupe[] $groupes
@@ -30,8 +29,32 @@ use Illuminate\Database\Eloquent\Model;
  * @property Collection|SecteurCommercial[] $secteur_commercials
  * @property Collection|Tracking[] $trackings
  * @property Collection|Vente[] $ventes
- *
  * @package App\Models
+ * @property int $activated
+ * @property string|null $coords
+ * @property-read int|null $clients_count
+ * @property-read int|null $evaluations_count
+ * @property-read int|null $groupes_count
+ * @property-read int|null $objectif_annuel_commercials_count
+ * @property-read int|null $objectifs_count
+ * @property-read int|null $parc_autos_count
+ * @property-read int|null $poses_count
+ * @property-read int|null $projets_count
+ * @property-read int|null $prospection_communes_count
+ * @property-read int|null $prospections_count
+ * @property-read int|null $rendez_vous_count
+ * @property-read int|null $secteur_commercials_count
+ * @property-read int|null $trackings_count
+ * @property-read int|null $ventes_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereActivated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereCoords($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereCouleur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereNom($value)
+ * @mixin \Eloquent
  */
 class Secteur extends Model
 {

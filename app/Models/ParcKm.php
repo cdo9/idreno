@@ -11,15 +11,21 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ParcKm
- * 
+ *
  * @property int $id
  * @property int $auto_id
  * @property Carbon $date
  * @property int $km
- * 
  * @property ParcAuto $parc_auto
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereAutoId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereKm($value)
+ * @mixin \Eloquent
  */
 class ParcKm extends Model
 {

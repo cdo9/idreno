@@ -54,7 +54,6 @@ use Illuminate\Database\Eloquent\Collection;
  * @property int|null $formateur
  * @property Carbon|null $date_entretien
  * @property Carbon|null $released
- *
  * @property Collection|Evaluation[] $evaluations
  * @property Collection|Groupe[] $groupes
  * @property Collection|ObjectifAnnuelCommercial[] $objectif_annuel_commercials
@@ -65,8 +64,64 @@ use Illuminate\Database\Eloquent\Collection;
  * @property Collection|SecteurCommercial[] $secteur_commercials
  * @property Collection|Tracking[] $trackings
  * @property Collection|Vente[] $ventes
- *
  * @package App\Models
+ * @property-read int|null $evaluations_count
+ * @property-read string $display_name
+ * @property-read int|null $groupes_count
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read int|null $objectif_annuel_commercials_count
+ * @property-read int|null $objectifs_count
+ * @property-read int|null $poses_count
+ * @property-read int|null $prospections_count
+ * @property-read int|null $rendez_vous_count
+ * @property-read int|null $secteur_commercials_count
+ * @property-read int|null $trackings_count
+ * @property-read int|null $ventes_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereActivationHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereContrat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDateEntree($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDateEntretien($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDelete($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDirecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFailedLogins($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereFormateur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGps($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereGroupe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereHoraires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereJunior($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastFailedLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLng($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereNom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereNouveauVendeur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereObjectifCa($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereObjectifRdv($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereOrdreAffichage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePasswordResetHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePasswordResetTimestamp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePopupWinnerLoser($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePrenom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereProspecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRegistrationDatetime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRegistrationIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereReleased($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTelepro($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class User extends Authenticatable
 {

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Job
- * 
+ *
  * @property int $id
  * @property string $queue
  * @property string $payload
@@ -18,8 +18,18 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $reserved_at
  * @property int $available_at
  * @property int $created_at
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereAttempts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereAvailableAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job wherePayload($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereQueue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Job whereReservedAt($value)
+ * @mixin \Eloquent
  */
 class Job extends Model
 {

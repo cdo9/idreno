@@ -43,14 +43,58 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $commission.blade.php
  * @property string|null $commentaire
  * @property int $secteur
- *
  * @property Client $client
  * @property User $user
  * @property RendezVous $rendez_vou
  * @property Source|null $source
  * @property Collection|Pose[] $poses
- *
  * @package App\Models
+ * @property int|null $commission
+ * @property int|null $duree_pret
+ * @property int|null $postpone
+ * @property int|null $mensualite
+ * @property-read mixed $attente_options
+ * @property-read mixed $paiement_options
+ * @property-read mixed $type_vente_options
+ * @property-read int|null $poses_count
+ * @property-read \App\Models\RendezVous $rendez_vous
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereAttente($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereAttenteAutre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereCaHt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereCaTotalHt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereCommande($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereCommentaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereCommission($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereComplement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereDateAdd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereDateCommission($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereDureePret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereFinFinancement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdClient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdCommercial2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdCommercial3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdRdv($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereIdSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereMensualite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereMontant($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente wherePaiement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente wherePlusValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente wherePostpone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente wherePrimeCee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereRemise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereRepartition($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereStatut($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTarifHt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTarifTotalHt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTypeVente($value)
+ * @mixin \Eloquent
  */
 class Vente extends Model
 {

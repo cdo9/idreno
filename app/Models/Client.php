@@ -65,15 +65,83 @@ use Illuminate\Support\Facades\Log;
  * @property string|null $dernier_contact
  * @property int $secteur
  * @property bool $accept_demarchage
- *
  * @property Collection|Evaluation[] $evaluations
  * @property Collection|Pose[] $poses
  * @property Collection|Projet[] $projets
  * @property Collection|RendezVous[] $rendez_vous
  * @property Collection|Tracking[] $trackings
  * @property Collection|Vente[] $ventes
- *
  * @package App\Models
+ * @property string|null $profil_clients
+ * @property bool $relance
+ * @property-read Collection<int, \App\Models\ClientHistory> $clientHistory
+ * @property-read int|null $client_history_count
+ * @property-read Collection<int, \App\Models\Comment> $comments
+ * @property-read int|null $comments_count
+ * @property-read \App\Models\Comment|null $dernierCommentaire
+ * @property-read \App\Models\Projet|null $dernierRdv
+ * @property-read int|null $evaluations_count
+ * @property-read string $telephone1_formatted
+ * @property-read string $telephone2_formatted
+ * @property-read \App\Models\User|null $partageUser
+ * @property-read int|null $poses_count
+ * @property-read int|null $projets_count
+ * @property-read int|null $rendez_vous_count
+ * @property-read int|null $trackings_count
+ * @property-read \App\Models\User|null $user
+ * @property-read int|null $ventes_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereAcceptDemarchage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereAdresse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereAgeMateriel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereAppart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereBloque($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereConsoChauffage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereConsoChauffageQualite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereCp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereCreditImpot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDateAnniversaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDateDernierContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDateRelance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDebrief($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDernierContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDernierInvestissement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereDureeProprietaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereEauChaude($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereGenre($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereGpsLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereGpsLng($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereIdDoublon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereIdSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereIsolation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereMail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereModeConso($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereNbFoyer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereNom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client wherePartageAvec($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client wherePrenom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereProfession($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereProfession2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereProfilClients($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereProjet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereProprietaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereRelance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereRentreLe($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereRentrePar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereSigne($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereSurface($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereTelephone1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereTelephone2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereTypeChauffage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereTypeHabitation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Client whereVille($value)
+ * @mixin \Eloquent
  */
 class Client extends Model
 {

@@ -11,16 +11,24 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ProspectionCommune
- * 
+ *
  * @property int $id
  * @property string $nom
  * @property string $zone
  * @property Carbon $date
  * @property string|null $commerciaux
  * @property int $secteur
- * 
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereCommerciaux($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereNom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereZone($value)
+ * @mixin \Eloquent
  */
 class ProspectionCommune extends Model
 {

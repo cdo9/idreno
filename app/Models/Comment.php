@@ -11,17 +11,24 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Comment
- * 
+ *
  * @property int $id
  * @property int $client_id
  * @property int $user_id
  * @property Carbon $date
  * @property string $commentaire
- * 
  * @property Client $client
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereCommentaire($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereUserId($value)
+ * @mixin \Eloquent
  */
 class Comment extends Model
 {

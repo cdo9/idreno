@@ -10,14 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class SecteurCommercial
- * 
+ *
  * @property int $id_secteur
  * @property int $id_commercial
- * 
  * @property User $user
  * @property Secteur $secteur
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SecteurCommercial newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SecteurCommercial newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SecteurCommercial query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SecteurCommercial whereIdCommercial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SecteurCommercial whereIdSecteur($value)
+ * @mixin \Eloquent
  */
 class SecteurCommercial extends Model
 {

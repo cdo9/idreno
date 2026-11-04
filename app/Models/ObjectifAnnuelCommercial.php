@@ -10,16 +10,23 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ObjectifAnnuelCommercial
- * 
+ *
  * @property int $id
  * @property int $id_user
  * @property int $year
  * @property int $value
  * @property int $secteur
- * 
  * @property User $user
- *
  * @package App\Models
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereIdUser($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereSecteur($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereYear($value)
+ * @mixin \Eloquent
  */
 class ObjectifAnnuelCommercial extends Model
 {

@@ -5,6 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $client_id
+ * @property int $commercial_id
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Client $client
+ * @property-read \App\Models\User $commercial
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereCommercialId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ClientHistory whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class ClientHistory extends Model
 {
     protected $table = 'clients_history';
