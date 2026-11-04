@@ -1,0 +1,24 @@
+{
+    "agents": [
+        "claude_code",
+        "codex"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "packages": [
+        "spatie/boost-spatie-guidelines"
+    ],
+    "sail": true,
+    "skills": [
+        "infer-conventions",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "scout-development",
+        "telescope-debugging",
+        "livewire-development",
+        "tailwindcss-development",
+        "spatie-laravel-php-standards"
+    ]
+}
