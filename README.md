@@ -1,61 +1,60 @@
-# Homiso
+# IDReno
 
-Homiso est une application web développée avec [Laravel](https://laravel.com), un framework PHP moderne et robuste.
+Application Laravel 12 (Livewire 3) de gestion commerciale d'IDReno.
 
-## Installation
+## Installation locale (Laravel Sail)
 
-```bash
-Cloner le projet
-```
-
-Installe les dépendances PHP :
+Prérequis : Docker Desktop, et une entrée dans `/etc/hosts` :
 
 ```bash
-composer install
+echo "127.0.0.1 idreno.local\n::1 idreno.local" | sudo tee -a /etc/hosts
 ```
 
-Installe les dépendances front-end :
-
-```bash
-npm install
-```
-
-Copie le fichier d'environnement et configure-le :
+Copie le fichier d'environnement :
 
 ```bash
 cp .env.example .env
 ```
 
-Génère la clé d'application :
+Installe les dépendances PHP (sans PHP local, via l'image Sail) :
 
 ```bash
-php artisan key:generate
+docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php84-composer:latest composer install --ignore-platform-reqs
 ```
 
-Configure ta base de données dans `.env`, puis lance les migrations :
+Démarre les conteneurs, génère la clé et installe le front :
 
 ```bash
-php artisan migrate
+vendor/bin/sail up -d
+vendor/bin/sail artisan key:generate
+vendor/bin/sail npm install
+vendor/bin/sail npm run build
 ```
 
-Pour avoir le hot reload :
+Importe la base : place le dump de production dans `db-dump.sql` (ignoré par git), puis :
 
 ```bash
-npm run dev
+sh reset-database.sh
 ```
 
-Pour compiler les assets pour la production :
+Le script recrée la base, importe le dump, lance les migrations, met le mot de passe `password` sur tous les comptes (en local uniquement) et clone la base dans `idreno_testing` pour les tests.
+
+L'application est alors disponible sur http://idreno.local:8081.
+
+Les ports (8081 / 3307 / 5174) sont décalés par rapport à Homiso (80 / 3306 / 5173) pour pouvoir lancer les deux projets en même temps.
+
+## Maintenance (CI/CD local)
+
+Avec Sail démarré (`vendor/bin/sail up -d`) :
 
 ```bash
-npm run build
+sh ci-cd.sh
 ```
 
-Lance le serveur de développement :
+Le script met à jour les dépendances Composer et npm, propose de monter les versions majeures, rafraîchit Laravel Boost, régénère les PHPDocs des modèles (ide-helper), formate le code (Pint), puis lance le build Vite, PHPStan, Pest et les audits de sécurité. Si une mise à jour de dépendances échoue, tout est restauré.
+
+Pour que `git blame` ignore les commits de formatage Pint :
 
 ```bash
-php artisan serve
+git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```
-
-## Licence
-
-Ce projet est sous licence [MIT](LICENSE).
