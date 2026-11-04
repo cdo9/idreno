@@ -42,7 +42,6 @@ class DispatchPlannedSms extends Command
         $smsLong = 1;
         $smsLongNbr = 1;
 
-        //$resultPostJob = $client->get('/sms/' . env('OVH_SMS_SERVICE'));
         $result = "";				
 
         // if ($this->isFridayEvening($date)) {
@@ -63,20 +62,6 @@ class DispatchPlannedSms extends Command
         // }
 
         if($result !== ''){
-            /*$content = (object)array(
-                "charset" => "UTF-8",
-                "class" => "phoneDisplay",
-                "coding" => "7bit",
-                "message" => $result,
-                "noStopClause" => true,
-                "priority" => "high",
-                "receivers" => $receivers,
-                "senderForResponse" => true,
-                //"sender" => ""
-                "validityPeriod" => 2880,
-            );*/
-            //$resultPostJob = $client->post('/sms/' . env('OVH_SMS_SERVICE') . '/jobs/', $content);
-
             $payload = [
                 'key' => $apiKey,
                 'message' => $result,
