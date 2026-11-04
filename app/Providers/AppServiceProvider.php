@@ -32,31 +32,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (Schema::hasTable('secteurs')) {
-            $secteurs = DB::table('secteurs')->select('id', 'nom', 'couleur')->where('activated', 1)->get();
+        // Requête exécutée seulement au rendu des vues (et une seule fois par requête),
+        // pour ne pas interroger la base au démarrage de chaque requête / commande artisan.
+        $secteurs = fn () => once(fn () => DB::table('secteurs')->select('id', 'nom', 'couleur')->where('activated', 1)->get());
 
-            View::composer('components.header', function ($view) use($secteurs) {
-                $user = auth()->user();
-                $view->with('secteurs', $secteurs);
-                $view->with('user', $user);
-            });
+        View::composer(['components.header', 'components.mobile-menu'], function ($view) use ($secteurs) {
+            $view->with('secteurs', $secteurs());
+            $view->with('user', auth()->user());
+        });
 
-            View::composer('components.mobile-menu', function ($view) use($secteurs) {
-                $user = auth()->user();
-                $view->with('secteurs', $secteurs);
-                $view->with('user', $user);
-            });
+        View::composer('rendez-vous/confirmation-de-rendez-vous', function ($view) {
+            $sources = DB::table('sources')->select('id', 'nom')->get();
+            $poseurs = DB::table('poseurs')->select('id', 'poseur')->get();
 
-            View::composer('rendez-vous/confirmation-de-rendez-vous', function ($view) {
-                $sources = DB::table('sources')->select('id', 'nom')->get();
-                $poseurs = DB::table('poseurs')->select('id', 'poseur')->get();
-
-                $view->with([
-                    'sources' => $sources,
-                    'poseurs' => $poseurs,
-                ]);
-            });
-        }
+            $view->with([
+                'sources' => $sources,
+                'poseurs' => $poseurs,
+            ]);
+        });
 
         Blade::directive('capitalizeLower', function($string){
             return "<?php echo ucfirst(strtolower($string));?>";
