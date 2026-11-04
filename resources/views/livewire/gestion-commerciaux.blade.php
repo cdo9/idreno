@@ -198,7 +198,7 @@
                                     <option value="">— Aucun —</option>
                                     @foreach($groupes as $g)
                                         <option value="{{ $g->id }}" {{ $u->groupe == $g->id ? 'selected' : '' }}>
-                                            {{ $g->nom }} - {{$g->secteurRel->nom}}
+                                            {{ $g->nom }} - {{ $g->secteurRel?->nom }}
                                         </option>
                                     @endforeach
                                 </select>

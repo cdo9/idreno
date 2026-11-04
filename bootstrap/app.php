@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckBlocagesAccess;
+use App\Http\Middleware\EnsureSelectedSecteur;
 use App\Http\Middleware\PageAccessMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
@@ -15,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->redirectUsersTo('/');
+        $middleware->web(append: [
+            EnsureSelectedSecteur::class,
+        ]);
         $middleware->alias([
             'blocages' => CheckBlocagesAccess::class,
             'role' => RoleMiddleware::class,
