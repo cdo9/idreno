@@ -1,0 +1,53 @@
+# Dump de base de données
+db-dump.sql
+dump.sql
+dumpSQL.sql
+homiso_test.sql
+*.sql
+*.sql.gz
+
+# Scripts utilitaires exposés en web (contiennent des secrets / à remplacer par des commandes artisan)
+/public/import.php
+/public/migration.php
+/public/check.php
+/public/clear.php
+/public/launchSMS.php
+/public/testSMS.php
+/public/test_google_maps.html
+
+# Binaire Composer (à installer localement / via Sail)
+/composer.phar
+
+# Dépendances
+/node_modules
+/vendor
+
+# Build / fichiers générés
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/.phpunit.cache
+
+# Environnement
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+auth.json
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# IDE / OS
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed
+.DS_Store
+Homestead.json
+Homestead.yaml
