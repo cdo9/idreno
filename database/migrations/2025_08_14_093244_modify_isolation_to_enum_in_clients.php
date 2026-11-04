@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,18 +13,18 @@ return new class extends Migration
     public function up(): void
     {
 
-         DB::table('clients')->update([
+        DB::table('clients')->update([
             'isolation' => DB::raw("CASE
                 WHEN isolation = '' THEN NULL
-                ELSE isolation END")
+                ELSE isolation END"),
         ]);
 
         Schema::table('clients', function (Blueprint $table) {
             // Modifier le champ isolation en enum avec les nouvelles valeurs
             $table->enum('isolation', ['Excellente', 'Moyenne', 'Mauvaise'])
-                  ->nullable()
-                  ->default(null)
-                  ->change();
+                ->nullable()
+                ->default(null)
+                ->change();
         });
     }
 

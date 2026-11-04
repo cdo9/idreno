@@ -2,39 +2,61 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Client;
-use App\Models\Alert;
 use App\Enums\Type;
+use App\Models\Alert;
+use App\Models\Client;
+use App\Models\Source;
 use App\Services\ProjectService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class MapContactForm extends Component
 {
     // Form properties
     public $nom = '';
+
     public $prenom = '';
+
     public $adresse = '';
+
     public $code_postal = '';
+
     public $ville = '';
+
     public $telephone1 = '';
+
     public $telephone2 = '';
+
     public $signe = '';
+
     public $source = '';
+
     public $projet = '';
+
     public $type = '';
+
     public $choix = '';
+
     public $profil_client = '';
+
     public $type_habitation = '';
+
     public $proprietaire = '';
+
     public $gps_lat = '';
+
     public $gps_lng = '';
+
     public $user_lat = '';
+
     public $user_lng = '';
+
     public $secteur = '';
 
     // Component state
     public $showForm = false;
+
     public $isSubmitting = false;
 
     protected $rules = [
@@ -122,7 +144,7 @@ class MapContactForm extends Component
             'nom', 'prenom', 'adresse', 'code_postal', 'ville',
             'telephone1', 'telephone2', 'signe', 'source', 'projet',
             'type', 'choix', 'profil_client', 'type_habitation',
-            'proprietaire', 'gps_lat', 'gps_lng', 'user_lat', 'user_lng', 'secteur'
+            'proprietaire', 'gps_lat', 'gps_lng', 'user_lat', 'user_lng', 'secteur',
         ]);
         $this->resetErrorBag();
     }
@@ -136,7 +158,7 @@ class MapContactForm extends Component
             $validated = $this->validate();
 
             // Create a new client
-            $client = new Client();
+            $client = new Client;
             $client->nom = $validated['nom'];
             $client->prenom = $validated['prenom'];
             $client->adresse = $validated['adresse'];
@@ -175,8 +197,8 @@ class MapContactForm extends Component
             $client->secteur = $validated['secteur'] ?? 0;
 
             // Check distance between author position and inserted point for alert creation
-            if (!empty($validated['user_lat']) && !empty($validated['user_lng']) &&
-                !empty($validated['gps_lat']) && !empty($validated['gps_lng'])) {
+            if (! empty($validated['user_lat']) && ! empty($validated['user_lng']) &&
+                ! empty($validated['gps_lat']) && ! empty($validated['gps_lng'])) {
                 $distance = $this->calculateDistance(
                     $validated['user_lat'],
                     $validated['user_lng'],
@@ -194,20 +216,20 @@ class MapContactForm extends Component
                             'distance_meters' => (float) round($distance, 2),
                             'author_position' => [
                                 'latitude' => floatval($validated['user_lat']),
-                                'longitude' => floatval($validated['user_lng'])
+                                'longitude' => floatval($validated['user_lng']),
                             ],
                             'inserted_point' => [
                                 'latitude' => floatval($validated['gps_lat']),
-                                'longitude' => floatval($validated['gps_lng'])
+                                'longitude' => floatval($validated['gps_lng']),
                             ],
                             'client_info' => [
                                 'nom' => $validated['nom'],
                                 'prenom' => $validated['prenom'],
                                 'adresse' => $validated['adresse'],
-                                'ville' => $validated['ville']
+                                'ville' => $validated['ville'],
                             ],
-                            'timestamp' => now()->toISOString()
-                        ]
+                            'timestamp' => now()->toISOString(),
+                        ],
                     ]);
                 }
             }
@@ -221,12 +243,12 @@ class MapContactForm extends Component
             // Emit event to refresh map markers
             $this->dispatch('clientCreated', [
                 'message' => 'Client créé avec succès',
-                'client' => $client->toArray()
+                'client' => $client->toArray(),
             ]);
 
             session()->flash('success', 'Client créé avec succès');
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Validation errors are automatically handled by Livewire
             $this->isSubmitting = false;
         } catch (\Exception $e) {
@@ -261,7 +283,7 @@ class MapContactForm extends Component
 
     public function getSourcesProperty()
     {
-        return \App\Models\Source::orderBy('nom')->get();
+        return Source::orderBy('nom')->get();
     }
 
     public function getPrioritiesProperty()

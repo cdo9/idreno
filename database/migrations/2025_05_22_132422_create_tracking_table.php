@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tracking', function (Blueprint $table) {
             $table->integer('id', true);
             $table->integer('id_client');
-            $table->foreignId('id_commercial')->constrained('users');    
+            $table->foreignId('id_commercial')->constrained('users');
             $table->dateTime('datetime');
             $table->string('gps_lat', 20);
             $table->string('gps_lng', 20);

@@ -2,25 +2,36 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use App\Livewire\Traits\BlocagesTrait;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Rattrapage extends Component
 {
     use BlocagesTrait;
 
     public $ecarts = [];
+
     public $evaluations = [];
+
     public $aconfirmer = [];
+
     public $prospections = [];
+
     public $entretiens = [];
+
     public $indicateurs = [];
+
     public $indicateursTab = [];
+
     public $isTelepro;
+
     public $isProspecteur;
+
     public $isAdmin;
+
     public $isDirecteur;
+
     public $hasBlocage;
 
     public function mount()
@@ -31,16 +42,16 @@ class Rattrapage extends Component
         $this->isAdmin = $user->hasRole('admin');
         $this->isDirecteur = $user->hasRole('directeur');
 
-        $blocages = new Blocages();
+        $blocages = new Blocages;
         $blocages->mount();
         $this->hasBlocage = $blocages->hasBlocageQuelconque($user, $this->isTelepro, $this->isProspecteur, $this->isDirecteur, $this->isAdmin);
 
-        if (!$this->hasBlocage || auth()->user()->isReleased()) {
+        if (! $this->hasBlocage || auth()->user()->isReleased()) {
             return redirect('/');
         }
 
         $userBlocage = $blocages->blocagesParUser[$user->id];
-        
+
         $this->ecarts = $userBlocage['ecarts'];
         $this->evaluations = $userBlocage['evaluations'];
         $this->aconfirmer = $userBlocage['aconfirmer'];

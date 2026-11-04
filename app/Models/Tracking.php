@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $secteur
  * @property Client $client
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking query()
@@ -36,43 +36,45 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereUserLat($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tracking whereUserLng($value)
+ *
  * @mixin \Eloquent
  */
 class Tracking extends Model
 {
-	protected $table = 'tracking';
-	public $timestamps = false;
+    protected $table = 'tracking';
 
-	protected $casts = [
-		'id_client' => 'int',
-		'id_commercial' => 'int',
-		'datetime' => 'datetime',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_client',
-		'id_commercial',
-		'datetime',
-		'gps_lat',
-		'gps_lng',
-		'user_lat',
-		'user_lng',
-		'secteur'
-	];
+    protected $casts = [
+        'id_client' => 'int',
+        'id_commercial' => 'int',
+        'datetime' => 'datetime',
+        'secteur' => 'int',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_client');
-	}
+    protected $fillable = [
+        'id_client',
+        'id_commercial',
+        'datetime',
+        'gps_lat',
+        'gps_lng',
+        'user_lat',
+        'user_lng',
+        'secteur',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

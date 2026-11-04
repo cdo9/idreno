@@ -15,10 +15,8 @@ return new class extends Migration
         DB::table('clients')->where('surface', '')->update(['surface' => 0]);
 
         DB::table('clients')->update([
-            'surface' => DB::raw("REGEXP_REPLACE(surface, '[^0-9]', '')")
+            'surface' => DB::raw("REGEXP_REPLACE(surface, '[^0-9]', '')"),
         ]);
-
-
 
         Schema::table('clients', function (Blueprint $table) {
             $table->integer('surface')->nullable()->change();

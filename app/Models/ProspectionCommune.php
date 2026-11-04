@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $date
  * @property string|null $commerciaux
  * @property int $secteur
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune query()
@@ -28,28 +28,30 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereNom($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProspectionCommune whereZone($value)
+ *
  * @mixin \Eloquent
  */
 class ProspectionCommune extends Model
 {
-	protected $table = 'prospection_communes';
-	public $timestamps = false;
+    protected $table = 'prospection_communes';
 
-	protected $casts = [
-		'date' => 'datetime',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'nom',
-		'zone',
-		'date',
-		'commerciaux',
-		'secteur'
-	];
+    protected $casts = [
+        'date' => 'datetime',
+        'secteur' => 'int',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    protected $fillable = [
+        'nom',
+        'zone',
+        'date',
+        'commerciaux',
+        'secteur',
+    ];
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

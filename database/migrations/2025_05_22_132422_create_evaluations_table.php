@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('id', true);
             $table->integer('id_argu');
             $table->foreignId('id_vendeur')->constrained('users');
-            $table->foreignId('id_formateur')->constrained('users');            
+            $table->foreignId('id_formateur')->constrained('users');
             $table->string('action', 100)->comment('slug action');
             $table->string('fait_par', 1)->comment('V ou F');
             $table->integer('acquis')->comment('0 (non acquis), 1 (en cours), 2 (acquis)');

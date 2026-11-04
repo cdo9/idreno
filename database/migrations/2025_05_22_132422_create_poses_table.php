@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('visite_chantier')->nullable()->default(0);
             $table->integer('avis_client')->nullable()->default(0);
             $table->integer('indicateur')->default(1);
-            $table->foreignId('id_commercial_visite')->nullable()->constrained('users');      
+            $table->foreignId('id_commercial_visite')->nullable()->constrained('users');
             $table->integer('avis_facebook')->nullable()->default(0);
             $table->integer('secteur');
 

@@ -3,61 +3,91 @@
 namespace App\Livewire\Client;
 
 use App\Models\Client;
+use App\Models\ClientHistory;
 use App\Models\Source;
 use App\Models\User;
-use App\Models\ClientHistory;
-use Livewire\Component;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class ClientForm extends Component
 {
     // Client properties
     public $clientId = null;
+
     public $nom = '';
+
     public $prenom = '';
+
     public $adresse = '';
+
     public $code_postal = '';
+
     public $ville = '';
+
     public $telephone1 = '';
+
     public $telephone2 = '';
+
     public $mail = '';
+
     public $gps_lat = '';
+
     public $gps_lng = '';
+
     public $secteur = 1;
 
     // Form selection properties
     public $genre = 'Mr & Mme';
+
     public $id_source = '';
+
     public $type = 0;
+
     public $type_habitation = '';
+
     public $proprietaire = '';
+
     public $profession = '';
+
     public $profession2 = '';
+
     public $profil_clients = '';
+
     public $projet = '';
+
     public $signe = '';
+
     public $commentaire = '';
+
     public $date_relance = '';
+
     public $commercial_id = '';
+
     public $partage_avec = '';
 
     // Component state
     public $isEditMode = false;
+
     public $showForm = false;
 
     // Data collections
     public $sources = [];
+
     public $commercials = [];
+
     public $civilites = [];
+
     public $typeHabitations = [];
+
     public $secteurs = [];
 
     protected $listeners = [
         'openClientForm',
         'editClient',
         'closeClientForm',
-        'setGpsCoordinates'
+        'setGpsCoordinates',
     ];
 
     protected $rules = [
@@ -118,7 +148,7 @@ class ClientForm extends Component
         $this->sources = Source::all();
 
         // Load active commercials
-        $this->commercials = User::whereNotIn('role',["administratif"])->where('active', 1)->get();
+        $this->commercials = User::whereNotIn('role', ['administratif'])->where('active', 1)->get();
 
         // Load civilités from Client model
         $this->civilites = Client::CIVILITES;
@@ -148,8 +178,9 @@ class ClientForm extends Component
     {
         $client = Client::find($clientId);
 
-        if (!$client) {
+        if (! $client) {
             session()->flash('error', 'Client non trouvé.');
+
             return;
         }
 
@@ -205,7 +236,7 @@ class ClientForm extends Component
             'telephone1', 'telephone2', 'mail', 'gps_lat', 'gps_lng',
             'genre', 'id_source', 'type', 'type_habitation', 'proprietaire',
             'profession', 'profession2', 'profil_clients', 'projet', 'signe',
-            'commentaire', 'date_relance', 'partage_avec'
+            'commentaire', 'date_relance', 'partage_avec',
         ]);
 
         $this->secteur = session('selectedSecteur');
@@ -220,12 +251,13 @@ class ClientForm extends Component
         try {
             if ($this->isEditMode && $this->clientId) {
                 $client = Client::find($this->clientId);
-                if (!$client) {
+                if (! $client) {
                     session()->flash('error', 'Client non trouvé.');
+
                     return;
                 }
             } else {
-                $client = new Client();
+                $client = new Client;
                 $client->rentre_le = now();
                 $client->id_doublon = 0;
                 $client->bloque = 0;
@@ -255,7 +287,7 @@ class ClientForm extends Component
             $client->projet = $this->projet ?? '';
             $client->signe = $this->signe ?? '';
             $client->debrief = $this->commentaire ?? '';
-            $client->date_relance = $this->date_relance ? \Carbon\Carbon::parse($this->date_relance) : null;
+            $client->date_relance = $this->date_relance ? Carbon::parse($this->date_relance) : null;
             $client->rentre_par = $this->commercial_id ?? Auth::id();
             $client->partage_avec = $this->partage_avec ?? null;
 
@@ -275,7 +307,7 @@ class ClientForm extends Component
                 ClientHistory::create([
                     'client_id' => $client->id,
                     'commercial_id' => Auth::id(),
-                    'status' => $client->type
+                    'status' => $client->type,
                 ]);
             }
 
@@ -285,16 +317,16 @@ class ClientForm extends Component
             // Dispatch events to update the map
             $this->dispatch('clientSaved', [
                 'client' => $client->toArray(),
-                'isNew' => !$this->isEditMode
+                'isNew' => ! $this->isEditMode,
             ]);
 
             $this->closeClientForm();
 
         } catch (\Exception $e) {
-            Log::error('Error saving client: ' . $e->getMessage(), [
+            Log::error('Error saving client: '.$e->getMessage(), [
                 'clientId' => $this->clientId,
                 'isEditMode' => $this->isEditMode,
-                'exception' => $e
+                'exception' => $e,
             ]);
 
             session()->flash('error', 'Une erreur est survenue lors de la sauvegarde.');
@@ -303,16 +335,18 @@ class ClientForm extends Component
 
     public function deleteClient()
     {
-        if (!$this->isEditMode || !$this->clientId) {
+        if (! $this->isEditMode || ! $this->clientId) {
             session()->flash('error', 'Aucun client à supprimer.');
+
             return;
         }
 
         try {
             $client = Client::find($this->clientId);
 
-            if (!$client) {
+            if (! $client) {
                 session()->flash('error', 'Client non trouvé.');
+
                 return;
             }
 
@@ -324,9 +358,9 @@ class ClientForm extends Component
             $this->closeClientForm();
 
         } catch (\Exception $e) {
-            Log::error('Error deleting client: ' . $e->getMessage(), [
+            Log::error('Error deleting client: '.$e->getMessage(), [
                 'clientId' => $this->clientId,
-                'exception' => $e
+                'exception' => $e,
             ]);
 
             session()->flash('error', 'Une erreur est survenue lors de la suppression.');

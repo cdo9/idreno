@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('objectif_annuel_commercial', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->foreignId('id_user')->constrained('users');      
+            $table->foreignId('id_user')->constrained('users');
             $table->integer('year');
             $table->integer('value');
             $table->integer('secteur');

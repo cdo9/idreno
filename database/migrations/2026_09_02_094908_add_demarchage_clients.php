@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('clients', function (Blueprint $table) {
             $table->boolean('accept_demarchage')->default(false);
-        
+
         });
     }
 

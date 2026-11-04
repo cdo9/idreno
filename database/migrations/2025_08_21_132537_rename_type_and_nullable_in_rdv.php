@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
 
-        Schema::table('rendez_vous', function(Blueprint $table){
+        Schema::table('rendez_vous', function (Blueprint $table) {
             $table->string('type')->nullable()->change();
         });
 
@@ -25,7 +25,7 @@ return new class extends Migration
                 $query->select('id')->from('users');
             })
             ->update(['type' => null]);
-        
+
         Schema::table('rendez_vous', function (Blueprint $table) {
             $table->renameColumn('type', 'partage_avec');
             $table->unsignedBigInteger('partage_avec')->nullable()->change();

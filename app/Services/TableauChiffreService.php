@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
 
 class TableauChiffreService
 {
@@ -12,6 +12,7 @@ class TableauChiffreService
     {
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth()->toDateString();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->toDateString();
+
         return [$startDate, $endDate];
     }
 
@@ -46,6 +47,7 @@ class TableauChiffreService
             $weeks[] = [$start->day, $end->day];
             $current = $end->addDay();
         }
+
         return $weeks;
     }
 
@@ -83,6 +85,7 @@ class TableauChiffreService
 
             $caParSemaine[] = $commune + $normal;
         }
+
         return $caParSemaine;
     }
 
@@ -108,7 +111,7 @@ class TableauChiffreService
             : 0;
 
         $groupe_denominateur = 0;
-        foreach ($groupe->users as $user){
+        foreach ($groupe->users as $user) {
             $groupe_denominateur += $user->denominateurGroupe;
             foreach ($user->ca_par_semaine as $i => $val) {
                 $groupe->somme_ca_par_semaine[$i] += $val;
@@ -120,7 +123,7 @@ class TableauChiffreService
 
     public static function initializeGlobalTotals()
     {
-        return (object)[
+        return (object) [
             'somme_objectif_ca' => 0,
             'somme_objectif_rdv' => 0,
             'somme_ca_realise' => 0,
@@ -137,7 +140,7 @@ class TableauChiffreService
             'somme_deperdition' => null,
             'somme_rdv48h' => 0,
             'somme_marge' => 0,
-            'denominateur' => 0
+            'denominateur' => 0,
         ];
     }
 
@@ -153,7 +156,6 @@ class TableauChiffreService
             TableauChiffreService::updateGlobalTotals($global, $groupe, $globalSecteur);
             $groupesAvecUsers->push($groupe);
         }
-        
 
         return $groupesAvecUsers;
     }
@@ -168,43 +170,43 @@ class TableauChiffreService
     public static function buildUsersQuery($groupe, $startDate, $endDate, $user, $isAdmin, $isDirecteur, $isTelepro)
     {
         $usersQuery = User::select('users.id', 'users.name', 'users.nom', 'users.prenom', 'users.objectif_ca',
-            'obj.ca as obj_objectif_ca', 'users.objectif_rdv', 'type', 'directeur', 'groupe', 'telepro', 'prospecteur', 
+            'obj.ca as obj_objectif_ca', 'users.objectif_rdv', 'type', 'directeur', 'groupe', 'telepro', 'prospecteur',
             'junior', 'role', 'contrat', 'users.active', 'nouveau_vendeur', 'date_entree')
-            ->leftJoin('objectifs as obj', function($join) use($startDate){
+            ->leftJoin('objectifs as obj', function ($join) use ($startDate) {
                 $join->on('obj.id_commercial', '=', 'users.id')
-                ->where('obj.date', '=', $startDate);
+                    ->where('obj.date', '=', $startDate);
             })
             ->where('groupe', $groupe->id)
             /*->whereDate('date_entree', '<=', $endDate)
             ->where(function ($q) use ($startDate) {
                 $q->whereNull('delete')->orWhereDate('delete', '>=', $startDate);
             })*/
-            ->where(function($query) use ($startDate, $endDate, $groupe) {
+            ->where(function ($query) use ($startDate, $endDate, $groupe) {
                 $query->where('users.active', '1')
-                ->orWhere(function($q) use ($startDate, $endDate, $groupe) {
-                    $q->whereIn('users.id', function($subquery) use ($startDate, $endDate, $groupe) {
-                        $subquery->select(DB::raw('DISTINCT id_commercial'))
-                            ->from('ventes')
-                            ->whereBetween('date', [
-                                $startDate,
-                                $endDate
-                            ])
-                            ->where('secteur', $groupe->secteur);
-                    })
-                    ->where('users.active', '0');
-                });
+                    ->orWhere(function ($q) use ($startDate, $endDate, $groupe) {
+                        $q->whereIn('users.id', function ($subquery) use ($startDate, $endDate, $groupe) {
+                            $subquery->select(DB::raw('DISTINCT id_commercial'))
+                                ->from('ventes')
+                                ->whereBetween('date', [
+                                    $startDate,
+                                    $endDate,
+                                ])
+                                ->where('secteur', $groupe->secteur);
+                        })
+                            ->where('users.active', '0');
+                    });
             })
-            ->join('secteur_commercials as secteur', function($join) use($groupe){
+            ->join('secteur_commercials as secteur', function ($join) use ($groupe) {
                 $join->on('secteur.id_commercial', '=', 'users.id')
-                ->where('secteur.id_secteur', '=', $groupe->secteur);
+                    ->where('secteur.id_secteur', '=', $groupe->secteur);
             })
-            ->whereNotIn('role',['admin','administratif'])
+            ->whereNotIn('role', ['admin', 'administratif'])
             ->orderByDesc('active')
             ->orderByRaw('ISNULL(date_entree) ASC')
             ->orderBy('date_entree')
             ->orderBy('nom');
 
-        if (!$isAdmin && !$isDirecteur) {
+        if (! $isAdmin && ! $isDirecteur) {
             if ($groupe->id !== null) {
                 $usersQuery->where('groupe', $groupe->id);
             } else {
@@ -232,7 +234,7 @@ class TableauChiffreService
     public static function calculateGroupeData($groupe, $year, $month)
     {
         foreach ($groupe->users as $index => $user) {
-            
+
             TableauChiffreService::calculateUserData($user, $groupe, $year, $month);
             /*if($user->nb_ventes == 0)
                 unset($groupe->users[$index]);*/
@@ -265,16 +267,16 @@ class TableauChiffreService
         $count_ventes = TableauChiffreService::calculerPaniermoyen($user->id, $startDate, $endDate);
         $user->denominateur = 0;
         $user->denominateurGroupe = 0;
-        foreach($count_ventes as $vente){
-            if($vente->type_vente == "Commune"){
+        foreach ($count_ventes as $vente) {
+            if ($vente->type_vente == 'Commune') {
                 $user->denominateur += $vente->total;
                 $user->denominateurGroupe += $vente->total / 2;
-            }else{
+            } else {
                 $user->denominateur += $vente->total;
                 $user->denominateurGroupe += $vente->total;
             }
         }
-        
+
         $user->panier_moyen = $user->denominateur > 0 ? $user->ca_realise / $user->denominateur : 0;
 
         $rdv48h = TableauChiffreService::rdv48hDernieres($user->id, $startDate, $endDate);
@@ -303,7 +305,7 @@ class TableauChiffreService
             ->join('projets as p', 'p.id_client', '=', 'c.id')
             ->where(function ($query) use ($userId) {
                 $query->where('c.rentre_par', $userId)
-                 ->orWhere('c.partage_avec', $userId);
+                    ->orWhere('c.partage_avec', $userId);
             })
             ->where('p.rdv_annule', 0)
             ->whereBetween('p.date_confirmation', [$startDate, $endDate])
@@ -316,11 +318,11 @@ class TableauChiffreService
     public static function rdv48hDernieres($userId, $startDate, $endDate)
     {
         $results = DB::table('clients as c')
-        ->leftJoin('projets as p', 'c.id', '=', 'p.id_client')
-        ->select(
-            DB::raw("DATE_FORMAT(p.date_confirmation, '%Y-%u') as annee_semaine"),
-            DB::raw('COUNT(p.id) as cpt'),
-            DB::raw("
+            ->leftJoin('projets as p', 'c.id', '=', 'p.id_client')
+            ->select(
+                DB::raw("DATE_FORMAT(p.date_confirmation, '%Y-%u') as annee_semaine"),
+                DB::raw('COUNT(p.id) as cpt'),
+                DB::raw('
                 SUM(
                     CASE 
                         WHEN p.date IS NOT NULL 
@@ -334,20 +336,21 @@ class TableauChiffreService
                         THEN 1 ELSE 0 
                     END
                 ) as rdv48h
-            ")
-        )
-        ->where('c.rentre_par', $userId)
-        ->where('p.rdv_annule', 0)
-        ->whereBetween('p.date_confirmation', [$startDate, $endDate])
-        ->groupBy('annee_semaine')
-        ->orderBy('annee_semaine')
-        ->get();
+            ')
+            )
+            ->where('c.rentre_par', $userId)
+            ->where('p.rdv_annule', 0)
+            ->whereBetween('p.date_confirmation', [$startDate, $endDate])
+            ->groupBy('annee_semaine')
+            ->orderBy('annee_semaine')
+            ->get();
 
         $last48h = 0;
 
-        foreach($results as $data){
+        foreach ($results as $data) {
             $last48h += $data->rdv48h;
         }
+
         return $last48h;
 
     }
@@ -357,6 +360,7 @@ class TableauChiffreService
         $dateEntree = Carbon::parse($dateEntree)->startOfDay();
         $debut = now()->startOfDay()->subMonths(3);
         $fin = now()->startOfDay()->subMonths(3)->addDays(21);
+
         return $dateEntree->between($debut, $fin);
     }
 
@@ -385,7 +389,7 @@ class TableauChiffreService
         $cpt = $result->cpt ?? 0;
         $vente = $result->vente ?? 0;
 
-        $taux =  $cpt > 0 ? round(($vente / $cpt) * 100) : null;
+        $taux = $cpt > 0 ? round(($vente / $cpt) * 100) : null;
 
         return [
             'cpt' => $cpt,
@@ -397,34 +401,33 @@ class TableauChiffreService
     public static function deperditionRDV($userId, $startDate, $endDate)
     {
         $result = DB::table('clients as c')
-        ->leftJoin('projets as p', 'p.id_client', '=', 'c.id')
-        ->select(
-            DB::raw('COALESCE(SUM(p.rdv_annule), 0) as cpt'),
-            DB::raw('COALESCE(SUM(p.rdv_confirme), 0) as rdv')
-        )
-        ->where('c.rentre_par', $userId)
-        ->where(function($query) use ($startDate, $endDate) {
-            $query
-                ->where(function($q) use ($startDate, $endDate) {
-                    $q->where('p.rdv_confirme', 0)
-                    ->whereBetween('p.date_ajout', [$startDate, $endDate]);
-                })
-                ->orWhere(function($q) use ($startDate, $endDate) {
-                    $q->where('p.rdv_confirme', 1)
-                    ->where(function($q2) use($startDate, $endDate) {
-                        $q2
-                            ->whereRaw('DATEDIFF(p.date, p.date_ajout) <= 2')
-                            ->whereBetween('p.date_ajout', [$startDate, $endDate])
-                        ->orWhere(function($q3) use($startDate, $endDate) {
-                            $q3
-                                ->whereRaw('DATEDIFF(p.date, p.date_ajout) > 2')
-                                ->whereBetween('p.date_confirmation', [$startDate, $endDate]);
-                        });
+            ->leftJoin('projets as p', 'p.id_client', '=', 'c.id')
+            ->select(
+                DB::raw('COALESCE(SUM(p.rdv_annule), 0) as cpt'),
+                DB::raw('COALESCE(SUM(p.rdv_confirme), 0) as rdv')
+            )
+            ->where('c.rentre_par', $userId)
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query
+                    ->where(function ($q) use ($startDate, $endDate) {
+                        $q->where('p.rdv_confirme', 0)
+                            ->whereBetween('p.date_ajout', [$startDate, $endDate]);
+                    })
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('p.rdv_confirme', 1)
+                            ->where(function ($q2) use ($startDate, $endDate) {
+                                $q2
+                                    ->whereRaw('DATEDIFF(p.date, p.date_ajout) <= 2')
+                                    ->whereBetween('p.date_ajout', [$startDate, $endDate])
+                                    ->orWhere(function ($q3) use ($startDate, $endDate) {
+                                        $q3
+                                            ->whereRaw('DATEDIFF(p.date, p.date_ajout) > 2')
+                                            ->whereBetween('p.date_confirmation', [$startDate, $endDate]);
+                                    });
+                            });
                     });
-                });
-        })
-        ->first();
-
+            })
+            ->first();
 
         $cpt = $result->cpt ?? 0;
         $vente = $result->rdv ?? 0;
@@ -442,43 +445,45 @@ class TableauChiffreService
             ->count();
     }
 
-     public static function calculerDeperdition($userId, $startDate, $endDate)
+    public static function calculerDeperdition($userId, $startDate, $endDate)
     {
         $result = DB::table('clients as c')
             ->leftJoin('projets as p', 'p.id_client', '=', 'c.id')
             ->select([
                 DB::raw('COALESCE(SUM(p.rdv_annule), 0) as cpt'),
-                DB::raw('COALESCE(SUM(p.rdv_confirme), 0) as rdv')
+                DB::raw('COALESCE(SUM(p.rdv_confirme), 0) as rdv'),
             ])
             ->where('c.rentre_par', $userId)
-            ->where(function($query) use($startDate, $endDate){
-                $query->where(function($subQuery) use($startDate, $endDate){
+            ->where(function ($query) use ($startDate, $endDate) {
+                $query->where(function ($subQuery) use ($startDate, $endDate) {
                     // Cas 1: rdv_confirme = 0 AND date_ajout between dates
                     $subQuery->where('p.rdv_confirme', 0)
                         ->whereBetween('p.date_ajout', [$startDate, $endDate]);
                 })
-                ->orWhere(function($subQuery) use($startDate, $endDate){
-                    // Cas 2: rdv_confirme = 1 avec deux sous-conditions
-                    $subQuery->where('p.rdv_confirme', 1)
-                        ->where(function($innerQuery) use($startDate, $endDate){
-                            $innerQuery->where(function($condition1) use($startDate, $endDate){
-                                // Condition 1: datediff <= 2 AND date_ajout between dates
-                                $condition1->whereRaw('DATEDIFF(p.date, p.date_ajout) <= 2')
-                                    ->whereBetween('p.date_ajout', [$startDate, $endDate]);
-                            })
-                            ->orWhere(function($condition2) use($startDate, $endDate){
-                                // Condition 2: datediff > 2 AND date_confirmation between dates
-                                $condition2->whereRaw('DATEDIFF(p.date, p.date_ajout) > 2')
-                                    ->whereBetween('p.date_confirmation', [$startDate, $endDate]);
+                    ->orWhere(function ($subQuery) use ($startDate, $endDate) {
+                        // Cas 2: rdv_confirme = 1 avec deux sous-conditions
+                        $subQuery->where('p.rdv_confirme', 1)
+                            ->where(function ($innerQuery) use ($startDate, $endDate) {
+                                $innerQuery->where(function ($condition1) use ($startDate, $endDate) {
+                                    // Condition 1: datediff <= 2 AND date_ajout between dates
+                                    $condition1->whereRaw('DATEDIFF(p.date, p.date_ajout) <= 2')
+                                        ->whereBetween('p.date_ajout', [$startDate, $endDate]);
+                                })
+                                    ->orWhere(function ($condition2) use ($startDate, $endDate) {
+                                        // Condition 2: datediff > 2 AND date_confirmation between dates
+                                        $condition2->whereRaw('DATEDIFF(p.date, p.date_ajout) > 2')
+                                            ->whereBetween('p.date_confirmation', [$startDate, $endDate]);
+                                    });
                             });
-                        });
-                });
+                    });
             })
             ->first();
+
         return $result;
     }
 
-    public static function calcMarge($userId, $startDate, $endDate) {
+    public static function calcMarge($userId, $startDate, $endDate)
+    {
         $result = DB::table('ventes')
             ->where('id_commercial', $userId)
             ->whereIn('type_vente', ['Commune', 'Normale'])
@@ -519,11 +524,10 @@ class TableauChiffreService
         $global->denominateur += $groupe->denominateur;
         $global->somme_panier_moyen = ($global->denominateur > 0) ? $global->somme_ca_realise / $global->denominateur : 0;
 
-        foreach($groupe->somme_ca_par_semaine as $i => $val){
+        foreach ($groupe->somme_ca_par_semaine as $i => $val) {
             $global->somme_ca_par_semaine[$i] += $val;
         }
 
-        
         $globalSecteur[$groupe->id_secteur]->somme_objectif_ca += $groupe->somme_objectif_ca;
         $globalSecteur[$groupe->id_secteur]->somme_objectif_rdv += $groupe->somme_objectif_rdv;
         $globalSecteur[$groupe->id_secteur]->somme_ca_realise += $groupe->somme_ca_realise;
@@ -537,11 +541,11 @@ class TableauChiffreService
         $globalSecteur[$groupe->id_secteur]->somme_rdv48h += $groupe->somme_rdv48h;
         $globalSecteur[$groupe->id_secteur]->somme_marge += $groupe->somme_marge;
         $globalSecteur[$groupe->id_secteur]->denominateur += $groupe->denominateur;
-        $globalSecteur[$groupe->id_secteur]->somme_panier_moyen = ($globalSecteur[$groupe->id_secteur]->denominateur > 0 ) ? $globalSecteur[$groupe->id_secteur]->somme_ca_realise / $globalSecteur[$groupe->id_secteur]->denominateur : 0;
-        foreach($groupe->somme_ca_par_semaine as $i => $val){
+        $globalSecteur[$groupe->id_secteur]->somme_panier_moyen = ($globalSecteur[$groupe->id_secteur]->denominateur > 0) ? $globalSecteur[$groupe->id_secteur]->somme_ca_realise / $globalSecteur[$groupe->id_secteur]->denominateur : 0;
+        foreach ($groupe->somme_ca_par_semaine as $i => $val) {
             $globalSecteur[$groupe->id_secteur]->somme_ca_par_semaine[$i] += $val;
         }
-        
+
     }
 
     public static function finalizeGlobalTotals($global, $globalSecteur)
@@ -558,7 +562,7 @@ class TableauChiffreService
             ? round(($global->somme_rdv48h / $global->somme_rdv_effectues) * 100, 2)
             : 0;
 
-        foreach($globalSecteur as $secteur){
+        foreach ($globalSecteur as $secteur) {
             $secteur->somme_transformation = $secteur->count_rdv > 0
                 ? round(($secteur->somme_ventes / $secteur->count_rdv) * 100)
                 : null;
@@ -572,5 +576,4 @@ class TableauChiffreService
                 : 0;
         }
     }
-
 }

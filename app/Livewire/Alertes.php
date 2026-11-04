@@ -3,15 +3,18 @@
 namespace App\Livewire;
 
 use App\Models\Alert;
+use App\Services\CommerciauxService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use App\Services\CommerciauxService;
 
 class Alertes extends Component
 {
     public $alerts = [];
+
     public $vendeurs = [];
+
     public $date;
+
     public $vendeur;
 
     public function mount()
@@ -21,10 +24,8 @@ class Alertes extends Component
             abort(403, 'Accès non autorisé.');
         }
 
-        $this->date = "";
+        $this->date = '';
         $this->vendeurs = CommerciauxService::getCommerciauxListBySector();
-
-
 
         $this->loadAlerts();
     }
@@ -44,16 +45,17 @@ class Alertes extends Component
         $this->loadAlerts();
     }
 
-    private function getAlertRequest($takeParamIntoAccount = true){
+    private function getAlertRequest($takeParamIntoAccount = true)
+    {
         $query = Alert::with('idCommercial')
             ->whereNull('deleted_at')
             ->orderBy('created_at', 'desc');
 
-        if (!empty($this->vendeur) && $takeParamIntoAccount) {
+        if (! empty($this->vendeur) && $takeParamIntoAccount) {
             $query->where('id_commercial', $this->vendeur);
         }
 
-        if (!empty($this->date) && $takeParamIntoAccount) {
+        if (! empty($this->date) && $takeParamIntoAccount) {
             $query->whereDate('created_at', $this->date);
         }
 
@@ -82,21 +84,25 @@ class Alertes extends Component
         }
     }
 
-    private function genericDeleteFunction($deleteAll = false){
-        if($deleteAll)
+    private function genericDeleteFunction($deleteAll = false)
+    {
+        if ($deleteAll) {
             $query = $this->getAlertRequest(false);
-        else
+        } else {
             $query = $this->getAlertRequest();
+        }
         $query->delete();
 
         $this->loadAlerts();
     }
 
-    public function deleteDisplayedAlerts(){
+    public function deleteDisplayedAlerts()
+    {
         $this->genericDeleteFunction();
     }
 
-    public function deleteAllAlerts(){
+    public function deleteAllAlerts()
+    {
         $this->genericDeleteFunction(true);
     }
 

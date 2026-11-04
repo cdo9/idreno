@@ -6,8 +6,6 @@ class AttenteService
 {
     /**
      * Get a list of waiting statuses
-     *
-     * @return array
      */
     public static function getList(): array
     {
@@ -17,7 +15,7 @@ class AttenteService
             'Acompte',
             'Commande',
             'Pose',
-            'Autre'
+            'Autre',
         ];
     }
 }

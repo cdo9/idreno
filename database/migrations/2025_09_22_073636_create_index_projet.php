@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projets', function (Blueprint $table) {
-            $table->index(['rdv_confirme','rdv_annule','date'], 'rdv_conf_annule_date');
+            $table->index(['rdv_confirme', 'rdv_annule', 'date'], 'rdv_conf_annule_date');
         });
     }
 

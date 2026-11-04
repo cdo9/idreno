@@ -7,15 +7,13 @@ use App\Models\RendezVous;
 use App\Models\Vente;
 use App\Services\ProjectService;
 use App\Services\SourceService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ArgumentationController extends Controller
 {
-    public function index()
-    {
-
-    }
+    public function index() {}
 
     public function create()
     {
@@ -54,8 +52,7 @@ class ArgumentationController extends Controller
     /**
      * Store a newly created argumentation in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -95,7 +92,7 @@ class ArgumentationController extends Controller
         ]);
 
         // Mise à jour de l'email du client si fourni
-        if (!empty($validated['email'])) {
+        if (! empty($validated['email'])) {
             $client = Client::find($validated['id_client']);
             if ($client) {
                 $client->mail = $validated['email'];
@@ -109,7 +106,7 @@ class ArgumentationController extends Controller
         if ($mode == 'modification') {
             $rdv = RendezVous::find($request->input('id_rdv'));
         } else {
-            $rdv = new RendezVous();
+            $rdv = new RendezVous;
         }
 
         $rdv->id_commercial = $validated['id_commercial'];
@@ -146,7 +143,7 @@ class ArgumentationController extends Controller
             if (count($ventes) > 0) {
                 $vente = $ventes[0];
             } else {
-                $vente = new Vente();
+                $vente = new Vente;
                 $vente->id_rdv = $rdv->id;
             }
 
@@ -187,7 +184,7 @@ class ArgumentationController extends Controller
                 if (count($ventes) > 1) {
                     $vente2 = $ventes[1];
                 } else {
-                    $vente2 = new Vente();
+                    $vente2 = new Vente;
                     $vente2->id_rdv = $rdv->id;
                 }
 
@@ -221,7 +218,7 @@ class ArgumentationController extends Controller
                 if (count($ventes) > 2) {
                     $vente3 = $ventes[2];
                 } else {
-                    $vente3 = new Vente();
+                    $vente3 = new Vente;
                     $vente3->id_rdv = $rdv->id;
                 }
 

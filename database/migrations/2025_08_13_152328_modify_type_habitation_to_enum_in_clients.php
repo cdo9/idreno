@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::table('clients', function (Blueprint $table) {
             // Modifier le champ type_habitation en enum avec les nouvelles valeurs
             $table->enum('type_habitation', ['', 'Maison Individuelle', 'Appartement'])
-                  ->nullable()
-                  ->change();
+                ->nullable()
+                ->change();
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Livewire\VentesCommissions;
 
 use App\Models\User;
 use App\Models\Vente;
+use App\Services\CommissionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -13,21 +14,30 @@ class Commissions extends Component
 {
     // Filter properties inherited from previous page
     public $mois = '';
+
     public $annee = '';
+
     public $commercial = '';
 
     // Data for dropdowns
     public $commercials = [];
+
     public $annees = [];
+
     public $mois_options = [];
+
     public $userId;
+
     public $isDirecteur = false;
+
     public $isAdmin = false;
 
     // Commission data
     public $commissionData = [];
+
     public $totalCommission = 0;
-	public $PrimeCommission = 0;
+
+    public $PrimeCommission = 0;
 
     public function mount($commercial = null, $mois = null, $annee = null)
     {
@@ -56,10 +66,9 @@ class Commissions extends Component
         // $this->loadCommissionData();
     }
 
-
     public function getCommercialNom($user)
     {
-        return $user['prenom'] . ' ' . $user['nom'];
+        return $user['prenom'].' '.$user['nom'];
     }
 
     public function loadCommissionData()
@@ -77,7 +86,7 @@ class Commissions extends Component
                         ->orWhere('id_commercial_3', $this->commercial->id);
                 });
             }
-            $targetDate = Carbon::now()->year((int)$this->annee)->month((int)$this->mois);
+            $targetDate = Carbon::now()->year((int) $this->annee)->month((int) $this->mois);
 
             // Get sales data
             $ventes = Vente::with(['rendez_vous', 'client'])
@@ -113,7 +122,7 @@ class Commissions extends Component
                 if ($commercialId) {
                     $commercial = User::find($commercialId);
                     if ($commercial) {
-                        $commercialName = $commercial->prenom . ' ' . $commercial->nom;
+                        $commercialName = $commercial->prenom.' '.$commercial->nom;
                     }
                 }
 
@@ -127,36 +136,36 @@ class Commissions extends Component
                 $this->commissionData[] = [
                     'numero' => $counter++,
                     'date' => Carbon::parse($vente->date)->format('d/m/Y'),
-                    'client' => $vente->client ? ($vente->client->prenom . ' ' . $vente->client->nom) : 'N/A',
+                    'client' => $vente->client ? ($vente->client->prenom.' '.$vente->client->nom) : 'N/A',
                     'vrp' => $commercialName ?: 'N/A',
                     'prix_tarif' => $vente->tarif_ht,
                     'taux_remise' => $vente->tarif_ht > 0 ? (($vente->tarif_ht - $vente->ca_ht) / $vente->tarif_ht) * 100 : 0,
                     'ca_ht' => $vente->ca_ht,
                     'marge' => $marge,
                     'commission_taux' => $commissionDetails['taux'],
-                    'commission_montant' => $commission
+                    'commission_montant' => $commission,
                 ];
 
-				$this->totalCA += (str_contains('directeur',$commercial->contrat) ? $vente->ca_ht - $marge : $vente->ca_ht);
+                $this->totalCA += (str_contains('directeur', $commercial->contrat) ? $vente->ca_ht - $marge : $vente->ca_ht);
                 $this->totalCommission += $commission;
             }
-			
-			dd($this->commissionData);
-            if(str_contains('directeur',$commercial->contrat)){
-				$ventes = Vente::with(['rendez_vous', 'client'])
-                ->where('date', $targetDate)
-                ->where('date', $targetDate)
-                ->where('statut', '!=', 3)
-                ->where('id_commercial', $this->commercial->id)
-                ->orWhere('id_commercial_2', $this->commercial->id)
-                ->orWhere('id_commercial_3', $this->commercial->id)
-                ->orderBy('date', 'desc')->get();
-				
-				$this->PrimeCommission = ($this->totalCommission > 20000 ? $this->totalCA * 0.02 : 0);
-			}
+
+            dd($this->commissionData);
+            if (str_contains('directeur', $commercial->contrat)) {
+                $ventes = Vente::with(['rendez_vous', 'client'])
+                    ->where('date', $targetDate)
+                    ->where('date', $targetDate)
+                    ->where('statut', '!=', 3)
+                    ->where('id_commercial', $this->commercial->id)
+                    ->orWhere('id_commercial_2', $this->commercial->id)
+                    ->orWhere('id_commercial_3', $this->commercial->id)
+                    ->orderBy('date', 'desc')->get();
+
+                $this->PrimeCommission = ($this->totalCommission > 20000 ? $this->totalCA * 0.02 : 0);
+            }
 
         } catch (\Exception $e) {
-            \Log::error('Error loading commission.blade.php data: ' . $e->getMessage());
+            \Log::error('Error loading commission.blade.php data: '.$e->getMessage());
             $this->commissionData = [];
             $this->totalCommission = 0;
         }
@@ -165,12 +174,12 @@ class Commissions extends Component
     private function getDetailedCommissionInfo($vente, $commercialId)
     {
         try {
-            if (!$commercialId) {
+            if (! $commercialId) {
                 return ['taux' => 0, 'montant' => 0];
             }
 
             $commercial = User::find($commercialId);
-            if (!$commercial) {
+            if (! $commercial) {
                 return ['taux' => 0, 'montant' => 0];
             }
 
@@ -181,18 +190,19 @@ class Commissions extends Component
             $prix_vente_mensuel = $vente->ca_ht;
             $prix_tarif_mensuel = $vente->tarif_ht;
 
-            [$tauxStandard, $tauxRAI] = \App\Services\CommissionService::calculTauxCommissionMensuel(
+            [$tauxStandard, $tauxRAI] = CommissionService::calculTauxCommissionMensuel(
                 $contrat,
                 $prix_vente_mensuel,
                 $prix_tarif_mensuel
             );
 
-            $taux = \App\Services\CommissionService::isVenteRAI($produitsStr) ? $tauxRAI : $tauxStandard;
+            $taux = CommissionService::isVenteRAI($produitsStr) ? $tauxRAI : $tauxStandard;
 
             return ['taux' => $taux, 'montant' => 0]; // montant will be calculated separately
 
         } catch (\Exception $e) {
-            \Log::error('Error getting commission.blade.php info: ' . $e->getMessage());
+            \Log::error('Error getting commission.blade.php info: '.$e->getMessage());
+
             return ['taux' => 0, 'montant' => 0];
         }
     }
@@ -201,7 +211,7 @@ class Commissions extends Component
     {
         try {
             $commercial = User::find($commercialId);
-            if (!$commercial) {
+            if (! $commercial) {
                 return 0;
             }
 
@@ -212,32 +222,33 @@ class Commissions extends Component
             $prix_vente_mensuel = $vente->ca_ht;
             $prix_tarif_mensuel = $vente->tarif_ht;
 
-            [$tauxStandard, $tauxRAI] = \App\Services\CommissionService::calculTauxCommissionMensuel(
+            [$tauxStandard, $tauxRAI] = CommissionService::calculTauxCommissionMensuel(
                 $contrat,
                 $prix_vente_mensuel,
                 $prix_tarif_mensuel
             );
 
-            $taux = \App\Services\CommissionService::isVenteRAI($produitsStr) ? $tauxRAI : $tauxStandard;
+            $taux = CommissionService::isVenteRAI($produitsStr) ? $tauxRAI : $tauxStandard;
 
-            $montant = \App\Services\CommissionService::calculMontantCommission(
+            $montant = CommissionService::calculMontantCommission(
                 $contrat,
                 $vente->ca_ht,
                 $vente->ca_total_ht,
                 $vente->client->id_source ?? '',
                 $taux,
-				$vente->marge
+                $vente->marge
             );
 
             // Check if commission.blade.php should be masked for this user
-            if (\App\Services\CommissionService::shouldMaskCommission(auth()->user(), $commercialId, 'montant')) {
+            if (CommissionService::shouldMaskCommission(auth()->user(), $commercialId, 'montant')) {
                 return 0;
             }
 
             return $montant;
 
         } catch (\Exception $e) {
-            \Log::error('Error calculating commission.blade.php: ' . $e->getMessage());
+            \Log::error('Error calculating commission.blade.php: '.$e->getMessage());
+
             return 0;
         }
     }
@@ -247,7 +258,7 @@ class Commissions extends Component
         return redirect()->route('ventes', [
             'commercial' => $this->commercial,
             'mois' => $this->mois,
-            'annee' => $this->annee
+            'annee' => $this->annee,
         ]);
     }
 

@@ -2,13 +2,15 @@
 
 namespace App\Livewire\Auth;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Login extends Component
 {
     public string $email = '';
+
     public string $password = '';
+
     public bool $remember = false;
 
     public function authenticate()
@@ -21,7 +23,7 @@ class Login extends Component
         $credentials = [
             'email' => $this->email,
             'password' => $this->password,
-            'active' => 1
+            'active' => 1,
         ];
 
         if (Auth::attempt($credentials, $this->remember)) {

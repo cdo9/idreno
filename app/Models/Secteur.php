@@ -29,7 +29,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property Collection|SecteurCommercial[] $secteur_commercials
  * @property Collection|Tracking[] $trackings
  * @property Collection|Vente[] $ventes
- * @package App\Models
  * @property int $activated
  * @property string|null $coords
  * @property-read int|null $clients_count
@@ -46,6 +45,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $secteur_commercials_count
  * @property-read int|null $trackings_count
  * @property-read int|null $ventes_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur query()
@@ -54,90 +54,92 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereCouleur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Secteur whereNom($value)
+ *
  * @mixin \Eloquent
  */
 class Secteur extends Model
 {
-	protected $table = 'secteurs';
-	public $timestamps = false;
+    protected $table = 'secteurs';
 
-	protected $fillable = [
-		'nom',
-		'couleur',
-        'coords'
-	];
+    public $timestamps = false;
 
-	public function clients()
-	{
-		return $this->hasMany(Client::class, 'secteur');
-	}
+    protected $fillable = [
+        'nom',
+        'couleur',
+        'coords',
+    ];
 
-	public function evaluations()
-	{
-		return $this->hasMany(Evaluation::class, 'secteur');
-	}
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'secteur');
+    }
 
-	public function groupes()
-	{
-		return $this->hasMany(Groupe::class, 'secteur');
-	}
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class, 'secteur');
+    }
 
-	public function objectif_annuel_commercials()
-	{
-		return $this->hasMany(ObjectifAnnuelCommercial::class, 'secteur');
-	}
+    public function groupes()
+    {
+        return $this->hasMany(Groupe::class, 'secteur');
+    }
 
-	public function objectifs()
-	{
-		return $this->hasMany(Objectif::class, 'secteur');
-	}
+    public function objectif_annuel_commercials()
+    {
+        return $this->hasMany(ObjectifAnnuelCommercial::class, 'secteur');
+    }
 
-	public function parc_autos()
-	{
-		return $this->hasMany(ParcAuto::class, 'secteur');
-	}
+    public function objectifs()
+    {
+        return $this->hasMany(Objectif::class, 'secteur');
+    }
 
-	public function poses()
-	{
-		return $this->hasMany(Pose::class, 'secteur');
-	}
+    public function parc_autos()
+    {
+        return $this->hasMany(ParcAuto::class, 'secteur');
+    }
 
-	public function projets()
-	{
-		return $this->hasMany(Projet::class, 'secteur');
-	}
+    public function poses()
+    {
+        return $this->hasMany(Pose::class, 'secteur');
+    }
 
-	public function prospection_communes()
-	{
-		return $this->hasMany(ProspectionCommune::class, 'secteur');
-	}
+    public function projets()
+    {
+        return $this->hasMany(Projet::class, 'secteur');
+    }
 
-	public function prospections()
-	{
-		return $this->hasMany(Prospection::class, 'secteur');
-	}
+    public function prospection_communes()
+    {
+        return $this->hasMany(ProspectionCommune::class, 'secteur');
+    }
 
-	public function rendez_vous()
-	{
-		return $this->hasMany(RendezVous::class, 'secteur');
-	}
+    public function prospections()
+    {
+        return $this->hasMany(Prospection::class, 'secteur');
+    }
 
-	public function secteur_commercials()
-	{
-		return $this->hasMany(SecteurCommercial::class, 'id_secteur');
-	}
+    public function rendez_vous()
+    {
+        return $this->hasMany(RendezVous::class, 'secteur');
+    }
 
-	public function trackings()
-	{
-		return $this->hasMany(Tracking::class, 'secteur');
-	}
+    public function secteur_commercials()
+    {
+        return $this->hasMany(SecteurCommercial::class, 'id_secteur');
+    }
 
-	public function ventes()
-	{
-		return $this->hasMany(Vente::class, 'secteur');
-	}
-	
-	// Récupérer le polygone sous forme de tableau de points [lat, lng]
+    public function trackings()
+    {
+        return $this->hasMany(Tracking::class, 'secteur');
+    }
+
+    public function ventes()
+    {
+        return $this->hasMany(Vente::class, 'secteur');
+    }
+
+    // Récupérer le polygone sous forme de tableau de points [lat, lng]
     public function getPolygonCoords()
     {
         if (empty($this->coords)) {
@@ -150,8 +152,8 @@ class Secteur extends Model
         // Ici on suppose que tu stockes : POLYGON((lng lat, lng lat))
         if (str_starts_with($coords, 'POLYGON') || str_starts_with($coords, 'POLYL')) {
             // On enlève POLYGON(( et ) et on découpe par virgules
-            $points = trim($coords, "POLYGON() ");
-            $pairs  = preg_split('/,\s*/', $points);
+            $points = trim($coords, 'POLYGON() ');
+            $pairs = preg_split('/,\s*/', $points);
 
             return collect($pairs)->map(function ($pair) {
                 $xy = preg_split('/\s+/', trim($pair));
@@ -162,6 +164,7 @@ class Secteur extends Model
                         'lng' => (float) $xy[0],
                     ];
                 }
+
                 return null;
             })->filter()->values()->all();
         }
@@ -193,7 +196,7 @@ class Secteur extends Model
                 ($lng < ($xj - $xi) * ($lat - $yi) / max($yj - $yi, 1e-9) + $xi);
 
             if ($intersect) {
-                $inside = !$inside;
+                $inside = ! $inside;
             }
             $j = $i;
         }

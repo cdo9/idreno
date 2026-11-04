@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('relance')->default(false)->after('date_relance');
         });
     }
-    
+
     public function down()
     {
         Schema::table('clients', function (Blueprint $table) {

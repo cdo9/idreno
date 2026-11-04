@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('objectifs', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->foreignId('id_commercial')->constrained('users');      
+            $table->foreignId('id_commercial')->constrained('users');
             $table->date('date');
             $table->integer('ca');
             $table->integer('rdv');

@@ -2,30 +2,41 @@
 
 namespace App\Livewire\TableauChiffre;
 
+use App\Models\Secteur;
+use App\Services\TableauChiffreService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use App\Models\Secteur;
-use App\Services\TableauChiffreService;
 
 class TableauChiffres extends Component
 {
     public $month;
+
     public $year;
+
     public $groupes = [];
+
     public $isDirecteur = false;
+
     public $isTelepro = false;
+
     public $isAdmin = false;
+
     public $sortColumn = 'nom';
+
     public $sortDirection = 'asc';
+
     public $ventes = [];
+
     public $projets = [];
+
     public $rdvs = [];
+
     public $totauxGlobaux;
+
     public $totauxSecteur;
 
-    
     protected $listeners = ['filters-updated' => 'applyFilters'];
 
     public function mount($year = null, $month = null)
@@ -36,21 +47,24 @@ class TableauChiffres extends Component
         $this->loadGroupes();
     }
 
-    private function initializeUserData(){
+    private function initializeUserData()
+    {
         $userData = TableauChiffres::getInitializedUserData();
         $this->isAdmin = $userData->isAdmin;
         $this->isDirecteur = $userData->isDirecteur;
         $this->isTelepro = $userData->isTelepro;
     }
 
-    public static function getInitializedUserData(){
+    public static function getInitializedUserData()
+    {
         $user = Auth::user();
-        $result = (object)[
+        $result = (object) [
             'isDirecteur' => $user->hasRole('directeur'),
             'isTelepro' => $user->hasRole('telepro'),
-            'isAdmin' => $user->hasRole('admin')
+            'isAdmin' => $user->hasRole('admin'),
 
         ];
+
         return $result;
     }
 
@@ -96,12 +110,9 @@ class TableauChiffres extends Component
             ->first();
 
         return $nbRdv48H?->total ?? 0;
-    }   
-
+    }
 
     // === MÉTHODES UTILITAIRES ===
-
-    
 
     // === MÉTHODES DE CHARGEMENT PRINCIPALES ===
 
@@ -113,16 +124,17 @@ class TableauChiffres extends Component
         $global = TableauChiffreService::initializeGlobalTotals();
         $globalSecteur = [];
         $secteurs = Secteur::get();
-        foreach($secteurs as $secteur){
+        foreach ($secteurs as $secteur) {
             $globalSecteur[$secteur->id] = TableauChiffreService::initializeGlobalTotals();
         }
 
         $groupesAvecUsers = TableauChiffreService::processGroupes($groupes, $this->year, $this->month, $user, $global, $globalSecteur, $this->isAdmin, $this->isDirecteur, $this->isTelepro);
         TableauChiffreService::finalizeGlobalTotals($global, $globalSecteur);
 
-        foreach($groupesAvecUsers as $index => $groupe){
-            if($groupe->id_secteur != session('selectedSecteur'))
+        foreach ($groupesAvecUsers as $index => $groupe) {
+            if ($groupe->id_secteur != session('selectedSecteur')) {
                 unset($groupesAvecUsers[$index]);
+            }
         }
 
         $this->groupes = $groupesAvecUsers;
@@ -164,8 +176,6 @@ class TableauChiffres extends Component
             ->orderBy('tri')
             ->get();
     }
-
-    
 
     public function render()
     {

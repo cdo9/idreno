@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,15 +16,15 @@ return new class extends Migration
         DB::table('clients')->update([
             'eau_chaude' => DB::raw("CASE
                 WHEN eau_chaude = '' THEN NULL
-                ELSE eau_chaude END")
+                ELSE eau_chaude END"),
         ]);
 
         Schema::table('clients', function (Blueprint $table) {
             // Modifier le champ eau_chaude en enum avec les nouvelles valeurs
             $table->enum('eau_chaude', ['Cumulus', 'Chaudière', 'Autre'])
-            ->default(null)
-            ->nullable()
-            ->change();
+                ->default(null)
+                ->nullable()
+                ->change();
         });
     }
 

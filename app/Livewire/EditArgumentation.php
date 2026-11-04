@@ -2,73 +2,122 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\RendezVous;
-use App\Models\Client;
-use App\Models\User;
 use App\Http\Controllers\ClientController;
+use App\Models\Client;
+use App\Models\RendezVous;
+use App\Models\User;
 use App\Models\Vente;
 use App\Services\ProjectService;
 use App\Services\SourceService;
+use App\Utils\DataNormalizer;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class EditArgumentation extends Component
 {
     public $rdvId;
+
     public $rendezVous;
+
     public $isCreate = false;
 
     public $secteur;
 
     public $last_client;
+
     public $client_id;
+
     public $id_source;
+
     public $client_id_save;
+
     public $client_search;
+
     public $email;
+
     public $vente1;
+
     public $vente2;
+
     public $vente3;
+
     public $id_commercial1;
+
     public $id_commercial3;
+
     public $date;
+
     public $id_commercial;
+
     public $type_vente;
+
     public $partage_avec;
+
     public $vente_ok;
+
     public $statut;
+
     public $date_relance;
+
     public $complement;
+
     public $paiement;
+
     public $postpone;
+
     public $duree_pret;
+
     public $mensualite;
+
     public $devis_total_ht;
+
     public $tarif_total_ht;
+
     public $devis_ht;
+
     public $tarif_ht;
+
     public $marge;
+
     public $remise;
+
     public $produits = [];
+
     public $commentaire;
+
     public $commentaire_save;
+
     public $repartition_1;
+
     public $repartition_2;
+
     public $repartition_3;
+
     public $commande;
+
     public $attente = [];
+
     public $attente_autre;
+
     public $date_anniversaire;
 
     public $clients = [];
+
     public $commerciaux = [];
+
     public $sources = [];
+
     public $priorites = [];
+
     public $client_fullname;
 
     public $isDirecteur = false;
+
     public $isAdmin = false;
+
     public $isTelepro = false;
 
     // Separate rule sets for client, rendez-vous and vente
@@ -104,7 +153,8 @@ class EditArgumentation extends Component
         'mensualite' => 'nullable|integer',
     ];
 
-    public function mount($rdvId = null) {
+    public function mount($rdvId = null)
+    {
 
         if (url()->previous() !== url()->current()) {
             session(['return_url' => url()->previous()]);
@@ -118,24 +168,24 @@ class EditArgumentation extends Component
         $this->isCreate = false;
 
         $attenteOptions = implode(';', $this->getAttenteOptionsProperty());
-        $this->rulesVente['attente'] = 'nullable|string|in:' . $attenteOptions;
+        $this->rulesVente['attente'] = 'nullable|string|in:'.$attenteOptions;
 
         $produitsOptions = implode(';', $this->getProduitsOptionsProperty());
-        $this->rulesRdv['produits'] = 'nullable|string|in:' . $produitsOptions;
+        $this->rulesRdv['produits'] = 'nullable|string|in:'.$produitsOptions;
 
         // Charge les listes pour les selects (communs à création et édition)
         $this->clients = [];
         $commQuery = User::query();
-		$commQuery->select('users.*');
-        if(!$this->isAdmin){
+        $commQuery->select('users.*');
+        if (! $this->isAdmin) {
             $commQuery->join('secteur_commercials', 'users.id', '=', 'secteur_commercials.id_commercial');
             $commQuery->where('secteur_commercials.id_secteur', session('selectedSecteur'));
         }
 
-        $this->commerciaux = $commQuery->distinct()->whereNotIn('role',["administratif"])->orderBy('active', 'desc')->orderBy('nom', 'asc')->get();
-        
+        $this->commerciaux = $commQuery->distinct()->whereNotIn('role', ['administratif'])->orderBy('active', 'desc')->orderBy('nom', 'asc')->get();
+
         $this->sources = SourceService::createSourceLst();
-        $this->priorites = \App\Services\ProjectService::listPriorities();
+        $this->priorites = ProjectService::listPriorities();
 
         if ($rdvId) {
             // Mode édition
@@ -145,7 +195,7 @@ class EditArgumentation extends Component
                 ->get();
 
             $orderedVentes = [];
-            foreach($ventes as $vente){
+            foreach ($ventes as $vente) {
                 $orderedVentes[$vente->id_commercial] = $vente;
             }
 
@@ -160,17 +210,17 @@ class EditArgumentation extends Component
                 $this->mensualite = $this->vente1->mensualite ?? '';
             }
 
-            if($vente1 && isset($orderedVentes[$vente1->id_commercial_2])){
+            if ($vente1 && isset($orderedVentes[$vente1->id_commercial_2])) {
                 $this->vente2 = $orderedVentes[$vente1->id_commercial_2];
                 $this->partage_avec = $this->vente2->id_commercial;
                 $this->repartition_2 = $this->vente2 ? ($this->vente2->repartition ?? 0) : 0;
             }
 
-            if($vente1 && isset($orderedVentes[$vente1->id_commercial_3])){
+            if ($vente1 && isset($orderedVentes[$vente1->id_commercial_3])) {
                 $this->vente3 = $orderedVentes[$vente1->id_commercial_3];
                 $this->id_commercial3 = $this->vente3->id_commercial;
                 $this->repartition_3 = $this->vente3 ? ($this->vente3->repartition ?? 0) : 0;
-            }          
+            }
 
             $this->rdvId = $rdvId;
             $this->rendezVous = RendezVous::with('client')->findOrFail($rdvId);
@@ -187,7 +237,7 @@ class EditArgumentation extends Component
 
             $this->client_id_save = $rdv->id_client;
             $this->client_search = '';
-            $this->client_fullname = $rdv->client ? ($rdv->client->prenom . ' ' . $rdv->client->nom) : '';
+            $this->client_fullname = $rdv->client ? ($rdv->client->prenom.' '.$rdv->client->nom) : '';
             $this->email = $this->last_client->mail ?? '';
             $this->date_anniversaire = $this->last_client->date_anniversaire ? date('Y-m-d', strtotime($this->last_client->date_anniversaire)) : '';
             $this->date = $rdv->date ? $rdv->date->format('Y-m-d') : '';
@@ -198,7 +248,7 @@ class EditArgumentation extends Component
             $this->statut = $this->vente1?->statut ?? 3;
             $this->date_relance = $rdv->date_relance ? $rdv->date_relance->format('Y-m-d') : ClientController::nextNov20();
             $this->complement = $this->vente1?->complement ?? 'none';
-            $this->paiement =  $this->vente1 ? $this->vente1->paiement : null;
+            $this->paiement = $this->vente1 ? $this->vente1->paiement : null;
             $this->devis_total_ht = $rdv->devis_total_ht ?? 0;
             $this->tarif_total_ht = $rdv->tarif_total_ht ?? 0;
             $this->devis_ht = $rdv->devis_ht ?? 0;
@@ -216,7 +266,7 @@ class EditArgumentation extends Component
             // Mode création
             $this->isCreate = true;
             $this->rdvId = null;
-            $this->rendezVous = new RendezVous();
+            $this->rendezVous = new RendezVous;
 
             // Valeurs par défaut pour le formulaire de création
             $this->client_id = null;
@@ -231,7 +281,7 @@ class EditArgumentation extends Component
             $this->type_vente = null;
             $this->partage_avec = null;
             $this->vente_ok = 'nok';
-            $this->statut  = 1;
+            $this->statut = 1;
             $this->date_relance = ClientController::nextNov20();
             $this->complement = '';
             $this->paiement = 'Financement';
@@ -258,9 +308,10 @@ class EditArgumentation extends Component
         }
     }
 
-    private function checkPermissions() {
+    private function checkPermissions()
+    {
         $userRole = Auth::user()->role;
-        if (!in_array($userRole, ['directeur', 'admin'])) {
+        if (! in_array($userRole, ['directeur', 'admin'])) {
             $currentUserId = Auth::user()->id;
             $client = $this->rendezVous->client;
             if ($client->rentre_par !== $currentUserId && $client->partage_avec !== $currentUserId) {
@@ -272,32 +323,33 @@ class EditArgumentation extends Component
     public function updated($propertyName)
     {
         // Validate only against the relevant rule set
-    //  try {
-    //         $this->validate($this->rulesClient);
-    //     } catch (\Illuminate\Validation\ValidationException $e) {
-    //         $this->handleValidationException($e);
-    //         return;
-    //     }
+        //  try {
+        //         $this->validate($this->rulesClient);
+        //     } catch (\Illuminate\Validation\ValidationException $e) {
+        //         $this->handleValidationException($e);
+        //         return;
+        //     }
 
-    //     try {
-    //         $this->validate(array_merge($this->rulesRdv, [$this->rulesRdv['produits'] ?? 'produits' => $this->rulesRdv['produits'] ?? 'nullable|string']));
-    //     } catch (\Illuminate\Validation\ValidationException $e) {
-    //         $this->handleValidationException($e);
-    //         return;
-    //     }
+        //     try {
+        //         $this->validate(array_merge($this->rulesRdv, [$this->rulesRdv['produits'] ?? 'produits' => $this->rulesRdv['produits'] ?? 'nullable|string']));
+        //     } catch (\Illuminate\Validation\ValidationException $e) {
+        //         $this->handleValidationException($e);
+        //         return;
+        //     }
 
-    //     try {
-    //         $this->validate($this->rulesVente);
-    //     } catch (\Illuminate\Validation\ValidationException $e) {
-    //         $this->handleValidationException($e);
-    //         return;
-    //     }
-        
+        //     try {
+        //         $this->validate($this->rulesVente);
+        //     } catch (\Illuminate\Validation\ValidationException $e) {
+        //         $this->handleValidationException($e);
+        //         return;
+        //     }
+
         if ($propertyName === 'client_search') {
             $searchTerm = trim($this->client_search);
             if (strlen($searchTerm) < 2 && empty($searchTerm)) {
                 $this->clients = [];
-                $this->client_fullname = $this->last_client ? $this->last_client->prenom . ' ' . $this->last_client->nom : null;
+                $this->client_fullname = $this->last_client ? $this->last_client->prenom.' '.$this->last_client->nom : null;
+
                 return;
             }
 
@@ -309,9 +361,9 @@ class EditArgumentation extends Component
             if ($this->client_id) {
                 $selectedClient = Client::find($this->client_id);
                 if ($selectedClient) {
-                    $this->client_fullname = $selectedClient->prenom . ' ' . $selectedClient->nom;
+                    $this->client_fullname = $selectedClient->prenom.' '.$selectedClient->nom;
                     $this->email = $selectedClient->mail;
-                    $this->date_anniversaire = !empty($selectedClient->date_anniversaire)
+                    $this->date_anniversaire = ! empty($selectedClient->date_anniversaire)
                         ? date('Y-m-d', strtotime($selectedClient->date_anniversaire))
                         : null;
                     // $this->client_search = $this->client_fullname;
@@ -334,45 +386,46 @@ class EditArgumentation extends Component
         if ($propertyName === 'vente_ok') {
             $this->commentaire = $this->commentaire_save;
             if ($this->vente_ok == 'ok') {
-                $this->commentaire = "La vente a été validée avec succès.\n" . "Ancien commentaire : $this->commentaire";
+                $this->commentaire = "La vente a été validée avec succès.\n"."Ancien commentaire : $this->commentaire";
             }
             $this->refreshRepartition();
             $this->dispatch('vente-ok', $this->commentaire_save);
         }
 
         if ($propertyName === 'partage_avec') {
-            if ($this->partage_avec === "") {
+            if ($this->partage_avec === '') {
                 $this->partage_avec = null;
             }
             $this->refreshRepartition();
         }
-        
-        if($propertyName === 'id_commercial3'){
-             if ($this->id_commercial3 === "") {
+
+        if ($propertyName === 'id_commercial3') {
+            if ($this->id_commercial3 === '') {
                 $this->id_commercial3 = null;
             }
             $this->refreshRepartition();
         }
 
-        if($propertyName === 'devis_total_ht'){
+        if ($propertyName === 'devis_total_ht') {
             $this->update_tarifs_taux();
         }
 
-        if($propertyName === 'tarif_total_ht'){
+        if ($propertyName === 'tarif_total_ht') {
             $this->update_tarifs_taux();
         }
 
-        if($propertyName === 'repartition_1' || $propertyName === 'repartition_2' || $propertyName === 'repartition_3'){
+        if ($propertyName === 'repartition_1' || $propertyName === 'repartition_2' || $propertyName === 'repartition_3') {
             $this->update_tarifs_taux();
         }
     }
 
-    public function update_tarifs_taux() {
-        $prix_tarif_total = (float)$this->tarif_total_ht;
-        $prix_vente_total = (float)$this->devis_total_ht;
-        $taux = (float)$this->repartition_1;
+    public function update_tarifs_taux()
+    {
+        $prix_tarif_total = (float) $this->tarif_total_ht;
+        $prix_vente_total = (float) $this->devis_total_ht;
+        $taux = (float) $this->repartition_1;
 
-        //$this->refreshRepartition();
+        // $this->refreshRepartition();
 
         $prix_tarif = $prix_tarif_total * $taux / 100;
         $prix_vente = $prix_vente_total * $taux / 100;
@@ -399,82 +452,82 @@ class EditArgumentation extends Component
             $taux_remise = 1 - ($prix_vente_total / $prix_tarif_total);
         }
 
-        $this->marge = (int)round($prix_marge, 0);
-        $this->remise = (int)round($taux_remise * 100, 0);
+        $this->marge = (int) round($prix_marge, 0);
+        $this->remise = (int) round($taux_remise * 100, 0);
     }
 
-    public function refreshRepartition(){
+    public function refreshRepartition()
+    {
 
-        if($this->partage_avec === null && $this->id_commercial3 === null){
+        if ($this->partage_avec === null && $this->id_commercial3 === null) {
             $this->repartition_1 = 100;
             $this->repartition_2 = 0;
             $this->repartition_3 = 0;
-            return;
-        }
 
-        else if($this->partage_avec !== null && $this->id_commercial3 === null){
+            return;
+        } elseif ($this->partage_avec !== null && $this->id_commercial3 === null) {
             $this->repartition_1 = 50;
             $this->repartition_2 = 50;
             $this->repartition_3 = 0;
-            return;
-        }
 
-        else if($this->partage_avec === null && $this->id_commercial3 !== null){
+            return;
+        } elseif ($this->partage_avec === null && $this->id_commercial3 !== null) {
             $this->repartition_1 = 50;
             $this->repartition_2 = 0;
             $this->repartition_3 = 50;
+
             return;
         }
 
         $comm2_isTelepro = $this->partage_avec ? $this->commerciaux->firstWhere('id', $this->partage_avec)->hasRole('telepro') : false;
         $comm3_isTelepro = $this->id_commercial3 ? $this->commerciaux->firstWhere('id', $this->id_commercial3)->hasRole('telepro') : false;
 
-        if(
+        if (
             ($this->isTelepro && $comm2_isTelepro && $comm3_isTelepro)
-            ||(!$this->isTelepro && !$comm2_isTelepro && !$comm3_isTelepro)
-            ||(!$this->isTelepro && $comm2_isTelepro && $comm3_isTelepro)
-            ||($this->isTelepro && !$comm2_isTelepro && !$comm3_isTelepro)
-        ){
+            || (! $this->isTelepro && ! $comm2_isTelepro && ! $comm3_isTelepro)
+            || (! $this->isTelepro && $comm2_isTelepro && $comm3_isTelepro)
+            || ($this->isTelepro && ! $comm2_isTelepro && ! $comm3_isTelepro)
+        ) {
             $this->repartition_1 = 50;
             $this->repartition_2 = 25;
             $this->repartition_3 = 25;
-            return;
-        }
 
-        else if(
-            ($this->isTelepro && $comm2_isTelepro && !$comm3_isTelepro)
-            ||(!$this->isTelepro && !$comm2_isTelepro && $comm3_isTelepro)
-        ){
+            return;
+        } elseif (
+            ($this->isTelepro && $comm2_isTelepro && ! $comm3_isTelepro)
+            || (! $this->isTelepro && ! $comm2_isTelepro && $comm3_isTelepro)
+        ) {
             $this->repartition_1 = 25;
             $this->repartition_2 = 25;
             $this->repartition_3 = 50;
-            return;
-        }
 
-        else if(
-            ($this->isTelepro && !$comm2_isTelepro && $comm3_isTelepro)
-            ||(!$this->isTelepro && $comm2_isTelepro && !$comm3_isTelepro)
-        ){
+            return;
+        } elseif (
+            ($this->isTelepro && ! $comm2_isTelepro && $comm3_isTelepro)
+            || (! $this->isTelepro && $comm2_isTelepro && ! $comm3_isTelepro)
+        ) {
             $this->repartition_1 = 25;
             $this->repartition_2 = 50;
             $this->repartition_3 = 25;
+
             return;
-        }
-        else{
+        } else {
             $this->repartition_1 = 100;
             $this->repartition_2 = 0;
             $this->repartition_3 = 0;
+
             return;
         }
     }
 
-    public function selectClient($clientId) {
+    public function selectClient($clientId)
+    {
         $this->client_id = $clientId;
         $this->client_search = '';
         $this->updated('client_id');
     }
 
-    protected function handleValidationException(\Illuminate\Validation\ValidationException $e)
+    protected function handleValidationException(ValidationException $e)
     {
         Log::error('Validation errors:', $e->errors());
         foreach ($e->errors() as $field => $messages) {
@@ -484,7 +537,8 @@ class EditArgumentation extends Component
         }
     }
 
-    public function clearClient() {
+    public function clearClient()
+    {
         /*$this->client_id = $this->client_id_save;
         $this->client_fullname = $this->last_client ? $this->last_client->prenom . ' ' . $this->last_client->nom : null;
         $this->email = $this->last_client ? $this->last_client->mail : '';
@@ -500,7 +554,7 @@ class EditArgumentation extends Component
 
     public function save()
     {
-        
+
         Log::info('Aucune vente existante, création des ventes', [
             'vente_ok' => $this->vente_ok,
             'rendezVousId' => $this->rendezVous->id,
@@ -510,22 +564,25 @@ class EditArgumentation extends Component
         // Validate client, rdv and vente separately so we can show precise errors
         try {
             $this->validate($this->rulesClient);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->handleValidationException($e);
+
             return;
         }
 
         try {
             $this->validate($this->rulesRdv);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->handleValidationException($e);
+
             return;
         }
 
         try {
             $this->validate($this->rulesVente);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $this->handleValidationException($e);
+
             return;
         }
 
@@ -535,18 +592,20 @@ class EditArgumentation extends Component
 
         // Contrôle doublon si création
         // Contrôle doublon uniquement en création (pas en update)
-        if ($this->isCreate && !$this->rendezVous->exists) {
+        if ($this->isCreate && ! $this->rendezVous->exists) {
             $doublon = RendezVous::where('id_client', $this->client_id)
-            ->whereDate('date', $this->date)
-            ->count();
+                ->whereDate('date', $this->date)
+                ->count();
             if ($doublon > 0) {
                 session()->flash('error', 'Il existe déjà une argumentation pour ce client à cette date !');
+
                 return;
             }
         }
 
-        if($this->devis_total_ht > $this->tarif_total_ht){
+        if ($this->devis_total_ht > $this->tarif_total_ht) {
             session()->flash('error', 'Le prix devis ne peut pas être inférieur au prix tarif !');
+
             return;
         }
 
@@ -558,14 +617,14 @@ class EditArgumentation extends Component
         ]);
 
         $finFinancement = null;
-        Log::info('Updated property: vente_ok  ' . $this->vente_ok);
+        Log::info('Updated property: vente_ok  '.$this->vente_ok);
         // Vérification de la somme des répartitions
         if ($this->vente_ok == 'ok') {
-            Log::info('Updated property: paiement  ' . $this->paiement);
+            Log::info('Updated property: paiement  '.$this->paiement);
             if (in_array($this->paiement, ['Financement', 'Comptant et financement']) && $this->postpone && $this->duree_pret) {
                 try {
-                    $dateBase = \Carbon\Carbon::parse($this->vente1->date ? $this->vente1->date : now());
-                    $finFinancement = $dateBase->copy()->addMonths((int)$this->postpone + (int)$this->duree_pret)->format('Y-m-d');
+                    $dateBase = Carbon::parse($this->vente1->date ? $this->vente1->date : now());
+                    $finFinancement = $dateBase->copy()->addMonths((int) $this->postpone + (int) $this->duree_pret)->format('Y-m-d');
                 } catch (\Exception $e) {
                     Log::error('Erreur calcul fin_financement', ['error' => $e->getMessage()]);
                 }
@@ -573,41 +632,41 @@ class EditArgumentation extends Component
             $repartitions = [
                 floatval($this->repartition_1 ?? 0),
                 floatval($this->repartition_2 ?? 0),
-                floatval($this->repartition_3 ?? 0)
+                floatval($this->repartition_3 ?? 0),
             ];
-            
+
             $totalRepartition = array_sum($repartitions);
             if ($totalRepartition !== 100.0) {
-                $this->addError('repartition_1', 'La somme des répartitions doit être exactement 100%. (Actuellement : ' . $totalRepartition . '%)');
-                $this->addError('repartition_2', 'La somme des répartitions doit être exactement 100%. (Actuellement : ' . $totalRepartition . '%)');
-                $this->addError('repartition_3', 'La somme des répartitions doit être exactement 100%. (Actuellement : ' . $totalRepartition . '%)');
+                $this->addError('repartition_1', 'La somme des répartitions doit être exactement 100%. (Actuellement : '.$totalRepartition.'%)');
+                $this->addError('repartition_2', 'La somme des répartitions doit être exactement 100%. (Actuellement : '.$totalRepartition.'%)');
+                $this->addError('repartition_3', 'La somme des répartitions doit être exactement 100%. (Actuellement : '.$totalRepartition.'%)');
+
                 return;
             }
         }
 
         $updateData = [
-            'id_client'        => $this->client_id,
-            'id_commercial'    => $this->id_commercial,
-            'source'           => $this->id_source,
-            'secteur'          => $this->secteur ?? 1,
-            'resultat'         => $resultat,
-            'commentaire'      => $commentaire,
-            'date'             => $this->date,
-            'date_relance'     => $this->date_relance,
-            'tarif_total_ht'   => $this->tarif_total_ht,
-            'devis_total_ht'   => $this->devis_total_ht,
-            'produits'         => is_array($this->produits) ? implode(';', $this->produits) : $this->produits,
-            'partage_avec'     => $this->partage_avec,
+            'id_client' => $this->client_id,
+            'id_commercial' => $this->id_commercial,
+            'source' => $this->id_source,
+            'secteur' => $this->secteur ?? 1,
+            'resultat' => $resultat,
+            'commentaire' => $commentaire,
+            'date' => $this->date,
+            'date_relance' => $this->date_relance,
+            'tarif_total_ht' => $this->tarif_total_ht,
+            'devis_total_ht' => $this->devis_total_ht,
+            'produits' => is_array($this->produits) ? implode(';', $this->produits) : $this->produits,
+            'partage_avec' => $this->partage_avec,
         ];
 
-        $updateData = \App\Utils\DataNormalizer::normalizeEmptyValues($updateData);
+        $updateData = DataNormalizer::normalizeEmptyValues($updateData);
         foreach ($updateData as $key => $value) {
             $this->rendezVous->$key = $value;
         }
         $this->rendezVous->save();
 
-       
-            // Si on était en création, s'assurer que le RDV fraîchement créé est bien chargé
+        // Si on était en création, s'assurer que le RDV fraîchement créé est bien chargé
         if ($this->isCreate) {
             $this->rdvId = $this->rendezVous->id;
             $this->isCreate = false;
@@ -619,7 +678,6 @@ class EditArgumentation extends Component
             Vente::where('id_rdv', $this->rendezVous->id)->delete();
         }
 
-      
         // MAJ vente si vendue
         if ($this->vente_ok == 'ok') {
             // Liste des commerciaux et répartitions
@@ -630,10 +688,10 @@ class EditArgumentation extends Component
             ];
 
             Log::info('Commerciaux à traiter', ['commerciaux' => $commerciaux]);
-            
+
             // Récupère les ventes existantes pour ce RDV
             $ventesExistantes = Vente::where('id_rdv', $this->rendezVous->id)->orderBy('id', 'asc')->get();
-            
+
             Log::info('Ventes existantes count', ['count' => $ventesExistantes->count()]);
 
             // Si aucune vente n'existe, on crée une entrée par commercial renseigné
@@ -649,42 +707,42 @@ class EditArgumentation extends Component
                         'clientId' => $this->client_id,
 
                     ]);
-                    $vente = new Vente();
+                    $vente = new Vente;
                     $vente->id_rdv = $this->rendezVous->id;
                     $vente->id_client = $this->client_id;
                     $tarif_ht = $this->tarif_total_ht * ($data['repartition'] ?? 100) / 100;
                     $ca_ht = $this->devis_total_ht * ($data['repartition'] ?? 100) / 100;
                     $montant = $ca_ht - $tarif_ht * 0.85;
                     $venteData = [
-                        'id_commercial'    => $data['id'],
-                        'id_commercial_2'  => $ids_commerciaux[($i + 1) % 3] ?? null,
-                        'id_commercial_3'  => $ids_commerciaux[($i + 2) % 3] ?? null,
-                        'tarif_total_ht'   => $this->tarif_total_ht,
-                        'ca_total_ht'      => $this->devis_total_ht,
-                        'tarif_ht'         => $tarif_ht,
-                        'ca_ht'            => $ca_ht,
-                        'montant'          => $montant,
-                        'plus_value'       => 0, //! ça m'a l'air useless mais je le laisse au cas où il est à 0 partout dans la DB
-                        'prime_cee'        => 0, //! je sais pas où c'est mis à jour dans l'app
-                        'statut'           => 1, 
-                        'remise'           => $this->devis_total_ht > 0 ? (1 - ($this->devis_total_ht / $this->tarif_total_ht)) * 100 : 0,
-                        'repartition'      => $data['repartition'] ?? 100,
-                        'attente'          => is_array($this->attente) ? implode(';', $this->attente) : $this->attente,
-                        'attente_autre'    => $this->attente_autre,
-                        'commentaire'      => $commentaire,
-                        'complement'       => $this->complement,
-                        'date'             => $this->date,
-                        'id_source'        => $this->id_source,
-                        'secteur'          => $this->secteur,
-                        'paiement'         => $this->paiement,
-                        'type_vente'       => ($this->partage_avec !== null || $this->id_commercial3 !== null) ? "Commune" : "Normale",
-                        'commande'         => $this->commande,
-                        'postpone'         => $this->postpone,
-                        'duree_pret'       => $this->duree_pret,
-                        'mensualite'       => $this->mensualite,
-                        'fin_financement'  => $finFinancement,
+                        'id_commercial' => $data['id'],
+                        'id_commercial_2' => $ids_commerciaux[($i + 1) % 3] ?? null,
+                        'id_commercial_3' => $ids_commerciaux[($i + 2) % 3] ?? null,
+                        'tarif_total_ht' => $this->tarif_total_ht,
+                        'ca_total_ht' => $this->devis_total_ht,
+                        'tarif_ht' => $tarif_ht,
+                        'ca_ht' => $ca_ht,
+                        'montant' => $montant,
+                        'plus_value' => 0, // ! ça m'a l'air useless mais je le laisse au cas où il est à 0 partout dans la DB
+                        'prime_cee' => 0, // ! je sais pas où c'est mis à jour dans l'app
+                        'statut' => 1,
+                        'remise' => $this->devis_total_ht > 0 ? (1 - ($this->devis_total_ht / $this->tarif_total_ht)) * 100 : 0,
+                        'repartition' => $data['repartition'] ?? 100,
+                        'attente' => is_array($this->attente) ? implode(';', $this->attente) : $this->attente,
+                        'attente_autre' => $this->attente_autre,
+                        'commentaire' => $commentaire,
+                        'complement' => $this->complement,
+                        'date' => $this->date,
+                        'id_source' => $this->id_source,
+                        'secteur' => $this->secteur,
+                        'paiement' => $this->paiement,
+                        'type_vente' => ($this->partage_avec !== null || $this->id_commercial3 !== null) ? 'Commune' : 'Normale',
+                        'commande' => $this->commande,
+                        'postpone' => $this->postpone,
+                        'duree_pret' => $this->duree_pret,
+                        'mensualite' => $this->mensualite,
+                        'fin_financement' => $finFinancement,
                     ];
-                    $venteData = \App\Utils\DataNormalizer::normalizeEmptyValues($venteData);
+                    $venteData = DataNormalizer::normalizeEmptyValues($venteData);
                     foreach ($venteData as $key => $value) {
                         $vente->$key = $value;
                     }
@@ -692,81 +750,81 @@ class EditArgumentation extends Component
                     Log::info('Vente après save', ['id' => $vente->id, 'attributes' => $vente->getAttributes()]);
                 }
             } else {
-				$ids_commerciaux = array_values(array_filter(array_column($commerciaux, 'id')));
-				
-				// Delete ventes pour commerciaux plus présent dans la vente
+                $ids_commerciaux = array_values(array_filter(array_column($commerciaux, 'id')));
+
+                // Delete ventes pour commerciaux plus présent dans la vente
                 Vente::where('id_rdv', $this->rendezVous->id)
                     ->whereNotIn('id_commercial', $ids_commerciaux)
                     ->delete();
 
                 $ventesExistantes = Vente::where('id_rdv', $this->rendezVous->id)
                     ->orderBy('id', 'asc')->get();
-				
+
                 // Met à jour les ventes existantes et crée les manquantes si besoin
                 $max = max($ventesExistantes->count(), count($commerciaux));
                 for ($i = 0; $i < $max; $i++) {
                     $data = $commerciaux[$i] ?? null;
-                    if (!$data || empty($data['id'])) {
+                    if (! $data || empty($data['id'])) {
                         continue;
                     }
-                    $vente = $ventesExistantes->get($i) ?? new Vente();
+                    $vente = $ventesExistantes->get($i) ?? new Vente;
                     $vente->id_rdv = $this->rendezVous->id;
                     $vente->id_client = $this->client_id;
                     Log::info('Vente mise à jour', ['devis_total_ht;' => $this->devis_total_ht]);
-                    
+
                     $tarif_ht = $this->tarif_total_ht * ($data['repartition'] ?? 100) / 100;
                     $ca_ht = $this->devis_total_ht * ($data['repartition'] ?? 100) / 100;
                     $montant = $ca_ht - $tarif_ht * 0.85;
-					
-					$attenteAutre = $this->attente_autre;
 
-					if (is_array($attenteAutre)) {
-						$attenteAutre = reset($attenteAutre);
-					}
+                    $attenteAutre = $this->attente_autre;
 
-					if (is_string($attenteAutre)) {
-						$decoded = json_decode($attenteAutre, true);
+                    if (is_array($attenteAutre)) {
+                        $attenteAutre = reset($attenteAutre);
+                    }
 
-						if (json_last_error() === JSON_ERROR_NONE) {
-							if (is_array($decoded)) {
-								$attenteAutre = implode('; ', $decoded);
-							} else {
-								$attenteAutre = $decoded;
-							}
-						}
-					}
+                    if (is_string($attenteAutre)) {
+                        $decoded = json_decode($attenteAutre, true);
+
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            if (is_array($decoded)) {
+                                $attenteAutre = implode('; ', $decoded);
+                            } else {
+                                $attenteAutre = $decoded;
+                            }
+                        }
+                    }
 
                     $venteData = [
-                        'id_commercial'    => $data['id'],
-                        'id_commercial_2'  => $ids_commerciaux[($i + 1) % 3] ?? null,
-                        'id_commercial_3'  => $ids_commerciaux[($i + 2) % 3] ?? null,
-                        'tarif_total_ht'   => $this->tarif_total_ht,
-                        'ca_total_ht'      => $this->devis_total_ht,
-                        'tarif_ht'         => $tarif_ht,
-                        'ca_ht'            => $ca_ht,                        
-                        'montant'          => $montant,
-                        'plus_value'       => 0, //! ça m'a l'air useless mais je le laisse au cas où il est à 0 partout dans la DB
-                        'prime_cee'        => 0, //! je sais pas où c'est mis à jour dans l'app
-                        'statut'           => $this->statut, 
-                        'remise'           => $this->devis_total_ht > 0 ? (1 - ($this->devis_total_ht / $this->tarif_total_ht)) * 100 : 0,
-                        'repartition'      => $data['repartition'] ?? 100,
-                        'attente'          => is_array($this->attente) ? implode(';', $this->attente) : $this->attente,
-                        'attente_autre'    => $attenteAutre,
-                        'commentaire'      => $commentaire,
-                        'complement'       => $this->complement,
-                        'date'             => $this->date,
-                        'id_source'        => $this->id_source,
-                        'secteur'          => $this->secteur,
-                        'paiement'         => $this->paiement,
-                        'type_vente'       => ($this->partage_avec !== null || $this->id_commercial3 !== null) ? "Commune" : "Normale",
-                        'commande'         => $this->commande,
-                        'postpone'         => $this->postpone,
-                        'duree_pret'       => $this->duree_pret,
-                        'mensualite'       => $this->mensualite,
-                        'fin_financement'  => $finFinancement,
+                        'id_commercial' => $data['id'],
+                        'id_commercial_2' => $ids_commerciaux[($i + 1) % 3] ?? null,
+                        'id_commercial_3' => $ids_commerciaux[($i + 2) % 3] ?? null,
+                        'tarif_total_ht' => $this->tarif_total_ht,
+                        'ca_total_ht' => $this->devis_total_ht,
+                        'tarif_ht' => $tarif_ht,
+                        'ca_ht' => $ca_ht,
+                        'montant' => $montant,
+                        'plus_value' => 0, // ! ça m'a l'air useless mais je le laisse au cas où il est à 0 partout dans la DB
+                        'prime_cee' => 0, // ! je sais pas où c'est mis à jour dans l'app
+                        'statut' => $this->statut,
+                        'remise' => $this->devis_total_ht > 0 ? (1 - ($this->devis_total_ht / $this->tarif_total_ht)) * 100 : 0,
+                        'repartition' => $data['repartition'] ?? 100,
+                        'attente' => is_array($this->attente) ? implode(';', $this->attente) : $this->attente,
+                        'attente_autre' => $attenteAutre,
+                        'commentaire' => $commentaire,
+                        'complement' => $this->complement,
+                        'date' => $this->date,
+                        'id_source' => $this->id_source,
+                        'secteur' => $this->secteur,
+                        'paiement' => $this->paiement,
+                        'type_vente' => ($this->partage_avec !== null || $this->id_commercial3 !== null) ? 'Commune' : 'Normale',
+                        'commande' => $this->commande,
+                        'postpone' => $this->postpone,
+                        'duree_pret' => $this->duree_pret,
+                        'mensualite' => $this->mensualite,
+                        'fin_financement' => $finFinancement,
                     ];
-					
-                    $venteData = \App\Utils\DataNormalizer::normalizeEmptyValues($venteData);
+
+                    $venteData = DataNormalizer::normalizeEmptyValues($venteData);
                     foreach ($venteData as $key => $value) {
                         $vente->$key = $value;
                     }
@@ -797,26 +855,32 @@ class EditArgumentation extends Component
         } else {
             session()->flash('success', 'Relance d\'argumentation mise à jour avec succès.');
         }
+
         return redirect()->to(session('return_url', url()->previous()));
     }
 
-    public function getPaiementOptionsProperty() {
+    public function getPaiementOptionsProperty()
+    {
         return Vente::getPaiementOptionsAttribute();
     }
 
-    public function getAttenteOptionsProperty() {
+    public function getAttenteOptionsProperty()
+    {
         return Vente::getAttenteOptionsAttribute();
     }
 
-    public function getProduitsOptionsProperty() {
+    public function getProduitsOptionsProperty()
+    {
         return ProjectService::listProductsFlat();
     }
 
-    public function getProduitsGroupedOptionsProperty() {
+    public function getProduitsGroupedOptionsProperty()
+    {
         return ProjectService::listPriorities();
     }
 
-    public function render() {
+    public function render()
+    {
         return view('livewire.edit-argumentation')->with(['isCreate' => $this->isCreate]);
     }
 }

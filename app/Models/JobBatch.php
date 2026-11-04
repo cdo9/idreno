@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $cancelled_at
  * @property int $created_at
  * @property int|null $finished_at
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch query()
@@ -35,30 +35,33 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch whereOptions($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch wherePendingJobs($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|JobBatch whereTotalJobs($value)
+ *
  * @mixin \Eloquent
  */
 class JobBatch extends Model
 {
-	protected $table = 'job_batches';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'job_batches';
 
-	protected $casts = [
-		'total_jobs' => 'int',
-		'pending_jobs' => 'int',
-		'failed_jobs' => 'int',
-		'cancelled_at' => 'int',
-		'finished_at' => 'int'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'name',
-		'total_jobs',
-		'pending_jobs',
-		'failed_jobs',
-		'failed_job_ids',
-		'options',
-		'cancelled_at',
-		'finished_at'
-	];
+    public $timestamps = false;
+
+    protected $casts = [
+        'total_jobs' => 'int',
+        'pending_jobs' => 'int',
+        'failed_jobs' => 'int',
+        'cancelled_at' => 'int',
+        'finished_at' => 'int',
+    ];
+
+    protected $fillable = [
+        'name',
+        'total_jobs',
+        'pending_jobs',
+        'failed_jobs',
+        'failed_job_ids',
+        'options',
+        'cancelled_at',
+        'finished_at',
+    ];
 }

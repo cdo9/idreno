@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Auto;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class FormulaireAutoDelete extends Component
 {
@@ -20,6 +20,7 @@ class FormulaireAutoDelete extends Component
         DB::table('parc_auto')->where('id', $this->id)->delete();
 
         session()->flash('message', 'Véhicule et ses données associées supprimés.');
+
         return redirect('/parc-auto');
     }
 

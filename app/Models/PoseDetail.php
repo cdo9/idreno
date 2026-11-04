@@ -15,37 +15,40 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id_poseur
  * @property Pose $pose
  * @property Poseur $poseur
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail whereIdPose($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PoseDetail whereIdPoseur($value)
+ *
  * @mixin \Eloquent
  */
 class PoseDetail extends Model
 {
-	protected $table = 'pose_details';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'pose_details';
 
-	protected $casts = [
-		'id_pose' => 'int',
-		'id_poseur' => 'int'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'id_pose',
-		'id_poseur'
-	];
+    public $timestamps = false;
 
-	public function pose()
-	{
-		return $this->belongsTo(Pose::class, 'id_pose');
-	}
+    protected $casts = [
+        'id_pose' => 'int',
+        'id_poseur' => 'int',
+    ];
 
-	public function poseur()
-	{
-		return $this->belongsTo(Poseur::class, 'id_poseur');
-	}
+    protected $fillable = [
+        'id_pose',
+        'id_poseur',
+    ];
+
+    public function pose()
+    {
+        return $this->belongsTo(Pose::class, 'id_pose');
+    }
+
+    public function poseur()
+    {
+        return $this->belongsTo(Poseur::class, 'id_poseur');
+    }
 }

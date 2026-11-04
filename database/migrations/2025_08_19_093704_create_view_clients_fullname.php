@@ -30,9 +30,8 @@ return new class extends Migration
         ");
     }
 
-    
     public function down()
     {
-        DB::statement("DROP VIEW IF EXISTS view_clients_fullname");
+        DB::statement('DROP VIEW IF EXISTS view_clients_fullname');
     }
 };

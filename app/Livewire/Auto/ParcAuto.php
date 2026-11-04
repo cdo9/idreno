@@ -9,8 +9,11 @@ use Livewire\Component;
 class ParcAuto extends Component
 {
     public $date1;
+
     public $date2;
+
     public $vehicules = [];
+
     public $afficherSansKm = false;
 
     public function mount()
@@ -24,6 +27,7 @@ class ParcAuto extends Component
     {
         $this->loadVehicules();
     }
+
     public function updatedDate2()
     {
         $this->loadVehicules();
@@ -31,7 +35,7 @@ class ParcAuto extends Component
 
     public function toggleAfficherSansKm()
     {
-        $this->afficherSansKm = !$this->afficherSansKm;
+        $this->afficherSansKm = ! $this->afficherSansKm;
         $this->loadVehicules();
     }
 
@@ -41,7 +45,7 @@ class ParcAuto extends Component
 
         $vehicules = DB::table('parc_auto')
             ->where('date_attribution', '<=', $this->date2)
-            //->where('secteur', '=', session('selectedSecteur'))
+            // ->where('secteur', '=', session('selectedSecteur'))
             ->orderBy('date_attribution', 'asc')
             ->get();
 
@@ -74,14 +78,12 @@ class ParcAuto extends Component
             return $vehicule;
         });
 
-        if (!$this->afficherSansKm) {
-            $vehicules = $vehicules->filter(fn($v) => $v->kmPeriode != 0)->values();
+        if (! $this->afficherSansKm) {
+            $vehicules = $vehicules->filter(fn ($v) => $v->kmPeriode != 0)->values();
         }
 
         $this->vehicules = $vehicules;
     }
-
-
 
     public function render()
     {

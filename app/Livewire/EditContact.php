@@ -2,65 +2,104 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Client;
 use App\Models\Source;
 use App\Models\User;
 use App\Services\ProjectService;
-use App\Utils\MailVerificator;
 use App\Utils\DataNormalizer;
+use App\Utils\MailVerificator;
 use App\Utils\PhoneFormatter;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class EditContact extends Component
 {
     public $clientId;
+
     public $client;
+
     public $nom;
+
     public $prenom;
+
     public $genre;
+
     public $date_anniversaire;
+
     public $profession;
+
     public $profession2;
+
     public $signe;
+
     public $telephone1;
+
     public $telephone2;
+
     public $email;
+
     public $searchAdress = [
         'address_string' => '',
-        'place_id' => ''
+        'place_id' => '',
     ];
+
     public $adressesAutoComplete = [];
+
     public $adresse;
+
     public $cp;
+
     public $ville;
+
     public $gps_lat;
+
     public $gps_lng;
+
     public $id_source;
+
     public $type_hab;
+
     public $surface;
+
     public $nb_foyer;
+
     public $proprietaire;
+
     public $duree_proprietaire;
+
     public $isolation;
+
     public $type_chauffage;
+
     public $mode_conso;
+
     public $conso_chauffage;
+
     public $conso_chauffage_qualite;
+
     public $eau_chaude;
+
     public $age_materiel;
+
     public $projet;
+
     public $dernier_investissement;
+
     public $credit_impot;
+
     public $date_relance;
+
     public $debrief;
+
     public $rentre_par;
+
     public $partage_avec;
+
     public $comments;
-    
+
     public $commerciaux = [];
 
     protected $rules = [
@@ -119,11 +158,11 @@ class EditContact extends Component
         }
         $this->clientId = $clientId;
         $this->client = Client::findOrFail($clientId);
-        
+
         $this->checkPermissions();
-        
+
         $this->loadClientData();
-        
+
         // Charger les commerciaux pour les directeurs ou les admin
         if (Auth::user()->role === 'directeur' || Auth::user()->role === 'admin') {
             $this->commerciaux = User::where('active', 1)
@@ -136,7 +175,7 @@ class EditContact extends Component
     private function checkPermissions()
     {
         $userRole = Auth::user()->role;
-        if (!in_array($userRole, ['directeur', 'admin'])) {
+        if (! in_array($userRole, ['directeur', 'admin'])) {
             $currentUserId = Auth::user()->id;
             if ($this->client->rentre_par !== $currentUserId && $this->client->partage_avec !== $currentUserId) {
                 abort(403, 'Vous n\'avez pas les permissions pour éditer ce contact.');
@@ -158,8 +197,8 @@ class EditContact extends Component
         $this->email = $this->client->mail;
         $this->adresse = $this->client->adresse;
         $this->searchAdress = [
-            "address_string" => $this->client->adresse,
-            "place_id" => ""
+            'address_string' => $this->client->adresse,
+            'place_id' => '',
         ];
         $this->cp = $this->client->cp;
         $this->ville = $this->client->ville;
@@ -196,22 +235,21 @@ class EditContact extends Component
 
         Log::info('Loaded client data for editing', [
             'client_id' => $this->clientId,
-            'data' => $this->client->toArray()
+            'data' => $this->client->toArray(),
         ]);
     }
-
 
     public function updated($propertyName)
     {
         $this->validateOnly($propertyName);
 
         if ($propertyName === 'searchAdress.address_string') {
-            if ($this->searchAdress && isset($this->searchAdress['address_string']) && !empty($this->searchAdress['address_string']) && empty($this->searchAdress['place_id'])) {
-                
+            if ($this->searchAdress && isset($this->searchAdress['address_string']) && ! empty($this->searchAdress['address_string']) && empty($this->searchAdress['place_id'])) {
+
                 $response = Http::withHeaders([
-                'X-Goog-Api-Key' => config('services.google.maps_api_key'),
-                'Content-Type' => 'application/json'
-                ])->post("https://places.googleapis.com/v1/places:autocomplete", [
+                    'X-Goog-Api-Key' => config('services.google.maps_api_key'),
+                    'Content-Type' => 'application/json',
+                ])->post('https://places.googleapis.com/v1/places:autocomplete', [
                     'input' => $this->searchAdress['address_string'],
                     'locationRestriction' => [ // Restriction à la France
                         'rectangle' => [
@@ -221,19 +259,19 @@ class EditContact extends Component
                     ],
                     'includedPrimaryTypes' => ['street_address', 'geocode'],
                 ]);
-                
+
                 $results = $response->json();
-            
+
                 if (isset($results['suggestions']) && count($results['suggestions']) > 0) {
                     $this->adressesAutoComplete = array_map(function ($result) {
                         return [
                             'address_string' => $result['placePrediction']['text']['text'],
-                            'place_id' => $result['placePrediction']['placeId']
+                            'place_id' => $result['placePrediction']['placeId'],
                         ];
                     }, $results['suggestions']);
                 }
-            } elseif ($this->searchAdress && isset($this->searchAdress['place_id']) && !empty($this->searchAdress['place_id'])) {
-                $response = Http::get("https://places.googleapis.com/v1/places/" . $this->searchAdress['place_id'] . "?fields=id,displayName,formattedAddress,addressComponents,location&key=" . config('services.google.maps_api_key'));
+            } elseif ($this->searchAdress && isset($this->searchAdress['place_id']) && ! empty($this->searchAdress['place_id'])) {
+                $response = Http::get('https://places.googleapis.com/v1/places/'.$this->searchAdress['place_id'].'?fields=id,displayName,formattedAddress,addressComponents,location&key='.config('services.google.maps_api_key'));
                 $result = $response->json();
 
                 Log::info('Google Maps Place result API response: ', ['data' => $result]);
@@ -241,7 +279,7 @@ class EditContact extends Component
 
                     $streetNumber = '';
                     $route = '';
-                    
+
                     if (isset($result['addressComponents'])) {
                         foreach ($result['addressComponents'] as $component) {
                             if (in_array('street_number', $component['types'])) {
@@ -258,9 +296,9 @@ class EditContact extends Component
                             }
                         }
                     }
-                    
-                    $this->adresse = trim($streetNumber . ' ' . $route);
-                    
+
+                    $this->adresse = trim($streetNumber.' '.$route);
+
                     if (isset($result['location'])) {
                         $this->gps_lat = $result['location']['latitude'];
                         $this->gps_lng = $result['location']['longitude'];
@@ -269,6 +307,7 @@ class EditContact extends Component
                 }
 
                 $this->adressesAutoComplete = [];
+
                 return;
             }
         }
@@ -278,12 +317,12 @@ class EditContact extends Component
     {
         if (isset($this->adressesAutoComplete[$index])) {
             $selectedAddress = $this->adressesAutoComplete[$index];
-            
+
             $this->searchAdress = [
                 'address_string' => $selectedAddress['address_string'],
-                'place_id' => $selectedAddress['place_id']
+                'place_id' => $selectedAddress['place_id'],
             ];
-                        
+
             $this->updated('searchAdress.address_string');
         }
     }
@@ -291,25 +330,27 @@ class EditContact extends Component
     public function save()
     {
         Log::info('=== SAVING CONTACT ===');
-        
+
         $this->validate();
 
-        if (!empty($this->email) && !MailVerificator::isValidEmail($this->email)) {
+        if (! empty($this->email) && ! MailVerificator::isValidEmail($this->email)) {
             MailVerificator::logInvalidEmail($this->email);
             $this->addError('email', 'L\'adresse email n\'est pas valide.');
+
             return;
         }
-        
-        if (!empty($this->genre) && !Client::isValidCivilite($this->genre)) {
-            Log::error('Invalid civilite selected: ' . $this->genre);
+
+        if (! empty($this->genre) && ! Client::isValidCivilite($this->genre)) {
+            Log::error('Invalid civilite selected: '.$this->genre);
             $this->addError('genre', 'La civilité sélectionnée n\'est pas valide.');
+
             return;
         }
-        
+
         // Nettoyer et formater les numéros de téléphone
         $telephone1 = PhoneFormatter::formatForStorage($this->telephone1);
         $telephone2 = PhoneFormatter::formatForStorage($this->telephone2);
-        
+
         $updateData = [
             'nom' => $this->nom,
             'prenom' => $this->prenom ?? '',
@@ -346,16 +387,15 @@ class EditContact extends Component
             'conso_chauffage' => $this->conso_chauffage,
             'eau_chaude' => $this->eau_chaude,
             'age_materiel' => $this->age_materiel,
-            'updated_at' => now()
+            'updated_at' => now(),
         ];
 
-        //dd($updateData);
-
+        // dd($updateData);
 
         Log::info('Updating client with data: ', ['data' => $updateData]);
-        
+
         // Mettre à null tous les champs vides
-        //$updateData = DataNormalizer::normalizeEmptyValues($updateData);
+        // $updateData = DataNormalizer::normalizeEmptyValues($updateData);
         $updateData['debrief'] = $this->debrief ?? '';
         $updateData['mode_conso'] = $this->debrief ?? '';
 
@@ -371,19 +411,19 @@ class EditContact extends Component
 
             $updateData['rentre_par'] = $this->rentre_par;
             $updateData['partage_avec'] = $this->partage_avec;
-            
+
         } else {
             // Pour les autres rôles, on garde les valeurs existantes
             $updateData['rentre_par'] = $this->client->rentre_par;
             $updateData['partage_avec'] = $this->client->partage_avec;
         }
-        
+
         try {
-            Log::info('Attempting to update client with ID: ' . $this->client->id);
+            Log::info('Attempting to update client with ID: '.$this->client->id);
             $this->client->fill($updateData);
             $result = $this->client->save();
-            Log::info('Update result: ' . ($result ? 'SUCCESS' : 'FAILED'));
-            
+            Log::info('Update result: '.($result ? 'SUCCESS' : 'FAILED'));
+
             if ($result) {
                 Log::info('Contact updated successfully');
                 session()->flash('success', 'Contact mis à jour avec succès.');
@@ -394,11 +434,11 @@ class EditContact extends Component
                 Log::error('Update returned false');
                 $this->addError('general', 'La mise à jour a échoué.');
             }
-            
+
         } catch (\Exception $e) {
-            Log::error('Exception during update: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            $this->addError('general', 'Erreur lors de la mise à jour : ' . $e->getMessage());
+            Log::error('Exception during update: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
+            $this->addError('general', 'Erreur lors de la mise à jour : '.$e->getMessage());
         }
     }
 
@@ -467,8 +507,10 @@ class EditContact extends Component
     {
         if ($this->date_anniversaire) {
             $age = Client::getAgeFromDate($this->date_anniversaire);
+
             return $age;
         }
+
         return null;
     }
 

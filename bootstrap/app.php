@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckBlocagesAccess;
+use App\Http\Middleware\PageAccessMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->redirectUsersTo('/');
         $middleware->alias([
-            'blocages' => \App\Http\Middleware\CheckBlocagesAccess::class,
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'page.access' => \App\Http\Middleware\PageAccessMiddleware::class,
+            'blocages' => CheckBlocagesAccess::class,
+            'role' => RoleMiddleware::class,
+            'page.access' => PageAccessMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

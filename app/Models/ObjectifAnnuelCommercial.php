@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $value
  * @property int $secteur
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial query()
@@ -26,34 +26,36 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ObjectifAnnuelCommercial whereYear($value)
+ *
  * @mixin \Eloquent
  */
 class ObjectifAnnuelCommercial extends Model
 {
-	protected $table = 'objectif_annuel_commercial';
-	public $timestamps = false;
+    protected $table = 'objectif_annuel_commercial';
 
-	protected $casts = [
-		'id_user' => 'int',
-		'year' => 'int',
-		'value' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_user',
-		'year',
-		'value',
-		'secteur'
-	];
+    protected $casts = [
+        'id_user' => 'int',
+        'year' => 'int',
+        'value' => 'int',
+        'secteur' => 'int',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_user');
-	}
+    protected $fillable = [
+        'id_user',
+        'year',
+        'value',
+        'secteur',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

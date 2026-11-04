@@ -16,34 +16,36 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $nom
  * @property Collection|Client[] $clients
  * @property Collection|Vente[] $ventes
- * @package App\Models
  * @property string|null $groupe
  * @property-read int|null $clients_count
  * @property-read int|null $ventes_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source whereGroupe($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Source whereNom($value)
+ *
  * @mixin \Eloquent
  */
 class Source extends Model
 {
-	protected $table = 'sources';
-	public $timestamps = false;
+    protected $table = 'sources';
 
-	protected $fillable = [
-		'nom'
-	];
+    public $timestamps = false;
 
-	public function clients()
-	{
-		return $this->hasMany(Client::class, 'id_source');
-	}
+    protected $fillable = [
+        'nom',
+    ];
 
-	public function ventes()
-	{
-		return $this->hasMany(Vente::class, 'id_source');
-	}
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'id_source');
+    }
+
+    public function ventes()
+    {
+        return $this->hasMany(Vente::class, 'id_source');
+    }
 }

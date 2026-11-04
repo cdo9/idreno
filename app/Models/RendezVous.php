@@ -30,8 +30,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property Client $client
  * @property User $user
  * @property Collection|Vente[] $ventes
- * @package App\Models
  * @property-read int|null $ventes_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous query()
@@ -49,57 +49,59 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RendezVous whereTarifTotalHt($value)
+ *
  * @mixin \Eloquent
  */
 class RendezVous extends Model
 {
-	protected $table = 'rendez_vous';
-	public $timestamps = false;
+    protected $table = 'rendez_vous';
 
-	protected $casts = [
-		'id_commercial' => 'int',
-		'id_client' => 'int',
-		'date' => 'datetime',
-		'date_relance' => 'date',
-		'relance_confirme' => 'int',
-		'tarif_total_ht' => 'int',
-		'devis_total_ht' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_commercial',
-		'id_client',
-		'resultat',
-		'commentaire',
-		'partage_avec',
-		'date',
-		'date_relance',
-		'relance_confirme',
-		'source',
-		'tarif_total_ht',
-		'devis_total_ht',
-		'produits',
-		'secteur'
-	];
+    protected $casts = [
+        'id_commercial' => 'int',
+        'id_client' => 'int',
+        'date' => 'datetime',
+        'date_relance' => 'date',
+        'relance_confirme' => 'int',
+        'tarif_total_ht' => 'int',
+        'devis_total_ht' => 'int',
+        'secteur' => 'int',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_client');
-	}
+    protected $fillable = [
+        'id_commercial',
+        'id_client',
+        'resultat',
+        'commentaire',
+        'partage_avec',
+        'date',
+        'date_relance',
+        'relance_confirme',
+        'source',
+        'tarif_total_ht',
+        'devis_total_ht',
+        'produits',
+        'secteur',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial');
+    }
 
-	public function ventes()
-	{
-		return $this->hasMany(Vente::class, 'id_rdv');
-	}
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
+
+    public function ventes()
+    {
+        return $this->hasMany(Vente::class, 'id_rdv');
+    }
 }

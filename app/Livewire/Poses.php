@@ -2,25 +2,35 @@
 
 namespace App\Livewire;
 
+use App\Models\Pose;
+use App\Services\CommerciauxService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use App\Models\Pose;
-use App\Services\CommerciauxService;
 
 class Poses extends Component
 {
     public $dateDebut;
+
     public $dateFin;
+
     public $commercial = null;
+
     public $lstCommerciaux = [];
+
     public $lstAllCommerciaux = [];
+
     public $poses = [];
+
     public $poseurs = [];
+
     public $isDirecteur = false;
+
     public $isTelepro = false;
+
     public $isAdmin = false;
+
     public $isAdministratif = false;
 
     public function mount()
@@ -36,20 +46,19 @@ class Poses extends Component
         $this->isAdmin = $user?->hasRole('admin') ?? false;
         $this->isAdministratif = $user?->hasRole('administratif') ?? false;
 
-        
         $listeComm = CommerciauxService::getEntireCommerciauxListWithInactive();
 
-        foreach($listeComm as $commercial){
+        foreach ($listeComm as $commercial) {
             $this->lstAllCommerciaux[$commercial->id] = $commercial;
         }
 
         $listeComm = CommerciauxService::getCommerciauxListBySector();
 
-        foreach($listeComm as $commercial){
-			if($commercial->role != "telepro" && $commercial->role != "resp-prosp")
-				$this->lstCommerciaux[$commercial->id] = $commercial;
+        foreach ($listeComm as $commercial) {
+            if ($commercial->role != 'telepro' && $commercial->role != 'resp-prosp') {
+                $this->lstCommerciaux[$commercial->id] = $commercial;
+            }
         }
-        
 
         if ($this->isDirecteur || $this->isTelepro || $this->isAdministratif) {
             $this->commercial = request('commercial', null);
@@ -69,6 +78,7 @@ class Poses extends Component
             $this->poseurs[$poseur->id] = $poseur->poseur;
         }
     }
+
     public function getSuiviPercentage(string $field): int
     {
         if ($this->poses->count() === 0) {
@@ -76,6 +86,7 @@ class Poses extends Component
         }
 
         $count = $this->poses->where($field, 1)->count();
+
         return round(($count / $this->poses->count()) * 100);
     }
 
@@ -84,28 +95,28 @@ class Poses extends Component
         $poses = Pose::with([
             'client:id,nom,prenom,adresse,cp,ville,telephone1',
             'vente:id_commercial,id_commercial_2,id_commercial_3',
-            'poseurs:id'
+            'poseurs:id',
         ])
-        ->select([
-            'poses.*',
-            DB::raw('GROUP_CONCAT(pose_details.id_poseur) as poseurs')
-        ])
-        ->leftJoin('pose_details', 'poses.id', '=', 'pose_details.id_pose')
-        ->whereBetween('poses.date_debut', [$this->dateDebut, $this->dateFin])
-        ->where('poses.secteur', session('selectedSecteur'));
+            ->select([
+                'poses.*',
+                DB::raw('GROUP_CONCAT(pose_details.id_poseur) as poseurs'),
+            ])
+            ->leftJoin('pose_details', 'poses.id', '=', 'pose_details.id_pose')
+            ->whereBetween('poses.date_debut', [$this->dateDebut, $this->dateFin])
+            ->where('poses.secteur', session('selectedSecteur'));
         if ($this->commercial) {
-            $poses = $poses->where(function($q) {
-                $q->whereHas('vente', function($vente) {
+            $poses = $poses->where(function ($q) {
+                $q->whereHas('vente', function ($vente) {
                     $vente->where('id_commercial', $this->commercial)
                         ->orWhere('id_commercial_2', $this->commercial)
                         ->orWhere('id_commercial_3', $this->commercial);
                 })
-                ->orWhere('id_commercial_visite', $this->commercial);
+                    ->orWhere('id_commercial_visite', $this->commercial);
             });
         }
         $poses = $poses->groupBy('poses.id')
-        ->orderBy('poses.date_debut')
-        ->get();
+            ->orderBy('poses.date_debut')
+            ->get();
 
         $this->poses = $poses->map(function ($pose) {
             if ($pose->visite_chantier == 1 && $pose->avis_client == 1 && $pose->avis_facebook == 1) {
@@ -118,8 +129,8 @@ class Poses extends Component
 
             // Récupération des poseurs pour cette pose
             $poseursPose = explode(',', $pose->poseurs);
-            foreach($poseursPose as $poseur){
-                $poseursNoms[] = $this->poseurs[$poseur]?? '--';
+            foreach ($poseursPose as $poseur) {
+                $poseursNoms[] = $this->poseurs[$poseur] ?? '--';
             }
 
             // Récupération des commerciaux
@@ -132,8 +143,8 @@ class Poses extends Component
 
             $commerciauxPose = [];
 
-            if (!empty($commerciauxIds)) {
-                foreach(array_unique($commerciauxIds) as $id){
+            if (! empty($commerciauxIds)) {
+                foreach (array_unique($commerciauxIds) as $id) {
                     $commerciauxPose[] = $this->lstAllCommerciaux[$id];
                 }
             }
@@ -162,20 +173,20 @@ class Poses extends Component
                 'poseurs' => $poseursNoms,
                 'commerciaux' => $commerciauxPose,
                 'id_commercial_visite' => $pose->id_commercial_visite,
-                'google_calendar_url' => $this->generateGoogleCalendarUrl($pose)
+                'google_calendar_url' => $this->generateGoogleCalendarUrl($pose),
             ];
         });
     }
 
     private function generateGoogleCalendarUrl($pose)
     {
-        $url = "http://www.google.com/calendar/event";
-        $url .= "?action=TEMPLATE";
-        $url .= "&dates=" . date('Ymd', strtotime($pose->date_debut));
-        $url .= "/" . date('Ymd', strtotime($pose->date_fin . " +1day"));
-        $url .= "&text=" . urlencode($pose->nom);
-        $url .= "&location=" . urlencode($pose->adresse . ' ' . $pose->cp . ' ' . $pose->ville);
-        $url .= "&details=" . urlencode(implode("\n", [$pose->telephone1, $pose->produit, $pose->produit2, $pose->produit3]));
+        $url = 'http://www.google.com/calendar/event';
+        $url .= '?action=TEMPLATE';
+        $url .= '&dates='.date('Ymd', strtotime($pose->date_debut));
+        $url .= '/'.date('Ymd', strtotime($pose->date_fin.' +1day'));
+        $url .= '&text='.urlencode($pose->nom);
+        $url .= '&location='.urlencode($pose->adresse.' '.$pose->cp.' '.$pose->ville);
+        $url .= '&details='.urlencode(implode("\n", [$pose->telephone1, $pose->produit, $pose->produit2, $pose->produit3]));
 
         return $url;
     }
@@ -192,7 +203,9 @@ class Poses extends Component
 
     public function toggleVisiteChantier($idPose, $newValue)
     {
-        if (!$this->isAdmin) return;
+        if (! $this->isAdmin) {
+            return;
+        }
 
         DB::table('poses')
             ->where('id', $idPose)
@@ -203,7 +216,9 @@ class Poses extends Component
 
     public function toggleAvisClient($idPose, $newValue)
     {
-        if (!$this->isAdmin) return;
+        if (! $this->isAdmin) {
+            return;
+        }
 
         DB::table('poses')
             ->where('id', $idPose)
@@ -214,7 +229,9 @@ class Poses extends Component
 
     public function toggleAvisFacebook($idPose, $newValue)
     {
-        if (!$this->isAdmin) return;
+        if (! $this->isAdmin) {
+            return;
+        }
 
         DB::table('poses')
             ->where('id', $idPose)
@@ -225,7 +242,9 @@ class Poses extends Component
 
     public function toggleIndicateur($idPose, $newValue)
     {
-        if (!$this->isAdmin) return;
+        if (! $this->isAdmin) {
+            return;
+        }
 
         DB::table('poses')
             ->where('id', $idPose)
@@ -242,7 +261,9 @@ class Poses extends Component
         $nbFacebook = 0;
 
         foreach ($this->poses as $pose) {
-            if ($pose['indicateur'] == 0) continue;
+            if ($pose['indicateur'] == 0) {
+                continue;
+            }
             $cptPosesIndicateur += 1;
             $nbVisites += $pose['visite_chantier'];
             $nbAvis += $pose['avis_client'];
@@ -258,10 +279,11 @@ class Poses extends Component
 
     public function getCommercialNom($commercial)
     {
-        return trim(($commercial->prenom ?? '') . ' ' . ($commercial->nom ?? ''));
+        return trim(($commercial->prenom ?? '').' '.($commercial->nom ?? ''));
     }
 
-    public function confirmDelete($poseId){
+    public function confirmDelete($poseId)
+    {
         $pose = Pose::find($poseId);
         if ($pose) {
             DB::table('pose_details')->where('id_pose', $poseId)->delete();
@@ -277,7 +299,7 @@ class Poses extends Component
     public function render()
     {
         return view('livewire.poses', [
-            'indicateurs' => $this->getIndicateurs()
+            'indicateurs' => $this->getIndicateurs(),
         ]);
     }
 }

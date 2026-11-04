@@ -36,10 +36,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $quantite3
  * @property int $secteur
  * @property Client $client
- * @package App\Models
  * @property int|null $date_realisation_du_projet
  * @property string|null $pourquoi
  * @property int|null $partage_avec
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet query()
@@ -69,6 +69,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Projet whereTempsDisponible($value)
+ *
  * @mixin \Eloquent
  */
 class Projet extends Model
@@ -77,56 +78,57 @@ class Projet extends Model
      * @var mixed|string
      */
     protected $table = 'projets';
-	public $timestamps = false;
 
-	protected $casts = [
-		'id_client' => 'int',
-		'priorite' => 'int',
-		'estimation' => 'int',
-		'date_ajout' => 'datetime',
-		'date' => 'datetime',
-		'rdv_confirme' => 'int',
-		'date_confirmation' => 'datetime',
-		'rdv_annule' => 'int',
-		'date_realisation' => 'datetime',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_client',
-		'priorite',
-		'projet',
-		'projet2',
-		'projet3',
-		'source',
-		'estimation',
-		'date_ajout',
-		'date',
-		'rdv_confirme',
-		'date_confirmation',
-		'rdv_annule',
-		'compte_rendu',
-		'date_realisation',
-		'date_realisation_du_projet',
-		'raison',
-		'heure',
-		'couple_present',
-		'temps_disponible',
-		'quantite1',
-		'quantite2',
-		'quantite3',
-		'secteur',
-		'pourquoi',
-		'partage_avec'
-	];
+    protected $casts = [
+        'id_client' => 'int',
+        'priorite' => 'int',
+        'estimation' => 'int',
+        'date_ajout' => 'datetime',
+        'date' => 'datetime',
+        'rdv_confirme' => 'int',
+        'date_confirmation' => 'datetime',
+        'rdv_annule' => 'int',
+        'date_realisation' => 'datetime',
+        'secteur' => 'int',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_client');
-	}
+    protected $fillable = [
+        'id_client',
+        'priorite',
+        'projet',
+        'projet2',
+        'projet3',
+        'source',
+        'estimation',
+        'date_ajout',
+        'date',
+        'rdv_confirme',
+        'date_confirmation',
+        'rdv_annule',
+        'compte_rendu',
+        'date_realisation',
+        'date_realisation_du_projet',
+        'raison',
+        'heure',
+        'couple_present',
+        'temps_disponible',
+        'quantite1',
+        'quantite2',
+        'quantite3',
+        'secteur',
+        'pourquoi',
+        'partage_avec',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $heure_fin
  * @property int $secteur
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection query()
@@ -37,39 +37,41 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereTermine($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Prospection whereZone($value)
+ *
  * @mixin \Eloquent
  */
 class Prospection extends Model
 {
-	protected $table = 'prospections';
-	public $timestamps = false;
+    protected $table = 'prospections';
 
-	protected $casts = [
-		'id_commercial' => 'int',
-		'date' => 'datetime',
-		'termine' => 'bool',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_commercial',
-		'commune',
-		'zone',
-		'date',
-		'type',
-		'termine',
-		'heure_debut',
-		'heure_fin',
-		'secteur'
-	];
+    protected $casts = [
+        'id_commercial' => 'int',
+        'date' => 'datetime',
+        'termine' => 'bool',
+        'secteur' => 'int',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial');
-	}
+    protected $fillable = [
+        'id_commercial',
+        'commune',
+        'zone',
+        'date',
+        'type',
+        'termine',
+        'heure_debut',
+        'heure_fin',
+        'secteur',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

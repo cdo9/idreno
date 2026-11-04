@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $user_agent
  * @property string $payload
  * @property int $last_activity
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session query()
@@ -27,24 +27,27 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session wherePayload($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session whereUserAgent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Session whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Session extends Model
 {
-	protected $table = 'sessions';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'sessions';
 
-	protected $casts = [
-		'user_id' => 'int',
-		'last_activity' => 'int'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'user_id',
-		'ip_address',
-		'user_agent',
-		'payload',
-		'last_activity'
-	];
+    public $timestamps = false;
+
+    protected $casts = [
+        'user_id' => 'int',
+        'last_activity' => 'int',
+    ];
+
+    protected $fillable = [
+        'user_id',
+        'ip_address',
+        'user_agent',
+        'payload',
+        'last_activity',
+    ];
 }

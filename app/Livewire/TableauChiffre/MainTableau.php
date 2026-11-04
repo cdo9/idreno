@@ -2,18 +2,19 @@
 
 namespace App\Livewire\TableauChiffre;
 
-use Livewire\Component;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PHPUnit\Framework\EmptyStringException;
+use Livewire\Component;
 
 class MainTableau extends Component
 {
     public $month;
+
     public $months = [];
+
     public $year;
+
     public $years = [];
+
     public $activeTab = 'chiffres';
 
     public function mount()
@@ -21,7 +22,6 @@ class MainTableau extends Component
         $this->initializeDateData();
         $this->initializeMonthsAndYears();
     }
-
 
     private function initializeDateData()
     {
@@ -39,12 +39,14 @@ class MainTableau extends Component
         $this->years = range(Carbon::now()->year, 2014);
     }
 
-    public function updatedMonth() { 
-        $this->dispatch('filters-updated', ['month' => $this->month, 'year' => $this->year]); 
+    public function updatedMonth()
+    {
+        $this->dispatch('filters-updated', ['month' => $this->month, 'year' => $this->year]);
     }
 
-    public function updatedYear() { 
-        $this->dispatch('filters-updated', ['month' => $this->month, 'year' => $this->year]); 
+    public function updatedYear()
+    {
+        $this->dispatch('filters-updated', ['month' => $this->month, 'year' => $this->year]);
     }
 
     public function switchTab($tab)
@@ -52,7 +54,7 @@ class MainTableau extends Component
         $this->activeTab = $tab;
         $this->dispatch('filters-updated', ['month' => $this->month, 'year' => $this->year]);
     }
-    
+
     public function render()
     {
         return view('livewire.tableau-chiffre.main-tableau');

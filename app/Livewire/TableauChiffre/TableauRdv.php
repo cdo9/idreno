@@ -2,27 +2,35 @@
 
 namespace App\Livewire\TableauChiffre;
 
-use Livewire\Component;
+use App\Services\TableauChiffreService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\TableauChiffreService;
+use Livewire\Component;
 
 class TableauRdv extends Component
 {
     public $month;
+
     public $year;
+
     public $groupes = [];
+
     public $isDirecteur = false;
+
     public $isTelepro = false;
+
     public $isAdmin = false;
+
     public $sortColumn = 'nom';
+
     public $sortDirection = 'asc';
+
     public $totauxGlobaux;
+
     public $totauxSecteur;
 
-    
     protected $listeners = ['filters-updated' => 'applyFilters'];
 
     public function mount($year = null, $month = null)
@@ -74,6 +82,7 @@ class TableauRdv extends Component
     {
         $start = Carbon::createFromDate($this->year, $this->month, 1)->startOfMonth();
         $end = $start->copy()->endOfMonth();
+
         return [$start->toDateString(), $end->toDateString()];
     }
 
@@ -82,6 +91,7 @@ class TableauRdv extends Component
         $date = Carbon::parse($dateEntree)->startOfDay();
         $debut = now()->startOfDay()->subMonths(3);
         $fin = now()->startOfDay()->subMonths(3)->addDays(21);
+
         return $date->between($debut, $fin);
     }
 
@@ -89,12 +99,12 @@ class TableauRdv extends Component
     {
         [$start, $end] = $this->getDateRange();  // 1er → fin mois
         $today = Carbon::today();
-        
-        
+
         // Limite fin à today si mois futur
         $end = $today->gt($end) ? $end : $today->toString();
+
         return collect(CarbonPeriod::create($start, $end))
-            ->filter(fn($date) => !$date->isWeekend())
+            ->filter(fn ($date) => ! $date->isWeekend())
             ->count();
     }
 
@@ -122,7 +132,7 @@ class TableauRdv extends Component
                 ->where('p.rdv_annule', 0)
                 ->whereBetween('p.date_confirmation', [
                     Carbon::create($this->year, $this->month, $start),
-                    Carbon::create($this->year, $this->month, $end)
+                    Carbon::create($this->year, $this->month, $end),
                 ])
                 ->count();
         }
@@ -139,14 +149,14 @@ class TableauRdv extends Component
         for ($i = 0; $i < 6; $i++) {
             $date = $premierJourSemaine->copy()->addDays($i);
 
-            if($date->lte($today)){
+            if ($date->lte($today)) {
                 $data[] = DB::table('clients as c')
                     ->join('projets as p', 'p.id_client', '=', 'c.id')
                     ->where('c.rentre_par', $userId)
                     ->where('p.rdv_annule', 0)
                     ->whereDate('p.date_confirmation', $date->toDateString())
                     ->count();
-            }else{
+            } else {
                 $argusParJour[] = '-';
             }
         }
@@ -156,7 +166,7 @@ class TableauRdv extends Component
 
     private function initializeGlobalTotals()
     {
-        return (object)[
+        return (object) [
             'somme_objectif_rdv' => 0,
             'somme_ca_realise' => 0,
             'somme_rdv_total' => 0,
@@ -181,10 +191,10 @@ class TableauRdv extends Component
 
         return $groupes;
     }
-    
+
     private function getSortValue($user)
     {
-        return match($this->sortColumn) {
+        return match ($this->sortColumn) {
             'prenom' => $user->prenom,
             'rdv_total' => $user->rdv_total,
             'rdv_objectif' => $user->objectif_rdv,
@@ -214,7 +224,7 @@ class TableauRdv extends Component
             $user->objectif_rdv = $user->objectif_rdv ?? 0;
             $user->rdv_total = $this->calculerNombreRdv($user->id);
             $user->rdv_par_semaine = $this->nombreRdvSemaine($user->id);
-            //dd($user->rdv_par_semaine);
+            // dd($user->rdv_par_semaine);
             $user->rdv_par_jours = $this->rdvJours($user->id);
             $user->cc_jour = $joursOuvres > 0 ? ($user->rdv_total / $joursOuvres) : 0;
             $user->is_fin_periode_essai = $this->isFinPeriodeEssai($user->date_entree);
@@ -222,10 +232,11 @@ class TableauRdv extends Component
             $groupe->somme_rdv_effectues += $user->cc_jour;
 
             foreach ($user->rdv_par_semaine as $i => $val) {
-                if(!isset($groupe->somme_rdv_par_semaine[$i]))
-                    $groupe->somme_rdv_par_semaine[$i] = $val;    
-                else
+                if (! isset($groupe->somme_rdv_par_semaine[$i])) {
+                    $groupe->somme_rdv_par_semaine[$i] = $val;
+                } else {
                     $groupe->somme_rdv_par_semaine[$i] += $val;
+                }
             }
 
             foreach ($user->rdv_par_jours as $i => $val) {
@@ -249,26 +260,28 @@ class TableauRdv extends Component
         $global->somme_rdv_effectues += $groupe->somme_rdv_effectues;
 
         foreach ($groupe->somme_rdv_par_semaine as $i => $v) {
-            if(!isset($global->somme_rdv_par_semaine[$i]))
+            if (! isset($global->somme_rdv_par_semaine[$i])) {
                 $global->somme_rdv_par_semaine[$i] = $v;
-            else
+            } else {
                 $global->somme_rdv_par_semaine[$i] += $v;
+            }
         }
 
         foreach ($groupe->somme_rdv_par_jours as $i => $v) {
             $global->somme_rdv_par_jours[$i] += $v;
         }
 
-        if($groupe->id_secteur == session('selectedSecteur')){
+        if ($groupe->id_secteur == session('selectedSecteur')) {
             $globalSecteur->somme_objectif_rdv += $groupe->somme_objectif_rdv;
             $globalSecteur->somme_rdv_total += $groupe->somme_rdv_total;
             $globalSecteur->somme_rdv_effectues += $groupe->somme_rdv_effectues;
 
             foreach ($groupe->somme_rdv_par_semaine as $i => $v) {
-                if(!isset($globalSecteur->somme_rdv_par_semaine[$i]))
+                if (! isset($globalSecteur->somme_rdv_par_semaine[$i])) {
                     $globalSecteur->somme_rdv_par_semaine[$i] = $v;
-                else
+                } else {
                     $globalSecteur->somme_rdv_par_semaine[$i] += $v;
+                }
             }
 
             foreach ($groupe->somme_rdv_par_jours as $i => $v) {
@@ -277,20 +290,22 @@ class TableauRdv extends Component
         }
     }
 
-    public function finalizeGlobalTotals($global, $globalSecteur, $groupes){
+    public function finalizeGlobalTotals($global, $globalSecteur, $groupes)
+    {
 
         $countGlobalUsers = 0;
         $countSecteurUsers = 0;
-        foreach($groupes as $groupe){
-            if($groupe->secteur == session('selectedSecteur'))
+        foreach ($groupes as $groupe) {
+            if ($groupe->secteur == session('selectedSecteur')) {
                 $countSecteurUsers += count($groupe->users);
+            }
             $countGlobalUsers += count($groupe->users);
         }
 
         $global->total_cc_jour = $countGlobalUsers > 0
             ? $global->somme_rdv_effectues / $countGlobalUsers
             : 0;
-        
+
         $globalSecteur->total_cc_jour = $countSecteurUsers > 0
                 ? $globalSecteur->somme_rdv_effectues / $countSecteurUsers
                 : 0;
@@ -308,14 +323,16 @@ class TableauRdv extends Component
 
         $this->groupes = $this->processGroupes($groupes, $startDate, $endDate, $joursOuvres, $user, $global, $globalSecteur);
 
-        foreach($this->groupes as $index => $groupe){
-            if($groupe->id_secteur != session('selectedSecteur'))
+        foreach ($this->groupes as $index => $groupe) {
+            if ($groupe->id_secteur != session('selectedSecteur')) {
                 unset($this->groupes[$index]);
+            }
         }
 
         $this->totauxGlobaux = $global;
         $this->totauxSecteur = $globalSecteur;
     }
+
     public function render()
     {
         return view('livewire.tableau-chiffre.tableau-rdv');

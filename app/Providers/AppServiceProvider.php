@@ -2,14 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        Blade::directive('capitalizeLower', function($string){
+        Blade::directive('capitalizeLower', function ($string) {
             return "<?php echo ucfirst(strtolower($string));?>";
         });
 
@@ -63,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
         EloquentBuilder::macro('ddSql', function ($label = null) {
             $sql = Str::replaceArray('?', $this->getBindings(), $this->toSql());
             $label = $label ? "[$label] " : '';
-            dd($label . $sql);
+            dd($label.$sql);
         });
     }
 }

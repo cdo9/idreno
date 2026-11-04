@@ -2,28 +2,37 @@
 
 namespace App\Livewire;
 
-use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Services\CommerciauxService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class Argumentations extends Component
 {
     public $m;
+
     public $y;
+
     public $commercial = null;
+
     public $argus = [];
+
     public $lstCommerciaux = [];
+
     public $message = null;
+
     public $isResponsable = false;
+
     public $isDirecteur = false;
+
     public $isAdmin = false;
+
     public $isAdministratif = false;
 
     public $selectedClientId = null;
-    
+
     protected $queryString = ['y', 'm', 'commercial'];
 
     public function mount()
@@ -42,12 +51,11 @@ class Argumentations extends Component
             ->where('id_responsable', $userId)
             ->exists();
 
-
         $this->commercial = $this->commercial ?? request('commercial', null);
         if ($this->isAdministratif) {
-            $this->lstCommerciaux = CommerciauxService::getEntireCommerciauxList('date_entree','asc');
-        }elseif ($this->isDirecteur) {
-            $this->lstCommerciaux = CommerciauxService::getCommerciauxListBySector('date_entree','asc');
+            $this->lstCommerciaux = CommerciauxService::getEntireCommerciauxList('date_entree', 'asc');
+        } elseif ($this->isDirecteur) {
+            $this->lstCommerciaux = CommerciauxService::getCommerciauxListBySector('date_entree', 'asc');
         } elseif ($this->isResponsable) {
 
             $groupeResponsable = DB::table('groupes')
@@ -60,21 +68,18 @@ class Argumentations extends Component
                     ->orderBy('date_entree')
                     ->get();
             } else {
-				
-               
-            $this->lstCommerciaux = User::where('id', $userId)->get();
+
+                $this->lstCommerciaux = User::where('id', $userId)->get();
             }
 
         } else {
             $this->commercial = $this->commercial ?? $userId;
-            
+
             $this->lstCommerciaux = User::where('id', $userId)->get();
         }
-        
+
         $this->loadData();
     }
-
-
 
     public function updated()
     {
@@ -85,10 +90,10 @@ class Argumentations extends Component
     {
         if ($this->m == 0) {
             $dateDebut = Carbon::createFromDate($this->y, 1, 1)->startOfYear()->toDateString();
-            $dateFin   = Carbon::createFromDate($this->y, 12, 31)->endOfYear()->toDateString();
+            $dateFin = Carbon::createFromDate($this->y, 12, 31)->endOfYear()->toDateString();
         } else {
             $dateDebut = Carbon::createFromDate($this->y, $this->m, 1)->startOfMonth()->toDateString();
-            $dateFin   = Carbon::createFromDate($this->y, $this->m, 1)->endOfMonth()->toDateString();
+            $dateFin = Carbon::createFromDate($this->y, $this->m, 1)->endOfMonth()->toDateString();
         }
 
         $query = DB::table('rendez_vous as rv')
@@ -117,15 +122,16 @@ class Argumentations extends Component
                 'com3.id as com3_id',
             );
 
-        if($this->selectedClientId == null)
+        if ($this->selectedClientId == null) {
             $query->whereBetween('rv.date', [$dateDebut, $dateFin]);
+        }
 
         $currentUserId = Auth::id();
 
-        if($this->selectedClientId == null){
-			
+        if ($this->selectedClientId == null) {
+
             $query->where('rv.secteur', '=', session('selectedSecteur'));
-			
+
             if ($this->isDirecteur || $this->isAdministratif) {
                 if ($this->commercial) {
                     $query->where(function ($q) {
@@ -166,7 +172,7 @@ class Argumentations extends Component
                         ->orWhere('rv.partage_avec', $currentUserId);
                 });
             }
-        }else{
+        } else {
             $query->where('c.id', $this->selectedClientId);
         }
 
@@ -174,17 +180,17 @@ class Argumentations extends Component
 
         $this->argus = $rows->map(function ($argu) {
             return [
-                'id'          => $argu->id,
-                'date'        => Carbon::parse($argu->date)->format('d/m/Y'),
-                'client'      => trim((ucfirst(strtolower($argu->nom ?? ''))) . ' ' . (ucfirst(strtolower($argu->prenom ?? '')))),
-                'devis'       => $argu->devis_total_ht,
-                'tarif'       => $argu->tarif_total_ht,
-                'resultat'    => $argu->resultat,
+                'id' => $argu->id,
+                'date' => Carbon::parse($argu->date)->format('d/m/Y'),
+                'client' => trim((ucfirst(strtolower($argu->nom ?? ''))).' '.(ucfirst(strtolower($argu->prenom ?? '')))),
+                'devis' => $argu->devis_total_ht,
+                'tarif' => $argu->tarif_total_ht,
+                'resultat' => $argu->resultat,
                 'commentaire' => $argu->commentaire,
-                'commercial'  => CommerciauxService::getCommercialById($argu->commercial_id)->display_name,
-                'partage'     => $argu->partage_id ? CommerciauxService::getCommercialById($argu->partage_id)->display_name : '',
-                'com3'        => $argu->com3_id ? CommerciauxService::getCommercialById($argu->com3_id)->display_name : '',
-                'statut'      => $argu->statut
+                'commercial' => CommerciauxService::getCommercialById($argu->commercial_id)->display_name,
+                'partage' => $argu->partage_id ? CommerciauxService::getCommercialById($argu->partage_id)->display_name : '',
+                'com3' => $argu->com3_id ? CommerciauxService::getCommercialById($argu->com3_id)->display_name : '',
+                'statut' => $argu->statut,
             ];
         });
     }
@@ -196,7 +202,7 @@ class Argumentations extends Component
 
         $this->loadData();
 
-        $this->message = "Argumentation supprimée avec succès ✅";
+        $this->message = 'Argumentation supprimée avec succès ✅';
     }
 
     public function render()
@@ -208,6 +214,7 @@ class Argumentations extends Component
             'Juillet' => '7', 'Août' => '8', 'Septembre' => '9',
             'Octobre' => '10', 'Novembre' => '11', 'Décembre' => '12',
         ];
+
         return view('livewire.argumentations', [
             'years' => $years,
             'months' => $months,

@@ -2,26 +2,33 @@
 
 namespace App\Livewire;
 
-use App\Services\ProjectService;
-use Livewire\Component;
 use App\Models\Pose;
-use App\Models\Vente;
 use App\Models\Poseur;
-use App\Models\User;
+use App\Models\Vente;
+use App\Services\CommerciauxService;
+use App\Services\ProjectService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Services\CommerciauxService;
+use Livewire\Component;
 
 class NouvellePose extends Component
 {
     public $pose = [];
+
     public $ventes = [];
+
     public $poseurs = [];
+
     public $commerciaux = [];
+
     public $mode = 'creation';
+
     public $poseId = null;
+
     public $lstPriorities;
+
     public $searchVente = '';
+
     public $selectedVente = null;
 
     public $url = null;
@@ -52,7 +59,7 @@ class NouvellePose extends Component
 
         // Charger la pose existante si un ID est fourni
         if ($this->poseId) {
-            $pose = Pose::with(['poseurs','client'])->find($this->poseId);
+            $pose = Pose::with(['poseurs', 'client'])->find($this->poseId);
             if ($pose) {
                 $this->pose = [
                     'date_debut' => optional($pose->date_debut)->format('Y-m-d'),
@@ -67,9 +74,9 @@ class NouvellePose extends Component
                     'id_vente' => $pose->id_vente,
                     'secteur' => session('selectedSecteur'),
                     'id_client' => $pose->id_client,
-                    'searchVente' => $pose->client->nom . ' ' . $pose->client->prenom
+                    'searchVente' => $pose->client->nom.' '.$pose->client->prenom,
                 ];
-                $this->searchVente = $pose->client->nom . ' ' . $pose->client->prenom;
+                $this->searchVente = $pose->client->nom.' '.$pose->client->prenom;
 
                 $this->mode = 'modification';
             }
@@ -93,19 +100,19 @@ class NouvellePose extends Component
         $this->pose['date_fin'] = Carbon::parse($this->pose['date_fin'])->format('Y-m-d');
 
         // Récupérer l'id_client depuis la vente sélectionnée
-        $this->url = "";
+        $this->url = '';
         if ($this->pose['id_vente']) {
             $vente = Vente::with('client')->find($this->pose['id_vente']);
             if ($vente) {
                 $this->pose['id_client'] = $vente->id_client;
 
-                $this->url = "http://www.google.com/calendar/event";
-                $this->url .= "?action=TEMPLATE";
-                $this->url .= "&dates=" . Carbon::parse($this->pose['date_debut'])->format('Ymd');
-                $this->url .=       "/" . Carbon::parse($this->pose['date_fin'])->addDays(1)->format('Ymd');
-                $this->url .= "&text=" . urlencode($vente->client->nom . " - visite de pose - tap sur pose");
-                $this->url .= "&location=".urlencode($vente->client->adresse.' '. $vente->client->cp .' '. $vente->client->ville);
-                $this->url .= "&details=" . urlencode($this->pose['produit']);
+                $this->url = 'http://www.google.com/calendar/event';
+                $this->url .= '?action=TEMPLATE';
+                $this->url .= '&dates='.Carbon::parse($this->pose['date_debut'])->format('Ymd');
+                $this->url .= '/'.Carbon::parse($this->pose['date_fin'])->addDays(1)->format('Ymd');
+                $this->url .= '&text='.urlencode($vente->client->nom.' - visite de pose - tap sur pose');
+                $this->url .= '&location='.urlencode($vente->client->adresse.' '.$vente->client->cp.' '.$vente->client->ville);
+                $this->url .= '&details='.urlencode($this->pose['produit']);
 
             }
         }
@@ -121,9 +128,8 @@ class NouvellePose extends Component
         // Synchroniser les poseurs
         $pose->poseurs()->sync($this->pose['poseurs'] ?? []);
 
-        
         session()->flash('message', 'Pose enregistrée avec succès.');
-        //return redirect()->route('poses');
+        // return redirect()->route('poses');
     }
 
     public function render()
@@ -136,26 +142,26 @@ class NouvellePose extends Component
         $search = $this->searchVente;
         // Requête filtrée selon la recherche
         $query = DB::table('ventes as v')
-        ->select(DB::raw('MIN(v.id) as id_vente'), 'v.date', 'c.nom', 'c.prenom', 'c.adresse', 'c.ville', 'c.cp', 'c.id')
-        ->leftJoin('clients as c', 'v.id_client', '=', 'c.id')
-        ->leftJoin('poses as p', 'p.id_vente', '=', 'v.id')
-        ->whereNull('p.id');
+            ->select(DB::raw('MIN(v.id) as id_vente'), 'v.date', 'c.nom', 'c.prenom', 'c.adresse', 'c.ville', 'c.cp', 'c.id')
+            ->leftJoin('clients as c', 'v.id_client', '=', 'c.id')
+            ->leftJoin('poses as p', 'p.id_vente', '=', 'v.id')
+            ->whereNull('p.id');
 
-        if($search){
-            $query = $query->where(function($query) use ($search) {
+        if ($search) {
+            $query = $query->where(function ($query) use ($search) {
                 $query->where('c.nom', 'like', "%$search%")
                     ->orWhere('c.prenom', 'like', "%$search%");
             });
         }
         $this->ventes = $query->where('v.statut', '=', 2)
-        ->groupBy('v.date', 'c.id',  'c.nom', 'c.prenom', 'c.adresse', 'c.ville', 'c.cp')
-        ->limit(10)->get();
+            ->groupBy('v.date', 'c.id', 'c.nom', 'c.prenom', 'c.adresse', 'c.ville', 'c.cp')
+            ->limit(10)->get();
     }
 
     public function selectVente($id)
     {
         $this->pose['id_vente'] = $id;
-        $this->searchVente = $this->ventes->firstWhere('id_vente', $id)->prenom . ' ' . $this->ventes->firstWhere('id_vente', $id)->nom;
+        $this->searchVente = $this->ventes->firstWhere('id_vente', $id)->prenom.' '.$this->ventes->firstWhere('id_vente', $id)->nom;
         $this->ventes = [];
     }
 }

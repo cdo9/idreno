@@ -2,13 +2,15 @@
 
 namespace App\Livewire\Challenge;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class FormulaireChallenge extends Component
 {
     public $challenge;
+
     public $date;
+
     public $idChallenge;
 
     public function mount($id = null)
@@ -23,10 +25,12 @@ class FormulaireChallenge extends Component
             }
         }
     }
+
     public function cancel()
     {
         return redirect('/challenges');
     }
+
     public function save()
     {
         $this->validate([
@@ -44,6 +48,7 @@ class FormulaireChallenge extends Component
 
             session()->flash('message', 'Challenge mis à jour');
         }
+
         return redirect('/challenges');
     }
 

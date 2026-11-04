@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('secteur_commercials', function (Blueprint $table) {
-            $table->integer('id_secteur');            
-            $table->foreignId('id_commercial')->constrained('users');    
+            $table->integer('id_secteur');
+            $table->foreignId('id_commercial')->constrained('users');
 
             $table->primary(['id_secteur', 'id_commercial']);
         });

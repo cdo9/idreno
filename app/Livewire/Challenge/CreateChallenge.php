@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Challenge;
 
-use Livewire\Component;
 use App\Models\Challenge;
+use Livewire\Component;
 
 class CreateChallenge extends Component
 {
     public $challenge;
+
     public $date;
 
     protected $rules = [
@@ -22,13 +23,15 @@ class CreateChallenge extends Component
         Challenge::create([
             'challenge' => $this->challenge,
             'date' => $this->date,
-            'secteur' => session('selectedSecteur')
+            'secteur' => session('selectedSecteur'),
         ]);
 
         session()->flash('message', 'Challenge créé avec succès !');
         $this->reset(['challenge', 'date']);
+
         return redirect()->to('/challenges');
     }
+
     public function cancel()
     {
         return redirect()->to('/challenges');

@@ -2,14 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Models\Client;
+use App\Models\RendezVous;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Client;
-use App\Models\Secteur;
-use App\Models\RendezVous;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class RelanceListing extends Component
 {
@@ -19,17 +18,24 @@ class RelanceListing extends Component
 
     // Propriétés principales
     public $type = 'argumentations';
+
     public $date_debut = '';
+
     public $date_fin = '';
+
     public $secteur_id = '';
+
     public $perPage = 15;
+
     public $user;
 
     // Tri
     public $sortColumn = 'date_relance';
+
     public $sortDirection = 'desc';
-    
+
     public $selectedClientId = null;
+
     public $selectedRendezVousId = null;
 
     protected $queryString = [
@@ -39,11 +45,24 @@ class RelanceListing extends Component
         'secteur_id' => ['except' => ''],
     ];
 
-    public function updatingDateDebut() { $this->resetPage(); }
-    public function updatingDateFin() { $this->resetPage(); }
-    public function updatingSecteurId() { $this->resetPage(); }
-    public function updatingType() { 
-        $this->resetPage(); 
+    public function updatingDateDebut()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateFin()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSecteurId()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingType()
+    {
+        $this->resetPage();
         $this->sortColumn = 'date_relance';
         $this->sortDirection = 'desc';
     }
@@ -59,7 +78,7 @@ class RelanceListing extends Component
         // Par défaut : si aucune date fournie ET aucun paramètre date dans l'URL, on prend le mois en cours
         if (
             empty($this->date_debut) && empty($this->date_fin) &&
-            !(request()->has('date_debut') && request()->has('date_fin'))
+            ! (request()->has('date_debut') && request()->has('date_fin'))
         ) {
             $this->date_debut = Carbon::now()->startOfMonth()->format('Y-m-d');
             $this->date_fin = Carbon::now()->endOfMonth()->format('Y-m-d');
@@ -74,6 +93,7 @@ class RelanceListing extends Component
         if ($this->type === 'financements') {
             return $this->getFinancementData();
         }
+
         return $this->getContactsData();
     }
 
@@ -85,35 +105,35 @@ class RelanceListing extends Component
         if ($type === 'financements') {
             return 'livewire.relance-listing-financements';
         }
+
         return 'livewire.relance-listing';
     }
-
 
     private function getArgumentationsData()
     {
         $userRole = Auth::user()->role;
-        
+
         $query = RendezVous::with(['client:id,rentre_par, nom,prenom, telephone1, telephone2, ville'])
-        ->with('client.user:id,nom,prenom')
-        ->addSelect([
-            'rendez_vous.id as rdv_id',
-            'rendez_vous.date as date_argu',
-            'rendez_vous.devis_total_ht as montant_devis',
-            'rendez_vous.tarif_total_ht as montant_tarif',
-            'rendez_vous.resultat',
-            'rendez_vous.produits',
-            'rendez_vous.date_relance',
-            'rendez_vous.relance_confirme as rdv_relance',            
-            'groupes.nom as groupe_nom',
-            'rendez_vous.id_client'])
+            ->with('client.user:id,nom,prenom')
+            ->addSelect([
+                'rendez_vous.id as rdv_id',
+                'rendez_vous.date as date_argu',
+                'rendez_vous.devis_total_ht as montant_devis',
+                'rendez_vous.tarif_total_ht as montant_tarif',
+                'rendez_vous.resultat',
+                'rendez_vous.produits',
+                'rendez_vous.date_relance',
+                'rendez_vous.relance_confirme as rdv_relance',
+                'groupes.nom as groupe_nom',
+                'rendez_vous.id_client'])
             ->join('clients', 'rendez_vous.id_client', '=', 'clients.id')
             ->leftJoin('users', 'clients.rentre_par', '=', 'users.id')
             ->leftJoin('groupes', 'users.groupe', '=', 'groupes.id')
             ->where('relance_confirme', 0);
-            
-        if (!in_array($userRole, ['directeur', 'admin'])) {
+
+        if (! in_array($userRole, ['directeur', 'admin'])) {
             $currentUserId = Auth::user()->id;
-            $query->whereRaw("(clients.rentre_par = ? OR clients.partage_avec = ?)", [$currentUserId, $currentUserId]);
+            $query->whereRaw('(clients.rentre_par = ? OR clients.partage_avec = ?)', [$currentUserId, $currentUserId]);
         }
 
         // $query->where('clients.nom', 'LIKE', 'Rhault');
@@ -125,99 +145,100 @@ class RelanceListing extends Component
         // Tri sécurisé
         $allowedColumns = ['nom', 'prenom', 'ville', 'date_argu', 'montant_devis', 'groupe_nom'];
         $sortColumn = in_array($this->sortColumn, $allowedColumns) ? $this->sortColumn : 'date_argu';
-        
+
         if (in_array($sortColumn, ['nom', 'prenom'])) {
-            $sortColumn = 'clients.' . $sortColumn;
+            $sortColumn = 'clients.'.$sortColumn;
         }
 
         $argus = $query->orderBy($sortColumn, $this->sortDirection)
-                     ->paginate($this->perPage);
+            ->paginate($this->perPage);
 
         // Ajouter les paramètres de pagination à l'URL
-        $argus->withPath('/relances?type=' . $this->type . '&date_debut=' . $this->date_debut . '&date_fin=' . $this->date_fin . '&secteur_id=' . $this->secteur_id);
-		
+        $argus->withPath('/relances?type='.$this->type.'&date_debut='.$this->date_debut.'&date_fin='.$this->date_fin.'&secteur_id='.$this->secteur_id);
+
         return $argus;
     }
 
     private function getFinancementData()
     {
         $userRole = Auth::user()->role;
-        
+
         $query = DB::table('rendez_vous')
-        ->join('clients', 'rendez_vous.id_client', '=', 'clients.id')
+            ->join('clients', 'rendez_vous.id_client', '=', 'clients.id')
             ->leftJoin('users', 'clients.rentre_par', '=', 'users.id')
             ->leftJoin('groupes', 'users.groupe', '=', 'groupes.id')
             ->join('ventes', 'ventes.id_rdv', '=', 'rendez_vous.id')
             ->join('poses', 'poses.id_vente', '=', 'ventes.id')
             ->select(
-            'clients.*',
-            'rendez_vous.id as rdv_id',
-            'rendez_vous.date as date_argu',
-            'rendez_vous.devis_total_ht as montant_devis',
-            'rendez_vous.tarif_total_ht as montant_tarif',
-            'rendez_vous.resultat',
-            'rendez_vous.produits',
-            'rendez_vous.date_relance',
-            'rendez_vous.relance_confirme as rdv_relance',
-            'users.prenom as user_prenom',
-            'users.nom as user_nom',
-            'groupes.nom as groupe_nom'
+                'clients.*',
+                'rendez_vous.id as rdv_id',
+                'rendez_vous.date as date_argu',
+                'rendez_vous.devis_total_ht as montant_devis',
+                'rendez_vous.tarif_total_ht as montant_tarif',
+                'rendez_vous.resultat',
+                'rendez_vous.produits',
+                'rendez_vous.date_relance',
+                'rendez_vous.relance_confirme as rdv_relance',
+                'users.prenom as user_prenom',
+                'users.nom as user_nom',
+                'groupes.nom as groupe_nom'
             )
             ->selectRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) as date_relance_financement')
             ->where('relance_confirme', 1)
             ->where('paiement', 'like', 'financement');
-            
-        if (!in_array($userRole, ['directeur', 'admin'])) {
+
+        if (! in_array($userRole, ['directeur', 'admin'])) {
             $currentUserId = Auth::user()->id;
-            $query->whereRaw("(clients.rentre_par = ? OR clients.partage_avec = ?)", [$currentUserId, $currentUserId]);
+            $query->whereRaw('(clients.rentre_par = ? OR clients.partage_avec = ?)', [$currentUserId, $currentUserId]);
         }
 
         // $query->where('clients.nom', 'LIKE', 'Rhault');
 
         // Filtrer par date de relance pour lister les relances (par défaut : mois en cours)
         if ($this->date_debut && $this->date_fin) {
-            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) BETWEEN ? AND ?', 
+            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) BETWEEN ? AND ?',
                 [$this->date_debut, $this->date_fin]);
         } elseif ($this->date_debut) {
-            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) >= ?', 
+            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) >= ?',
                 [$this->date_debut]);
         } elseif ($this->date_fin) {
-            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) <= ?', 
+            $query->whereRaw('DATE_ADD(poses.date_fin, INTERVAL ventes.postpone MONTH) <= ?',
                 [$this->date_fin]);
-        
-            }
+
+        }
         $this->applySecteurFilter($query, 'clients.secteur');
 
         // Tri sécurisé
         $allowedColumns = ['nom', 'prenom', 'ville', 'date_argu', 'montant_devis', 'groupe_nom'];
         $sortColumn = in_array($this->sortColumn, $allowedColumns) ? $this->sortColumn : 'date_argu';
-        
+
         if (in_array($sortColumn, ['nom', 'prenom'])) {
-            $sortColumn = 'clients.' . $sortColumn;
+            $sortColumn = 'clients.'.$sortColumn;
         }
 
         $argus = $query->orderBy($sortColumn, $this->sortDirection)
-        ->paginate($this->perPage);
+            ->paginate($this->perPage);
 
-        //dd($query->toSql());
+        // dd($query->toSql());
 
         // Ajouter les paramètres de pagination à l'URL
-        $argus->withPath('/relances?type=' . $this->type . '&date_debut=' . $this->date_debut . '&date_fin=' . $this->date_fin . '&secteur_id=' . $this->secteur_id);
+        $argus->withPath('/relances?type='.$this->type.'&date_debut='.$this->date_debut.'&date_fin='.$this->date_fin.'&secteur_id='.$this->secteur_id);
+
         return $argus;
     }
 
     private function getContactsData()
     {
         $userRole = Auth::user()->role;
-        
+
         $query = Client::query()
             ->leftJoin('users', 'clients.rentre_par', '=', 'users.id')
             ->select('clients.*', 'users.prenom as user_prenom', 'users.nom as user_nom')
             ->whereNotNull('clients.date_relance');
-            
-        if (!in_array($userRole, ['directeur', 'admin'])) {
+
+        if (! in_array($userRole, ['directeur', 'admin'])) {
             $currentUserId = Auth::user()->id;
-            $query->whereRaw("(clients.rentre_par = ? OR clients.partage_avec = ?)", [$currentUserId, $currentUserId]);
+            $query->whereRaw('(clients.rentre_par = ? OR clients.partage_avec = ?)', [$currentUserId, $currentUserId]);
         }
 
         $this->applyDateFilters($query, 'clients.date_relance');
@@ -227,9 +248,9 @@ class RelanceListing extends Component
         $sortColumn = in_array($this->sortColumn, $allowedColumns) ? $this->sortColumn : 'date_relance';
 
         $contacts = $query->orderBy($sortColumn, $this->sortDirection)
-                     ->paginate($this->perPage);
+            ->paginate($this->perPage);
 
-        $contacts->withPath('/relances?type=' . $this->type . '&date_debut=' . $this->date_debut . '&date_fin=' . $this->date_fin . '&secteur_id=' . $this->secteur_id);
+        $contacts->withPath('/relances?type='.$this->type.'&date_debut='.$this->date_debut.'&date_fin='.$this->date_fin.'&secteur_id='.$this->secteur_id);
 
         return $contacts;
     }
@@ -270,10 +291,11 @@ class RelanceListing extends Component
     public function sortiIcon($column)
     {
         if ($this->sortColumn === $column) {
-           return $this->sortDirection === 'asc'
-            ? '<span class="fa fa-sort-up"></span>'
-            : '<span class="fa fa-sort-down"></span>';
+            return $this->sortDirection === 'asc'
+             ? '<span class="fa fa-sort-up"></span>'
+             : '<span class="fa fa-sort-down"></span>';
         }
+
         return '<span class="fa fa-sort text-muted"></span>';
     }
 
@@ -281,12 +303,12 @@ class RelanceListing extends Component
     {
         $this->selectedClientId = $clientId;
         $this->selectedRendezVousId = $rendezVousId;
-        
+
         // Émettre un événement pour déclencher la modal SweetAlert avec le type
         $this->dispatch('open-relance-modal', [
             'clientId' => $clientId,
             'rendezVousId' => $rendezVousId,
-            'type' => $this->type
+            'type' => $this->type,
         ]);
     }
 
@@ -294,7 +316,7 @@ class RelanceListing extends Component
     {
         $this->selectedClientId = null;
         $this->selectedRendezVousId = null;
-        
+
         // Émettre un événement pour fermer SweetAlert2
         $this->dispatch('close-relance-modal');
     }
@@ -303,7 +325,7 @@ class RelanceListing extends Component
     {
         $clientId = $clientId ?: $this->selectedClientId;
         $rendezVousId = $rendezVousId ?: $this->selectedRendezVousId;
-        
+
         try {
             $type = $data['type'] ?? $this->type;
             $compteRendu = $data['compte_rendu'] ?? '';
@@ -311,23 +333,23 @@ class RelanceListing extends Component
             if ($type === 'argumentations' && $rendezVousId) {
                 $updateData = [
                     'relance_confirme' => 1,
-                    'date_relance' => null
+                    'date_relance' => null,
                 ];
 
                 RendezVous::where('id', $rendezVousId)->update($updateData);
             } else {
                 $updateData = [
-                    'date_relance' => null
+                    'date_relance' => null,
                 ];
 
                 Client::where('id', $clientId)->update($updateData);
             }
 
             $this->closeRelanceModal();
-            
+
         } catch (\Exception $e) {
             $this->dispatch('relance-error', [
-                'message' => 'Erreur lors de la sauvegarde : ' . $e->getMessage()
+                'message' => 'Erreur lors de la sauvegarde : '.$e->getMessage(),
             ]);
         }
     }
@@ -335,10 +357,10 @@ class RelanceListing extends Component
     // Utilitaires
     public function resetFilters()
     {
-    $this->date_debut = '';
-    $this->date_fin = '';
-    $this->secteur_id = '';
-    $this->resetPage();
+        $this->date_debut = '';
+        $this->date_fin = '';
+        $this->secteur_id = '';
+        $this->resetPage();
     }
 
     protected function applyDateFilters($query, $dateColumn = 'date_relance')
@@ -356,7 +378,7 @@ class RelanceListing extends Component
     {
         if ($this->secteur_id) {
             $query->where($secteurColumn, $this->secteur_id);
-        }else{
+        } else {
             $query->whereIn($secteurColumn, $this->user->secteur_commercials->pluck('id_secteur'));
         }
     }

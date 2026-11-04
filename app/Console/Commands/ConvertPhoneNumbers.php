@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Client;
 use App\Utils\PhoneFormatter;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Console\Command;
 
-class ConvertPhoneNumbers extends Command {
+class ConvertPhoneNumbers extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -25,7 +25,8 @@ class ConvertPhoneNumbers extends Command {
     /**
      * Execute the console command.
      */
-    public function handle() {
+    public function handle()
+    {
         $isDryRun = $this->option('dry-run');
 
         if ($isDryRun) {
@@ -47,18 +48,19 @@ class ConvertPhoneNumbers extends Command {
             $this->processClient($client, $isDryRun, $converted, $errors);
         }
 
-        $this->info("✅ Conversion terminée !");
-        $this->info("📊 Statistiques :");
+        $this->info('✅ Conversion terminée !');
+        $this->info('📊 Statistiques :');
         $this->info("   - Numéros convertis : {$converted}");
         $this->info("   - Erreurs : {$errors}");
 
         if ($isDryRun) {
             $this->warn("⚠️  Aucune modification n'a été effectuée (mode simulation)");
-            $this->info("💡 Exécutez sans --dry-run pour appliquer les changements");
+            $this->info('💡 Exécutez sans --dry-run pour appliquer les changements');
         }
     }
 
-    private function processClient($client, $isDryRun, &$converted, &$errors) {
+    private function processClient($client, $isDryRun, &$converted, &$errors)
+    {
         $changes = [];
 
         if ($client->telephone1) {
@@ -83,7 +85,7 @@ class ConvertPhoneNumbers extends Command {
             }
         }
 
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             if ($isDryRun) {
                 $this->line("🔄 Client {$client->id} :");
                 foreach ($changes as $field => $newValue) {
@@ -96,9 +98,9 @@ class ConvertPhoneNumbers extends Command {
                     foreach ($changes as $field => $newValue) {
                         $client->$field = $newValue;
                     }
-                    
+
                     $saved = $client->save();
-                    
+
                     if ($saved) {
                         // Vérifier que les changements sont bien persistés
                         $client->refresh();
@@ -115,26 +117,27 @@ class ConvertPhoneNumbers extends Command {
         }
     }
 
-    private function convertPhone($phone, $fieldName) {
+    private function convertPhone($phone, $fieldName)
+    {
         try {
             $e164 = PhoneFormatter::formatForStorage($phone);
-            
+
             if ($e164) {
                 return [
                     'success' => true,
                     'e164' => $e164,
-                    'original' => $phone
+                    'original' => $phone,
                 ];
             }
-            
+
             return [
                 'success' => false,
-                'error' => "Impossible de parser '{$phone}'"
+                'error' => "Impossible de parser '{$phone}'",
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'error' => "Erreur lors de la validation du numéro '{$phone}': {$e->getMessage()}"
+                'error' => "Erreur lors de la validation du numéro '{$phone}': {$e->getMessage()}",
             ];
         }
     }

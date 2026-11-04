@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $commentaire
  * @property Client $client
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment query()
@@ -28,33 +28,35 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class Comment extends Model
 {
-	protected $table = 'comments';
-	public $timestamps = false;
+    protected $table = 'comments';
 
-	protected $casts = [
-		'client_id' => 'int',
-		'user_id' => 'int',
-		'date' => 'datetime'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'client_id',
-		'user_id',
-		'date',
-		'commentaire'
-	];
+    protected $casts = [
+        'client_id' => 'int',
+        'user_id' => 'int',
+        'date' => 'datetime',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class);
-	}
+    protected $fillable = [
+        'client_id',
+        'user_id',
+        'date',
+        'commentaire',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

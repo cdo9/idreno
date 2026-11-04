@@ -1,25 +1,24 @@
 <?php
 
 namespace App\Services;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class SourceService
 {
-    
     private static array $sourceNames = [];
+
     private static array $sourceList = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Legacy sources mapping.
      */
     public static function createSourceLst(): array
     {
-        if (!empty(static::$sourceList)) {
+        if (! empty(static::$sourceList)) {
             return static::$sourceList;
         }
         $sources = DB::table('sources')
@@ -31,18 +30,16 @@ class SourceService
                 return [$groupe => $group->pluck('nom', 'id')->toArray()];
             })
             ->toArray();
-        
+
         // Fusionne avec vos clés par défaut si groupes manquants
         static::$sourceList = array_merge([
-            "actifs" => [],
-            "passif" => [],
-            "télépro" => [],
+            'actifs' => [],
+            'passif' => [],
+            'télépro' => [],
         ], $sources);
 
-        
         return static::$sourceList;
     }
-
 
     public static function getSourceName($id): string
     {
@@ -57,5 +54,4 @@ class SourceService
 
         return static::$sourceNames[$id] ?? '';
     }
-
 }

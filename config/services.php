@@ -35,8 +35,8 @@ return [
         ],
     ],
     'google' => [
-        'maps_api_key'     => env('GOOGLE_MAPS_API_KEY'),
-        'default_map'      => [
+        'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+        'default_map' => [
             'lat' => (float) env('GOOGLE_MAP_DEFAULT_LAT', 48.8566),
             'lng' => (float) env('GOOGLE_MAP_DEFAULT_LNG', 2.3522),
         ],

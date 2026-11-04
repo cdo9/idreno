@@ -6,10 +6,12 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * Class User
@@ -64,11 +66,10 @@ use Illuminate\Database\Eloquent\Collection;
  * @property Collection|SecteurCommercial[] $secteur_commercials
  * @property Collection|Tracking[] $trackings
  * @property Collection|Vente[] $ventes
- * @package App\Models
  * @property-read int|null $evaluations_count
  * @property-read string $display_name
  * @property-read int|null $groupes_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read int|null $objectif_annuel_commercials_count
  * @property-read int|null $objectifs_count
@@ -78,6 +79,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property-read int|null $secteur_commercials_count
  * @property-read int|null $trackings_count
  * @property-read int|null $ventes_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
@@ -121,23 +123,26 @@ use Illuminate\Database\Eloquent\Collection;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTelepro($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
     use Notifiable;
+
     protected $has_secteurs = null;
 
     /**
      * Check if the user has a specific role
      *
-     * @param string $role The role to check
-     * @param User|null $currentUser The user to check the role for
-     * @return bool
+     * @param  string  $role  The role to check
+     * @param  User|null  $currentUser  The user to check the role for
      */
     public function hasRole(string $role, $currentUser = null): bool
     {
-        if ($currentUser === null) $currentUser = $this;
+        if ($currentUser === null) {
+            $currentUser = $this;
+        }
 
         switch ($role) {
             case 'admin':
@@ -174,7 +179,7 @@ class User extends Authenticatable
     {
         // Pages toujours accessibles (même en cas de blocage)
         $always_accessible = [
-            'rattrapage', 'horaire', 'formulaire-contact', 'planning-telepro', 'confirmations'
+            'rattrapage', 'horaire', 'formulaire-contact', 'planning-telepro', 'confirmations',
         ];
 
         $page_enable = $always_accessible;
@@ -189,8 +194,9 @@ class User extends Authenticatable
                 'challenges', 'Formulaire-challenge', 'planning-telepro', 'map', 'poseurs',
                 'formulaire-poseur', 'stats-produit', 'blocages', 'gestion-utilisateurs',
                 'gestion-commerciaux', 'parc-auto', 'formulaire-auto', 'stats-contact',
-                'secteur-show-list', 'alertes', 'commissions'
+                'secteur-show-list', 'alertes', 'commissions',
             ]);
+
             return $page_enable;
         }
 
@@ -209,7 +215,7 @@ class User extends Authenticatable
                 // Fonctionnalités admin uniquement
                 'gestion-utilisateurs', 'gestion-commerciaux', 'parc-auto',
                 'formulaire-auto', 'stats-contact', 'secteur-show-list',
-                'alertes'
+                'alertes',
             ]);
         }
         // Directeurs : Accès complet à toutes les fonctionnalités (sauf admin uniquement)
@@ -226,9 +232,9 @@ class User extends Authenticatable
                 'map', 'planning-telepro',
                 // Gestion des produits et du site web
                 'produits', 'poses', 'challenges', 'Formulaire-challenge',
-                 'formulaire-poseur', 'parametres','stats-contact',
+                'formulaire-poseur', 'parametres', 'stats-contact',
                 // Évaluations et blocages
-                'blocages'
+                'blocages',
             ]);
         }
         // Commerciaux : Accès étendu aux fonctionnalités commerciales
@@ -246,7 +252,7 @@ class User extends Authenticatable
                 'confirmations-de-rendez-vous', 'relances',
                 // Évaluations
                 'poses', 'challenges',
-                'parametres'
+                'parametres',
             ]);
         }
         // Prospecteurs/Téléprospecteurs : Accès limité aux fonctionnalités de prospection
@@ -255,25 +261,24 @@ class User extends Authenticatable
                 // Saisie de contacts et RDV
                 'nouveau-contact', 'nouveau-rendez-vous',
                 // Consultations clients limitées
-                //'listing-client',
+                // 'listing-client',
                 // Confirmations et relances
                 'confirmations-de-rendez-vous', 'relances',
                 // Statistiques de base
                 'tableau-chiffres', 'classement-commerciaux', 'stats-produit',
                 // Fonctionnalités de base
                 'argumentations', 'argumentation', 'rendez-vous', 'poses', 'map',
-                'parametres','ventes'
+                'parametres', 'ventes',
             ]);
         }
         // Métreurs : Accès très restreint - Uniquement la page ventes
         elseif ($this->hasRole('metreur')) {
             $page_enable = array_merge($page_enable, [
-                'ventes'
+                'ventes',
             ]);
-        }
-        elseif ($this->hasRole('administratif')) {
+        } elseif ($this->hasRole('administratif')) {
             $page_enable = [
-                'ventes', 'argumentations', 'rendez-vous', 'poses'
+                'ventes', 'argumentations', 'rendez-vous', 'poses',
             ];
         }
 
@@ -290,175 +295,175 @@ class User extends Authenticatable
 
     /**
      * Get the full name of the user
-     *
-     * @return string
      */
     public function getFullName(): string
     {
-        return $this->prenom . ' ' . $this->nom;
+        return $this->prenom.' '.$this->nom;
     }
 
     public function getDisplayNameAttribute(): string
-    {        
-        return ucfirst(strtolower($this->prenom)) . ' ' . ucfirst(strtolower(substr($this->nom, 0, 3)));
+    {
+        return ucfirst(strtolower($this->prenom)).' '.ucfirst(strtolower(substr($this->nom, 0, 3)));
     }
 
-	public function isFinPeriodeEssai(): bool
-	{
-		$dateEntree = Carbon::parse($this->date_entree)->startOfDay();
-		$date1 = now()->startOfDay()->subMonths(3);
-		$date2 = now()->startOfDay()->subMonths(3)->addDays(21);
+    public function isFinPeriodeEssai(): bool
+    {
+        $dateEntree = Carbon::parse($this->date_entree)->startOfDay();
+        $date1 = now()->startOfDay()->subMonths(3);
+        $date2 = now()->startOfDay()->subMonths(3)->addDays(21);
 
-		return $dateEntree->between($date1, $date2);
-	}
+        return $dateEntree->between($date1, $date2);
+    }
 
-	/*
-	* Retourne si le compte de l'utilisateur a été débloqué
-	*/
-	public function isReleased(): bool {
-		$released = false;
+    /*
+    * Retourne si le compte de l'utilisateur a été débloqué
+    */
+    public function isReleased(): bool
+    {
+        $released = false;
         if ($this->released != null && Carbon::parse($this->released)->isToday()) {
             $released = true;
         }
-		return $released;
-	}
 
-	protected $table = 'users';
+        return $released;
+    }
 
-	protected $casts = [
-		'email_verified_at' => 'datetime',
-		'objectif_ca' => 'int',
-		'objectif_rdv' => 'int',
-		'type' => 'int',
-		'directeur' => 'int',
-		'groupe' => 'int',
-		'telepro' => 'int',
-		'prospecteur' => 'int',
-		'junior' => 'int',
-		'ordre_affichage' => 'int',
-		'active' => 'int',
-		'password_reset_timestamp' => 'int',
-		'failed_logins' => 'bool',
-		'last_failed_login' => 'int',
-		'registration_datetime' => 'datetime',
-		'delete' => 'datetime',
-		'popup_winner_loser' => 'datetime',
-		'date_entree' => 'datetime',
-		'gps' => 'datetime',
-		'nouveau_vendeur' => 'int',
-		'formateur' => 'int',
-		'date_entretien' => 'datetime',
-		'released' => 'date'
-	];
+    protected $table = 'users';
 
-	protected $hidden = [
-		'password',
-		'remember_token'
-	];
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'objectif_ca' => 'int',
+        'objectif_rdv' => 'int',
+        'type' => 'int',
+        'directeur' => 'int',
+        'groupe' => 'int',
+        'telepro' => 'int',
+        'prospecteur' => 'int',
+        'junior' => 'int',
+        'ordre_affichage' => 'int',
+        'active' => 'int',
+        'password_reset_timestamp' => 'int',
+        'failed_logins' => 'bool',
+        'last_failed_login' => 'int',
+        'registration_datetime' => 'datetime',
+        'delete' => 'datetime',
+        'popup_winner_loser' => 'datetime',
+        'date_entree' => 'datetime',
+        'gps' => 'datetime',
+        'nouveau_vendeur' => 'int',
+        'formateur' => 'int',
+        'date_entretien' => 'datetime',
+        'released' => 'date',
+    ];
 
-	protected $fillable = [
-		'name',
-		'email',
-		'email_verified_at',
-		'password',
-		'remember_token',
-		'nom',
-		'prenom',
-		'objectif_ca',
-		'objectif_rdv',
-		'type',
-		'directeur',
-		'groupe',
-		'telepro',
-		'prospecteur',
-		'junior',
-		'role',
-		'contrat',
-		'ordre_affichage',
-		'active',
-		'activation_hash',
-		'password_reset_hash',
-		'password_reset_timestamp',
-		'failed_logins',
-		'last_failed_login',
-		'registration_datetime',
-		'registration_ip',
-		'delete',
-		'popup_winner_loser',
-		'horaires',
-		'date_entree',
-		'lat',
-		'lng',
-		'gps',
-		'nouveau_vendeur',
-		'formateur',
-		'date_entretien'
-	];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-	public function evaluations()
-	{
-		return $this->hasMany(Evaluation::class, 'id_vendeur');
-	}
+    protected $fillable = [
+        'name',
+        'email',
+        'email_verified_at',
+        'password',
+        'remember_token',
+        'nom',
+        'prenom',
+        'objectif_ca',
+        'objectif_rdv',
+        'type',
+        'directeur',
+        'groupe',
+        'telepro',
+        'prospecteur',
+        'junior',
+        'role',
+        'contrat',
+        'ordre_affichage',
+        'active',
+        'activation_hash',
+        'password_reset_hash',
+        'password_reset_timestamp',
+        'failed_logins',
+        'last_failed_login',
+        'registration_datetime',
+        'registration_ip',
+        'delete',
+        'popup_winner_loser',
+        'horaires',
+        'date_entree',
+        'lat',
+        'lng',
+        'gps',
+        'nouveau_vendeur',
+        'formateur',
+        'date_entretien',
+    ];
 
-	public function groupes()
-	{
-		return $this->hasMany(Groupe::class, 'id_responsable');
-	}
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class, 'id_vendeur');
+    }
 
-	public function objectif_annuel_commercials()
-	{
-		return $this->hasMany(ObjectifAnnuelCommercial::class, 'id_user');
-	}
+    public function groupes()
+    {
+        return $this->hasMany(Groupe::class, 'id_responsable');
+    }
 
-	public function objectifs()
-	{
-		return $this->hasMany(Objectif::class, 'id_commercial');
-	}
+    public function objectif_annuel_commercials()
+    {
+        return $this->hasMany(ObjectifAnnuelCommercial::class, 'id_user');
+    }
 
-	public function poses()
-	{
-		return $this->hasMany(Pose::class, 'id_commercial_visite');
-	}
+    public function objectifs()
+    {
+        return $this->hasMany(Objectif::class, 'id_commercial');
+    }
 
-	public function prospections()
-	{
-		return $this->hasMany(Prospection::class, 'id_commercial');
-	}
+    public function poses()
+    {
+        return $this->hasMany(Pose::class, 'id_commercial_visite');
+    }
 
-	public function rendez_vous()
-	{
-		return $this->hasMany(RendezVous::class, 'id_commercial');
-	}
+    public function prospections()
+    {
+        return $this->hasMany(Prospection::class, 'id_commercial');
+    }
 
-	public function secteur_commercials()
-	{
-		return $this->hasMany(SecteurCommercial::class, 'id_commercial')
+    public function rendez_vous()
+    {
+        return $this->hasMany(RendezVous::class, 'id_commercial');
+    }
+
+    public function secteur_commercials()
+    {
+        return $this->hasMany(SecteurCommercial::class, 'id_commercial')
             ->whereHas('secteur', function ($query) {
                 $query->where('activated', 1);
             });
-	}
+    }
 
     public function secteurs()
     {
         return $this->secteur_commercials()->with('secteur')->get()->pluck('secteur');
     }
 
-	public function has_secteur($secteur_id): bool
+    public function has_secteur($secteur_id): bool
     {
         if ($this->has_secteurs === null) {
             $this->has_secteurs = $this->secteur_commercials->pluck('id_secteur')->unique()->toArray();
         }
-        
+
         return in_array($secteur_id, $this->has_secteurs, true);
     }
 
-	public function trackings()
-	{
-		return $this->hasMany(Tracking::class, 'id_commercial');
-	}
+    public function trackings()
+    {
+        return $this->hasMany(Tracking::class, 'id_commercial');
+    }
 
-	public function ventes()
-	{
-		return $this->hasMany(Vente::class, 'id_commercial');
-	}
+    public function ventes()
+    {
+        return $this->hasMany(Vente::class, 'id_commercial');
+    }
 }

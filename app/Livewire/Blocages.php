@@ -3,32 +3,43 @@
 namespace App\Livewire;
 
 use App\Livewire\Traits\BlocagesTrait;
-use Livewire\Component;
-
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Models\User;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Blocages extends Component
 {
     use BlocagesTrait;
 
     public $user;
+
     public $users = [];
+
     public $isTelepro;
+
     public $isProspecteur;
+
     public $isAdmin;
+
     public $isDirecteur;
+
     public $ecarts;
+
     public $ecartsRdv;
+
     public $ecartsArgus;
+
     public $ecartsEntretiens;
+
     public $evaluations;
+
     public $aConfirmer;
+
     public $prospections;
+
     public $indicateurs;
+
     public $blocagesParUser = [];
 
     public function mount()
@@ -42,18 +53,19 @@ class Blocages extends Component
         $this->loadBlocagesParUser();
     }
 
-    public static function loadUsers($isDirecteur){
-        if($isDirecteur){
+    public static function loadUsers($isDirecteur)
+    {
+        if ($isDirecteur) {
             return User::query()
                 ->join('secteur_commercials as sc', 'sc.id_commercial', 'users.id')
                 ->where('sc.id_secteur', session('selectedSecteur'))
                 ->where('active', 1)
-                ->whereNotIn('role', ['admin','administratif'])
+                ->whereNotIn('role', ['admin', 'administratif'])
                 ->get();
-        }else{
+        } else {
             return User::query()
                 ->where('active', 1)
-                ->whereNotIn('role', ['admin','administratif'])
+                ->whereNotIn('role', ['admin', 'administratif'])
                 ->get();
         }
     }
@@ -64,52 +76,52 @@ class Blocages extends Component
 
         foreach ($this->users as $u) {
 
-            $ecartCount       = $this->blocageGetEcarts($u, $u->hasRole('telepro'), $u->hasRole('prospecteur'));
-            
+            $ecartCount = $this->blocageGetEcarts($u, $u->hasRole('telepro'), $u->hasRole('prospecteur'));
 
             $ecarts = [];
-            foreach($ecartCount as $ecartData){
-                
+            foreach ($ecartCount as $ecartData) {
+
                 $ecart['date'] = $ecartData->date;
 
                 $ecart['rdv'] = $this->blocageGetEcartsRdv($u, $ecartData->date);
                 $ecart['argu'] = $this->blocageGetEcartsArgus($u, $ecartData->date);
-				
 
-                foreach($ecart['rdv'] as $index=>$rdv){
-                    foreach($ecart['argu'] as $argus){
-                        if($argus->id == $rdv->id)
+                foreach ($ecart['rdv'] as $index => $rdv) {
+                    foreach ($ecart['argu'] as $argus) {
+                        if ($argus->id == $rdv->id) {
                             unset($ecart['rdv'][$index]);
+                        }
                     }
                 }
 
                 $ecarts[] = $ecart;
             }
 
-            $evals        = []; // $this->blocageGetEvaluations($u, $this->isTelepro, $this->isProspecteur);
-            $entretiens   = []; // $this->blocageGetEcartsEntretiens($u, $this->isDirecteur, $this->isAdmin);
-            $aconfirmer   = []; // $this->blocageGetAConfirmer($u, $this->isTelepro, $this->isProspecteur);
+            $evals = []; // $this->blocageGetEvaluations($u, $this->isTelepro, $this->isProspecteur);
+            $entretiens = []; // $this->blocageGetEcartsEntretiens($u, $this->isDirecteur, $this->isAdmin);
+            $aconfirmer = []; // $this->blocageGetAConfirmer($u, $this->isTelepro, $this->isProspecteur);
             $prospections = []; // $this->blocageGetProspection($u, $this->isTelepro, $this->isProspecteur);
-            $ind          = $this->getIndicateursChantiers($u, $u->hasRole('telepro'), $u->hasRole('prospecteur'));
+            $ind = $this->getIndicateursChantiers($u, $u->hasRole('telepro'), $u->hasRole('prospecteur'));
 
             $this->blocagesParUser[$u->id] = [
-                'ecarts'       => $ecarts,
-                'evaluations'  => $evals,
-                'entretiens'   => $entretiens,
-                'aconfirmer'   => $aconfirmer,
+                'ecarts' => $ecarts,
+                'evaluations' => $evals,
+                'entretiens' => $entretiens,
+                'aconfirmer' => $aconfirmer,
                 'prospections' => $prospections,
-                'ind'          => $ind
+                'ind' => $ind,
             ];
 
         }
     }
 
-    public function updateReleased($userId){
+    public function updateReleased($userId)
+    {
         $user = User::find($userId);
-        if($user){
+        if ($user) {
             $user->released = Carbon::today();
             $user->save();
-            
+
             redirect(request()->header('Referer'));
         }
     }

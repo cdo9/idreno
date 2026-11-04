@@ -2,15 +2,17 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Component;
 
 class Parametre extends Component
 {
     public $user;
+
     public $password;
+
     public $password_confirmation;
 
     public function mount()

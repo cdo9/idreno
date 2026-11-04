@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -30,9 +31,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property User|null $user
  * @property Vente $vente
  * @property PoseDetail|null $pose_detail
- * @package App\Models
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Poseur> $poseurs
+ * @property-read Collection<int, Poseur> $poseurs
  * @property-read int|null $poseurs_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose query()
@@ -50,66 +51,69 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereProduit3($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Pose whereVisiteChantier($value)
+ *
  * @mixin \Eloquent
  */
 class Pose extends Model
 {
-	protected $table = 'poses';
-	public $timestamps = false;
+    protected $table = 'poses';
 
-	protected $casts = [
-		'id_vente' => 'int',
-		'id_client' => 'int',
-		'date_debut' => 'datetime',
-		'date_fin' => 'datetime',
-		'visite_chantier' => 'int',
-		'avis_client' => 'int',
-		'indicateur' => 'int',
-		'id_commercial_visite' => 'int',
-		'avis_facebook' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_vente',
-		'id_client',
-		'produit',
-		'produit2',
-		'produit3',
-		'date_debut',
-		'date_fin',
-		'visite_chantier',
-		'avis_client',
-		'indicateur',
-		'id_commercial_visite',
-		'avis_facebook',
-		'secteur'
-	];
+    protected $casts = [
+        'id_vente' => 'int',
+        'id_client' => 'int',
+        'date_debut' => 'datetime',
+        'date_fin' => 'datetime',
+        'visite_chantier' => 'int',
+        'avis_client' => 'int',
+        'indicateur' => 'int',
+        'id_commercial_visite' => 'int',
+        'avis_facebook' => 'int',
+        'secteur' => 'int',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_client');
-	}
+    protected $fillable = [
+        'id_vente',
+        'id_client',
+        'produit',
+        'produit2',
+        'produit3',
+        'date_debut',
+        'date_fin',
+        'visite_chantier',
+        'avis_client',
+        'indicateur',
+        'id_commercial_visite',
+        'avis_facebook',
+        'secteur',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial_visite');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
 
-	public function vente()
-	{
-		return $this->belongsTo(Vente::class, 'id_vente');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial_visite');
+    }
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function vente()
+    {
+        return $this->belongsTo(Vente::class, 'id_vente');
+    }
 
-	public function pose_detail()
-	{
-		return $this->hasOne(PoseDetail::class, 'id_pose');
-	}
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
+
+    public function pose_detail()
+    {
+        return $this->hasOne(PoseDetail::class, 'id_pose');
+    }
+
     public function poseurs()
     {
         return $this->belongsToMany(

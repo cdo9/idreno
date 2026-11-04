@@ -2,12 +2,13 @@
 
 namespace App\Livewire\Challenge;
 
-use Livewire\Component;
 use App\Models\Challenge;
+use Livewire\Component;
 
 class DeleteChallenge extends Component
 {
     public $idChallenge;
+
     public $challenge;
 
     public function mount($id)
@@ -21,6 +22,7 @@ class DeleteChallenge extends Component
         if ($this->idChallenge) {
             Challenge::where('id', $this->idChallenge)->delete();
             session()->flash('message', 'Challenge supprimé avec succès.');
+
             return redirect('/challenges');
         }
     }

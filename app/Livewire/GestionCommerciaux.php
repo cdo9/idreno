@@ -2,38 +2,49 @@
 
 namespace App\Livewire;
 
+use App\Models\Groupe;
+use App\Models\ObjectifAnnuelCommercial;
+use App\Models\Secteur;
+use App\Models\SecteurCommercial;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
-use App\Models\User;
-use App\Models\Groupe;
-use App\Models\Secteur;
-use App\Models\ObjectifAnnuelCommercial;
-use App\Models\SecteurCommercial;
-use App\Services\CommerciauxService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-
 
 class GestionCommerciaux extends Component
 {
     public $users;
+
     public $groupes;
+
     public $secteurs;
+
     public $currentUser;
+
     public $totalCa = 0;
+
     public $totalRdv = 0;
+
     public $totalCaAnnuel = 0;
 
     public $newGroupeName;
+
     public $newGroupeResponsable = null;
+
     public $newGroupeSecteur = null;
+
     public $groupeId = null;
 
     public $objectifsAnnuel = [];
+
     public $showGroupesTable = false;
+
     public $typesContrat = [];
+
     public $showModal = false;
+
     public $modalType = '';
 
     public $newPassword = '';
@@ -44,6 +55,7 @@ class GestionCommerciaux extends Component
         'prenom' => '',
         'email' => '',
     ];
+
     public $newUser = [
         'nom' => '',
         'prenom' => '',
@@ -70,7 +82,7 @@ class GestionCommerciaux extends Component
 
     public function loadData()
     {
-        $this->groupes = Groupe::with(['responsable','secteurRel'])->get();
+        $this->groupes = Groupe::with(['responsable', 'secteurRel'])->get();
         $this->secteurs = Secteur::where('activated', 1)->get() ?? collect();
         $this->typesContrat = [
             'commercial-v1' => 'Commercial v1 (10%)',
@@ -85,8 +97,8 @@ class GestionCommerciaux extends Component
             'telepro-v6' => 'Prospecteur v6 (Fixe 2000€)',*/
             'directeur-v1' => 'directeur-v1',
             'directeur-v2' => 'Directeur v2',
-            //'directeur-v3' => 'directeur-v3',
-            //'resp-prosp' => 'Responsable prospecteurs',
+            // 'directeur-v3' => 'directeur-v3',
+            // 'resp-prosp' => 'Responsable prospecteurs',
         ];
         /*User::select('contrat')
             ->distinct()
@@ -96,18 +108,19 @@ class GestionCommerciaux extends Component
 
         $annee = Carbon::now()->year;
 
-        if($this->currentUser->hasRole('admin'))
+        if ($this->currentUser->hasRole('admin')) {
             $groupesResponsable = Groupe::pluck('id');
-        else   
+        } else {
             $groupesResponsable = Groupe::where('id_responsable', $this->currentUser->id)->pluck('id');
-		
+        }
+
         $this->users = User::orderBy('nom', 'asc')
-			->join('secteur_commercials as secteur','secteur.id_commercial', 'users.id')
-			->where('secteur.id_secteur', session('selectedSecteur'))
-			->orderBy('prenom', 'asc')
-			->get()
-			->keyBy('id');
-			
+            ->join('secteur_commercials as secteur', 'secteur.id_commercial', 'users.id')
+            ->where('secteur.id_secteur', session('selectedSecteur'))
+            ->orderBy('prenom', 'asc')
+            ->get()
+            ->keyBy('id');
+
         $this->objectifsAnnuel = ObjectifAnnuelCommercial::where('year', $annee)
             ->pluck('value', 'id_user')
             ->toArray();
@@ -116,6 +129,7 @@ class GestionCommerciaux extends Component
         $this->totalRdv = $this->users->sum('objectif_rdv');
         $this->totalCaAnnuel = array_sum($this->objectifsAnnuel);
     }
+
     public function updateObjectifAnnuel($userId, $value)
     {
         $annee = Carbon::now()->year;
@@ -140,13 +154,14 @@ class GestionCommerciaux extends Component
         $this->objectifsAnnuel[$userId] = $value;
         $this->totalCaAnnuel = array_sum($this->objectifsAnnuel);
     }
+
     public function updateUserField($userId, $field, $value)
     {
         if (in_array($field, ['date_entree']) && $value === '') {
             $value = null;
         }
-		
-		if(in_array($field, ['groupe'])){
+
+        if (in_array($field, ['groupe'])) {
             $groupe = Groupe::find($value);
 
             if ($groupe) {
@@ -165,7 +180,7 @@ class GestionCommerciaux extends Component
     public function toggleActive($userId)
     {
         $user = User::find($userId);
-        $user->update(['active' => !$user->active]);
+        $user->update(['active' => ! $user->active]);
         $this->loadData();
     }
 
@@ -193,7 +208,7 @@ class GestionCommerciaux extends Component
 
         SecteurCommercial::create([
             'id_secteur' => $secteurId,
-            'id_commercial' => $user->id
+            'id_commercial' => $user->id,
         ]);
 
         $this->reset('newUser');
@@ -202,12 +217,14 @@ class GestionCommerciaux extends Component
 
     public function createGroupe()
     {
-        if (!$this->newGroupeName || !$this->newGroupeResponsable || !$this->newGroupeSecteur) return;
+        if (! $this->newGroupeName || ! $this->newGroupeResponsable || ! $this->newGroupeSecteur) {
+            return;
+        }
 
         Groupe::create([
             'nom' => $this->newGroupeName,
             'id_responsable' => $this->newGroupeResponsable,
-            'secteur' => $this->newGroupeSecteur
+            'secteur' => $this->newGroupeSecteur,
         ]);
 
         $this->newGroupeName = '';
@@ -216,17 +233,18 @@ class GestionCommerciaux extends Component
 
         $this->loadData();
     }
+
     public function toggleGroupesTable()
     {
-        $this->showGroupesTable = !$this->showGroupesTable;
+        $this->showGroupesTable = ! $this->showGroupesTable;
     }
 
     public function loadGroupe($groupeId)
     {
         $this->groupeId = $groupeId;
 
-        foreach($this->groupes as $groupe){
-            if($groupe->id === $this->groupeId){
+        foreach ($this->groupes as $groupe) {
+            if ($groupe->id === $this->groupeId) {
                 $this->newGroupeName = $groupe->nom ?? '';
                 $this->newGroupeResponsable = $groupe->responsable->id ?? null;
                 $this->newGroupeSecteur = $groupe->secteur ?? null;
@@ -234,18 +252,19 @@ class GestionCommerciaux extends Component
         }
     }
 
-    public function editGroupe(){
+    public function editGroupe()
+    {
 
         $groupe = Groupe::where('id', $this->groupeId);
 
-        $groupe->nom = 
+        $groupe->nom =
         $groupe->id_responsable = $this->newGroupeResponsable;
-        $groupe->secteur= $this->newGroupeSecteur;
+        $groupe->secteur = $this->newGroupeSecteur;
 
         $groupe->update([
             'nom' => $this->newGroupeName,
             'id_responsable' => $this->newGroupeResponsable,
-            'secteur' => $this->newGroupeSecteur
+            'secteur' => $this->newGroupeSecteur,
         ]);
 
         $this->groupeId = null;
@@ -254,7 +273,6 @@ class GestionCommerciaux extends Component
         $this->newGroupeSecteur = null;
         $this->loadData();
     }
-
 
     public function deleteGroupe($groupeId)
     {
@@ -277,10 +295,10 @@ class GestionCommerciaux extends Component
             ];
 
             $this->selectedUser['selectedSecteurs'] = DB::table('secteur_commercials')
-            ->where('id_commercial', $userId)
-            ->pluck('id_secteur')
-            ->map(fn($id) => (string) $id)
-            ->toArray();
+                ->where('id_commercial', $userId)
+                ->pluck('id_secteur')
+                ->map(fn ($id) => (string) $id)
+                ->toArray();
         }
 
         $this->showModal = true;
@@ -319,7 +337,7 @@ class GestionCommerciaux extends Component
 
     public function updatePassword()
     {
-        if (!empty($this->newPassword)) {
+        if (! empty($this->newPassword)) {
             DB::table('users')
                 ->where('id', $this->selectedUser['id'])
                 ->update([

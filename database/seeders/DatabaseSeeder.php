@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SecteurSeeder::class,
             CommentsSeeder::class,
-            SourceSeeder::class
+            SourceSeeder::class,
         ]);
     }
 }

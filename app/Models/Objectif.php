@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $rdv
  * @property int $secteur
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif query()
@@ -29,36 +29,38 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereIdCommercial($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereRdv($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Objectif whereSecteur($value)
+ *
  * @mixin \Eloquent
  */
 class Objectif extends Model
 {
-	protected $table = 'objectifs';
-	public $timestamps = false;
+    protected $table = 'objectifs';
 
-	protected $casts = [
-		'id_commercial' => 'int',
-		'date' => 'datetime',
-		'ca' => 'int',
-		'rdv' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_commercial',
-		'date',
-		'ca',
-		'rdv',
-		'secteur'
-	];
+    protected $casts = [
+        'id_commercial' => 'int',
+        'date' => 'datetime',
+        'ca' => 'int',
+        'rdv' => 'int',
+        'secteur' => 'int',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial');
-	}
+    protected $fillable = [
+        'id_commercial',
+        'date',
+        'ca',
+        'rdv',
+        'secteur',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

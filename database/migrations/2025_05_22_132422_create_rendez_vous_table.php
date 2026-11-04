@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rendez_vous', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->foreignId('id_commercial')->nullable()->constrained('users');    
+            $table->foreignId('id_commercial')->nullable()->constrained('users');
             $table->integer('id_client')->index('id_client');
             $table->string('resultat');
             $table->string('commentaire', 510);

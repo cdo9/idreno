@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $secteur
  * @property Client $client
  * @property User $user
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation query()
@@ -33,43 +33,45 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereIdFormateur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereIdVendeur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Evaluation whereSecteur($value)
+ *
  * @mixin \Eloquent
  */
 class Evaluation extends Model
 {
-	protected $table = 'evaluations';
-	public $timestamps = false;
+    protected $table = 'evaluations';
 
-	protected $casts = [
-		'id_argu' => 'int',
-		'id_vendeur' => 'int',
-		'id_formateur' => 'int',
-		'acquis' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_argu',
-		'id_vendeur',
-		'id_formateur',
-		'action',
-		'fait_par',
-		'acquis',
-		'secteur'
-	];
+    protected $casts = [
+        'id_argu' => 'int',
+        'id_vendeur' => 'int',
+        'id_formateur' => 'int',
+        'acquis' => 'int',
+        'secteur' => 'int',
+    ];
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_argu');
-	}
+    protected $fillable = [
+        'id_argu',
+        'id_vendeur',
+        'id_formateur',
+        'action',
+        'fait_par',
+        'acquis',
+        'secteur',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_vendeur');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_argu');
+    }
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_vendeur');
+    }
+
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 }

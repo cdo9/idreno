@@ -2,15 +2,18 @@
 
 namespace App\Livewire\Challenge;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class Challenges extends Component
 {
     public $month;
+
     public $year;
+
     public $months = [];
+
     public $years = [];
 
     public function mount()
@@ -50,7 +53,7 @@ class Challenges extends Component
 
         return DB::table('challenges')
             ->whereBetween('date', [$startDate, $endDate])
-            ->where('secteur','=', session('selectedSecteur'))
+            ->where('secteur', '=', session('selectedSecteur'))
             ->orderBy('date', 'desc')
             ->get();
     }
@@ -58,7 +61,7 @@ class Challenges extends Component
     public function render()
     {
         return view('livewire.challenge.challenges', [
-            'challenges' => $this->challenges
+            'challenges' => $this->challenges,
         ]);
     }
 }

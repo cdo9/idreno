@@ -20,8 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $date_attribution
  * @property int $secteur
  * @property Collection|ParcKm[] $parc_kms
- * @package App\Models
  * @property-read int|null $parc_kms_count
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto query()
@@ -31,33 +31,35 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto whereImmatriculation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto whereModele($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcAuto whereSecteur($value)
+ *
  * @mixin \Eloquent
  */
 class ParcAuto extends Model
 {
-	protected $table = 'parc_auto';
-	public $timestamps = false;
+    protected $table = 'parc_auto';
 
-	protected $casts = [
-		'date_attribution' => 'datetime',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'immatriculation',
-		'modele',
-		'conducteur',
-		'date_attribution',
-		'secteur'
-	];
+    protected $casts = [
+        'date_attribution' => 'datetime',
+        'secteur' => 'int',
+    ];
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    protected $fillable = [
+        'immatriculation',
+        'modele',
+        'conducteur',
+        'date_attribution',
+        'secteur',
+    ];
 
-	public function parc_kms()
-	{
-		return $this->hasMany(ParcKm::class, 'auto_id');
-	}
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
+
+    public function parc_kms()
+    {
+        return $this->hasMany(ParcKm::class, 'auto_id');
+    }
 }

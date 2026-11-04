@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $date
  * @property int $km
  * @property ParcAuto $parc_auto
- * @package App\Models
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm query()
@@ -25,27 +25,29 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ParcKm whereKm($value)
+ *
  * @mixin \Eloquent
  */
 class ParcKm extends Model
 {
-	protected $table = 'parc_km';
-	public $timestamps = false;
+    protected $table = 'parc_km';
 
-	protected $casts = [
-		'auto_id' => 'int',
-		'date' => 'datetime',
-		'km' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'auto_id',
-		'date',
-		'km'
-	];
+    protected $casts = [
+        'auto_id' => 'int',
+        'date' => 'datetime',
+        'km' => 'int',
+    ];
 
-	public function parc_auto()
-	{
-		return $this->belongsTo(ParcAuto::class, 'auto_id');
-	}
+    protected $fillable = [
+        'auto_id',
+        'date',
+        'km',
+    ];
+
+    public function parc_auto()
+    {
+        return $this->belongsTo(ParcAuto::class, 'auto_id');
+    }
 }

@@ -24,7 +24,8 @@ class SecteurShowList extends Component
         }
     }
 
-    public function render(){
+    public function render()
+    {
         return view('livewire.secteur-show-list');
     }
 }

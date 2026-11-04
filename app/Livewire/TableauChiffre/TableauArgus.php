@@ -2,27 +2,38 @@
 
 namespace App\Livewire\TableauChiffre;
 
-use Livewire\Component;
+use App\Services\TableauChiffreService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\Listen;
-use App\Services\TableauChiffreService;
+use Livewire\Component;
 
 class TableauArgus extends Component
 {
     public $month;
+
     public $year;
+
     public $groupes = [];
+
     public $isDirecteur = false;
+
     public $isTelepro = false;
+
     public $isAdmin = false;
+
     public $sortColumn = 'nom';
+
     public $sortDirection = 'asc';
+
     public $ventes = [];
+
     public $projets = [];
+
     public $rdvs = [];
+
     public $totauxGlobaux;
+
     public $totauxSecteur;
 
     protected $listeners = ['filters-updated' => 'applyFilters'];
@@ -88,6 +99,7 @@ class TableauArgus extends Component
             ->where('secteur', $groupe->secteur)
             ->selectRaw('sum(if(partage_avec is null, 1, 0.5)) as cpt_total, count(id) as cpt')
             ->first();
+
         return $result;
     }
 
@@ -100,7 +112,7 @@ class TableauArgus extends Component
             $endDate = Carbon::createFromDate($this->year, $this->month, $endDay)->toDateString();
 
             $argus = DB::table('rendez_vous')
-                ->where(function($query) use ($userId) {
+                ->where(function ($query) use ($userId) {
                     $query->where('id_commercial', $userId)
                         ->orWhere('partage_avec', $userId);
                 })
@@ -109,9 +121,9 @@ class TableauArgus extends Component
                 ->selectRaw('sum(if(partage_avec is null, 1, 0.5)) as cpt_total, count(id) as cpt')
                 ->first() ?? (object) ['cpt' => 0, 'cpt_total' => 0];
 
-            
-            if($argus->cpt_total == null)
+            if ($argus->cpt_total == null) {
                 $argus->cpt_total = 0;
+            }
             $argusParSemaine[] = $argus;
         }
 
@@ -127,7 +139,7 @@ class TableauArgus extends Component
         for ($i = 0; $i < 6; $i++) {
             $date = $premierJourSemaine->copy()->addDays($i);
 
-            if($date->lte($today)){
+            if ($date->lte($today)) {
                 $argusJour = DB::table('rendez_vous')
                     ->where('id_commercial', $userId)
                     ->whereDate('date', $date->toString())
@@ -135,7 +147,7 @@ class TableauArgus extends Component
                     ->count();
 
                 $argusParJour[] = $argusJour;
-            }else{
+            } else {
                 $argusParJour[] = '-';
             }
         }
@@ -149,6 +161,7 @@ class TableauArgus extends Component
     {
         $startDate = Carbon::createFromDate($this->year, $this->month, 1)->startOfMonth()->toDateString();
         $endDate = Carbon::createFromDate($this->year, $this->month, 1)->endOfMonth()->toDateString();
+
         return [$startDate, $endDate];
     }
 
@@ -157,6 +170,7 @@ class TableauArgus extends Component
         $dateEntree = Carbon::parse($dateEntree)->startOfDay();
         $debut = now()->startOfDay()->subMonths(3);
         $fin = now()->startOfDay()->subMonths(3)->addDays(21);
+
         return $dateEntree->between($debut, $fin);
     }
 
@@ -178,7 +192,7 @@ class TableauArgus extends Component
             case 'S4_argus':
                 return $user->argus_par_semaine[3] ?? 0;
             case 'S5_argus':
-                return $user->argus_par_semaine[4] ?? 0; 
+                return $user->argus_par_semaine[4] ?? 0;
             case 'S6_argus':
                 return $user->argus_par_semaine[5] ?? 0;
             case 'J1_argus':
@@ -211,9 +225,10 @@ class TableauArgus extends Component
 
         $groupesAvecUsers = $this->processGroupes($groupes, $startDate, $endDate, $user, $global, $globalSecteur);
 
-        foreach($groupesAvecUsers as $index => $groupe){
-            if($groupe->id_secteur != session('selectedSecteur'))
+        foreach ($groupesAvecUsers as $index => $groupe) {
+            if ($groupe->id_secteur != session('selectedSecteur')) {
                 unset($groupesAvecUsers[$index]);
+            }
         }
 
         $this->groupes = $groupesAvecUsers;
@@ -223,7 +238,7 @@ class TableauArgus extends Component
 
     private function initializeGlobalTotals()
     {
-        return (object)[
+        return (object) [
             'somme_objectif_rdv' => 0,
             'somme_argus_total' => 0,
             'somme_argus_par_semaine' => [0, 0, 0, 0, 0],
@@ -241,7 +256,7 @@ class TableauArgus extends Component
             $this->updateGlobalTotals($global, $groupe, $globalSecteur);
             $groupesAvecUsers->push($groupe);
         }
-        //dd($groupesAvecUsers);
+        // dd($groupesAvecUsers);
 
         return $groupesAvecUsers;
     }
@@ -264,7 +279,7 @@ class TableauArgus extends Component
             $this->calculateUserData($user, $groupe);
         }
 
-        //$this->sortUsers($groupe);
+        // $this->sortUsers($groupe);
         $this->calculateGroupeSums($groupe);
     }
 
@@ -296,14 +311,16 @@ class TableauArgus extends Component
 
         foreach ($groupe->users as $user) {
             foreach ($user->argus_par_semaine as $index => $argus) {
-                if(!isset($groupe->somme_argus_par_semaine[$index]))
+                if (! isset($groupe->somme_argus_par_semaine[$index])) {
                     $groupe->somme_argus_par_semaine[$index] = $argus->cpt_total;
-                else
+                } else {
                     $groupe->somme_argus_par_semaine[$index] += $argus->cpt_total;
+                }
             }
             foreach ($user->argus_par_jours as $index => $argusJour) {
-                if($argusJour != '-')
+                if ($argusJour != '-') {
                     $groupe->somme_argus_par_jours[$index] += $argusJour;
+                }
             }
         }
     }
@@ -314,29 +331,33 @@ class TableauArgus extends Component
         $global->somme_argus_total += $groupe->somme_argus_total;
 
         foreach ($groupe->somme_argus_par_semaine as $i => $v) {
-            if(!isset($global->somme_argus_par_semaine[$i]))
+            if (! isset($global->somme_argus_par_semaine[$i])) {
                 $global->somme_argus_par_semaine[$i] = $v;
-            else
+            } else {
                 $global->somme_argus_par_semaine[$i] += $v;
+            }
         }
         foreach ($groupe->somme_argus_par_jours as $i => $v) {
-            if($v != '-')
+            if ($v != '-') {
                 $global->somme_argus_par_jours[$i] += $v;
+            }
         }
 
-        if($groupe->id_secteur == session('selectedSecteur')){
+        if ($groupe->id_secteur == session('selectedSecteur')) {
             $globalSecteur->somme_objectif_rdv += $groupe->somme_objectif_rdv;
             $globalSecteur->somme_argus_total += $groupe->somme_argus_total;
 
             foreach ($groupe->somme_argus_par_semaine as $i => $v) {
-                if(!isset($globalSecteur->somme_argus_par_semaine[$i]))
+                if (! isset($globalSecteur->somme_argus_par_semaine[$i])) {
                     $globalSecteur->somme_argus_par_semaine[$i] = $v;
-                else
+                } else {
                     $globalSecteur->somme_argus_par_semaine[$i] += $v;
+                }
             }
             foreach ($groupe->somme_argus_par_jours as $i => $v) {
-                if($v != '-')
+                if ($v != '-') {
                     $globalSecteur->somme_argus_par_jours[$i] += $v;
+                }
             }
         }
     }

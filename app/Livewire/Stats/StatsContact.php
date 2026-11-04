@@ -2,17 +2,20 @@
 
 namespace App\Livewire\Stats;
 
-use Livewire\Component;
 use App\Services\CommerciauxService;
+use App\Services\StatsContactsServices;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Services\StatsContactsServices;
+use Livewire\Component;
 
 class StatsContact extends Component
 {
     public $dateDebut;
+
     public $dateFin;
+
     public $commerciaux = [];
+
     public $statsData = [];
 
     public function mount()
@@ -47,10 +50,10 @@ class StatsContact extends Component
                 ->select('type', DB::raw('count(1) as cpt'))
                 ->whereBetween('rentre_le', [$this->dateDebut, $this->dateFin])
                 ->where(function ($query) use ($commercial) {
-					$query->where('rentre_par', $commercial->id)
-					 ->orWhere('partage_avec', $commercial->id);
-				})
-				->where('secteur',session('selectedSecteur'))
+                    $query->where('rentre_par', $commercial->id)
+                        ->orWhere('partage_avec', $commercial->id);
+                })
+                ->where('secteur', session('selectedSecteur'))
                 ->groupBy('type')
                 ->pluck('cpt', 'type')
                 ->toArray();
@@ -60,24 +63,24 @@ class StatsContact extends Component
             $this->statsData[$commercial->id] = [
                 'commercial' => $commercial,
                 'stats' => $stats,
-                'total' => $total
+                'total' => $total,
             ];
         }
     }
 
     private function getCommercialNom($commercial)
     {
-        return $commercial->prenom . ' ' . $commercial->nom;
+        return $commercial->prenom.' '.$commercial->nom;
     }
 
     public function render()
     {
         $types = StatsContactsServices::ClientTypes();
-		unset($types[5]); // En pose
-		unset($types[3]); // Annulé
+        unset($types[5]); // En pose
+        unset($types[3]); // Annulé
 
         return view('livewire.stats.stats-contact', [
-            'types' => $types
+            'types' => $types,
         ]);
     }
 }

@@ -48,7 +48,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property RendezVous $rendez_vou
  * @property Source|null $source
  * @property Collection|Pose[] $poses
- * @package App\Models
  * @property int|null $commission
  * @property int|null $duree_pret
  * @property int|null $postpone
@@ -57,7 +56,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $paiement_options
  * @property-read mixed $type_vente_options
  * @property-read int|null $poses_count
- * @property-read \App\Models\RendezVous $rendez_vous
+ * @property-read RendezVous $rendez_vous
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente query()
@@ -94,139 +94,141 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTarifHt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTarifTotalHt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vente whereTypeVente($value)
+ *
  * @mixin \Eloquent
  */
 class Vente extends Model
 {
-	protected $table = 'ventes';
-	public $timestamps = false;
+    protected $table = 'ventes';
 
-	CONST TYPE_VENTE_OPTIONS = ['Commune', 'Normale'];
+    public $timestamps = false;
 
-	CONST PAIEMENT_OPTIONS = ['Comptant', 'Financement', 'Comptant et financement'];
+    const TYPE_VENTE_OPTIONS = ['Commune', 'Normale'];
 
-	const ATTENTE_OPTIONS = [
-        "Financement",
-        "Mairie",
-        "AH",
-        "ANAH",
-        "Pose différée",
-        "Syndic",
-        "GRDF",
-        "Acompte",
-        "Maprimerenov",
-        "DPE",
-        "Metre décalé",
-        "Autre",
+    const PAIEMENT_OPTIONS = ['Comptant', 'Financement', 'Comptant et financement'];
+
+    const ATTENTE_OPTIONS = [
+        'Financement',
+        'Mairie',
+        'AH',
+        'ANAH',
+        'Pose différée',
+        'Syndic',
+        'GRDF',
+        'Acompte',
+        'Maprimerenov',
+        'DPE',
+        'Metre décalé',
+        'Autre',
     ];
 
-	protected $casts = [
-		'id_rdv' => 'int',
-		'id_client' => 'int',
-		'id_commercial' => 'int',
-		'id_commercial_2' => 'int',
-		'id_commercial_3' => 'int',
-		'tarif_total_ht' => 'int',
-		'ca_total_ht' => 'int',
-		'repartition' => 'int',
-		'tarif_ht' => 'int',
-		'ca_ht' => 'int',
-		'remise' => 'int',
-		'montant' => 'int',
-		'plus_value' => 'int',
-		'prime_cee' => 'int',
-		'date' => 'datetime',
-		'id_source' => 'int',
-		'statut' => 'int',
-		'fin_financement' => 'datetime',
-		'postpone' => 'int',
-		'duree_pret' => 'int',
-		'mensualite' => 'int',
-		'dateAdd' => 'datetime',
-		'commande' => 'int',
-		'date_commission' => 'datetime',
-		'commission' => 'int',
-		'secteur' => 'int'
-	];
+    protected $casts = [
+        'id_rdv' => 'int',
+        'id_client' => 'int',
+        'id_commercial' => 'int',
+        'id_commercial_2' => 'int',
+        'id_commercial_3' => 'int',
+        'tarif_total_ht' => 'int',
+        'ca_total_ht' => 'int',
+        'repartition' => 'int',
+        'tarif_ht' => 'int',
+        'ca_ht' => 'int',
+        'remise' => 'int',
+        'montant' => 'int',
+        'plus_value' => 'int',
+        'prime_cee' => 'int',
+        'date' => 'datetime',
+        'id_source' => 'int',
+        'statut' => 'int',
+        'fin_financement' => 'datetime',
+        'postpone' => 'int',
+        'duree_pret' => 'int',
+        'mensualite' => 'int',
+        'dateAdd' => 'datetime',
+        'commande' => 'int',
+        'date_commission' => 'datetime',
+        'commission' => 'int',
+        'secteur' => 'int',
+    ];
 
-	protected $fillable = [
-		'id_rdv',
-		'id_client',
-		'id_commercial',
-		'id_commercial_2',
-		'id_commercial_3',
-		'tarif_total_ht',
-		'ca_total_ht',
-		'repartition',
-		'tarif_ht',
-		'ca_ht',
-		'remise',
-		'montant',
-		'plus_value',
-		'prime_cee',
-		'date',
-		'id_source',
-		'paiement',
-		'postpone',
-		'duree_pret',
-		'type_vente',
-		'statut',
-		'fin_financement',
-		'dateAdd',
-		'complement',
-		'attente',
-		'attente_autre',
-		'commande',
-		'date_commission',
-		'commission',
-		'commentaire',
-		'secteur',
-		'mensualite'
-	];
+    protected $fillable = [
+        'id_rdv',
+        'id_client',
+        'id_commercial',
+        'id_commercial_2',
+        'id_commercial_3',
+        'tarif_total_ht',
+        'ca_total_ht',
+        'repartition',
+        'tarif_ht',
+        'ca_ht',
+        'remise',
+        'montant',
+        'plus_value',
+        'prime_cee',
+        'date',
+        'id_source',
+        'paiement',
+        'postpone',
+        'duree_pret',
+        'type_vente',
+        'statut',
+        'fin_financement',
+        'dateAdd',
+        'complement',
+        'attente',
+        'attente_autre',
+        'commande',
+        'date_commission',
+        'commission',
+        'commentaire',
+        'secteur',
+        'mensualite',
+    ];
 
-	static public function getPaiementOptionsAttribute()
-	{
-		return self::PAIEMENT_OPTIONS;
-	}
+    public static function getPaiementOptionsAttribute()
+    {
+        return self::PAIEMENT_OPTIONS;
+    }
 
-	public function client()
-	{
-		return $this->belongsTo(Client::class, 'id_client');
-	}
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'id_client');
+    }
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'id_commercial');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_commercial');
+    }
 
-	public function rendez_vous()
-	{
-		return $this->belongsTo(RendezVous::class, 'id_rdv');
-	}
+    public function rendez_vous()
+    {
+        return $this->belongsTo(RendezVous::class, 'id_rdv');
+    }
 
-	public function source()
-	{
-		return $this->belongsTo(Source::class, 'id_source');
-	}
+    public function source()
+    {
+        return $this->belongsTo(Source::class, 'id_source');
+    }
 
-	public function secteur()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
+    public function secteur()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
 
-	public function poses()
-	{
-		return $this->hasMany(Pose::class, 'id_vente');
-	}
+    public function poses()
+    {
+        return $this->hasMany(Pose::class, 'id_vente');
+    }
 
-	//! Pas use mais je le met au cas où
-	static public function getTypeVenteOptionsAttribute()
-	{
-		return self::TYPE_VENTE_OPTIONS;
-	}
+    // ! Pas use mais je le met au cas où
+    public static function getTypeVenteOptionsAttribute()
+    {
+        return self::TYPE_VENTE_OPTIONS;
+    }
 
-	static public function getAttenteOptionsAttribute()
-	{
-		return self::ATTENTE_OPTIONS;
-	}
+    public static function getAttenteOptionsAttribute()
+    {
+        return self::ATTENTE_OPTIONS;
+    }
 }

@@ -2,33 +2,44 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\Client;
-use App\Models\User;
 use App\Models\Comment;
+use App\Models\User;
 use App\Models\Vente;
 use App\Services\CommerciauxService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class ListingClient extends Component
 {
     use WithPagination;
 
     public $type = '';
+
     public $vendeur = '';
+
     public $date_debut;
+
     public $date_fin;
+
     public $search = '';
+
     public $commune;
+
     public $showModal = false;
+
     public $commentaires = [];
+
     public $clientIdModal;
+
     public $sortColumn = 'nom';
+
     public $sortDirection = 'asc';
+
     public $newComment = '';
 
     public $showCommentModal = false;
@@ -38,13 +49,19 @@ class ListingClient extends Component
     public $clientsTypesPrecontact = [0, 6, 7, 8];
 
     public $vendeurs = [];
+
     public $userId;
+
     public $isDirecteur = false;
+
     public $isAdmin = false;
+
     public $isAdministratif = false;
-    
+
     public $lastPage;
+
     public $goToPage = 1;
+
     public $pageErrorMessage = '';
 
     // Configuration de la pagination pour cette page uniquement
@@ -53,13 +70,37 @@ class ListingClient extends Component
         return 'livewire.pagination-listing-client';
     }
 
-    //Update la page apres les filtres pour la pagination
-    public function updatingType() { $this->resetPage(); }
-    public function updatingVendeur() { $this->resetPage(); }
-    public function updatingDateDebut() { $this->resetPage(); }
-    public function updatingDateFin() { $this->resetPage(); }
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingCommune() { $this->resetPage(); }
+    // Update la page apres les filtres pour la pagination
+    public function updatingType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingVendeur()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateDebut()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateFin()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingCommune()
+    {
+        $this->resetPage();
+    }
+
     public function updatedPage($page)
     {
         $this->goToPage = $page;  // Sync input avec page courante
@@ -74,19 +115,18 @@ class ListingClient extends Component
         $this->isAdmin = $user->hasRole('admin');
         $this->isAdministratif = $user->hasRole('administratif');
 
-        $this->vendeurs = ($this->isDirecteur || $this->isAdmin) ? CommerciauxService::getEntireCommerciauxList('date_entree','asc') : User::where('id', $this->userId)->get();
+        $this->vendeurs = ($this->isDirecteur || $this->isAdmin) ? CommerciauxService::getEntireCommerciauxList('date_entree', 'asc') : User::where('id', $this->userId)->get();
 
         $params = request()->query();
 
         if (isset($params['vendeur']) && is_numeric($params['vendeur'])) {
             $this->vendeur = $params['vendeur'];
         } else {
-			if($this->isAdmin){
-				$this->vendeur = "";
-			}
-            else{
-				$this->vendeur = $this->userId;
-			}
+            if ($this->isAdmin) {
+                $this->vendeur = '';
+            } else {
+                $this->vendeur = $this->userId;
+            }
         }
 
         if (isset($params['date_debut'])) {
@@ -103,10 +143,10 @@ class ListingClient extends Component
         }
     }
 
-    //Formater le numéro de téléphone
+    // Formater le numéro de téléphone
     public function formatPhone($number)
     {
-        return preg_replace("/(\d{2})(?=\d)/", "$1 ", $number);
+        return preg_replace("/(\d{2})(?=\d)/", '$1 ', $number);
     }
 
     public function voirCommentaires($clientId)
@@ -120,6 +160,7 @@ class ListingClient extends Component
 
         $this->showModal = true;
     }
+
     public function addComment($clientId)
     {
         $this->clientIdModal = $clientId;
@@ -143,26 +184,29 @@ class ListingClient extends Component
         $this->refreshContact($this->clientIdModal);
 
         $this->showCommentModal = false;
-        
+
         $this->resetPage();
-        //$this->voirCommentaires($this->clientIdModal);
+        // $this->voirCommentaires($this->clientIdModal);
         session()->flash('success', 'Commentaire ajouté !');
     }
+
     public function dernierCommentaire()
     {
         return $this->hasOne(Comment::class)->latest('id');
     }
 
-    //Obtenir nom du commercial pr user
+    // Obtenir nom du commercial pr user
     public function getCommercialNom($user)
     {
-        return $user['prenom'] . ' ' . $user['nom'];
+        return $user['prenom'].' '.$user['nom'];
     }
 
-    //Obtenir nom du commercial par Id
+    // Obtenir nom du commercial par Id
     public function getCommercialNomById($id)
     {
-        if (!$id) return ''; // pas d'id
+        if (! $id) {
+            return '';
+        } // pas d'id
 
         $user = collect($this->vendeurs)->firstWhere('id', $id);
 
@@ -172,12 +216,13 @@ class ListingClient extends Component
 
         $user = User::find($id);
 
-        return $user ? $user->prenom . ' ' . $user->nom : '';
+        return $user ? $user->prenom.' '.$user->nom : '';
     }
 
-    //Obtenir le type
-    public function getTypeClass($types){
-        return match((int) $types) {
+    // Obtenir le type
+    public function getTypeClass($types)
+    {
+        return match ((int) $types) {
             0 => 'type-precontract',
             1 => 'type-prospect',
             6 => 'type-refus',
@@ -188,8 +233,9 @@ class ListingClient extends Component
         };
     }
 
-    public function ClientsTypePrecontact(){
-        return [0,6,7,8];
+    public function ClientsTypePrecontact()
+    {
+        return [0, 6, 7, 8];
     }
 
     // Sorting des colonnes
@@ -203,7 +249,7 @@ class ListingClient extends Component
         }
     }
 
-    //symbole de tri des colonnes
+    // symbole de tri des colonnes
     public function sortiIcon($column)
     {
         if ($this->sortColumn === $column) {
@@ -211,32 +257,35 @@ class ListingClient extends Component
                 ? '<span class="fa fa-sort-up"></span>'
                 : '<span class="fa fa-sort-down"></span>';
         }
+
         return '<span class="fa fa-sort text-muted"></span>';
     }
 
     // Changer le type du client
-    public function updateClientType($clientId, $type){
-        Client::where('id', $clientId)->update(['type'=> $type]);
+    public function updateClientType($clientId, $type)
+    {
+        Client::where('id', $clientId)->update(['type' => $type]);
     }
 
     // Rafraichir le contact
-    public function refreshContact($clientId){
-        Client::where('id',$clientId)->update([
+    public function refreshContact($clientId)
+    {
+        Client::where('id', $clientId)->update([
             'date_dernier_contact' => now(),
         ]);
     }
 
-    //filtre actif
+    // filtre actif
     public function filtrer()
     {
         // Reset pagination to first page when filters are applied via form submission
         $this->resetPage();
     }
 
-    //Export CSV
+    // Export CSV
     public function exportCsv()
     {
-        
+
         $query = $this->getClientQuery();
 
         $clients = $query->orderBy($this->sortColumn, $this->sortDirection)
@@ -251,7 +300,7 @@ class ListingClient extends Component
             $handle = fopen('php://output', 'w');
 
             fputcsv($handle, [
-                'Type', 'Nom', 'Prénom', 'Adresse', 'Code Postal', 'Ville', 'Téléphone 1', 'Téléphone 2','signe', 'Débrief', 'Projet','Paiement', 'Rentré par', 'Rentré le'
+                'Type', 'Nom', 'Prénom', 'Adresse', 'Code Postal', 'Ville', 'Téléphone 1', 'Téléphone 2', 'signe', 'Débrief', 'Projet', 'Paiement', 'Rentré par', 'Rentré le',
             ]);
 
             foreach ($clients as $client) {
@@ -269,7 +318,7 @@ class ListingClient extends Component
                     $client->projet,
                     $client->dernier_paiement,
                     $this->getCommercialNomById($client->rentre_par),
-                    $client->rentre_le ? \Carbon\Carbon::parse($client->rentre_le)->format('d/m/Y') : '',
+                    $client->rentre_le ? Carbon::parse($client->rentre_le)->format('d/m/Y') : '',
                 ]);
             }
 
@@ -277,139 +326,141 @@ class ListingClient extends Component
         }, 200, $headers);
     }
 
-    private function getClientQuery(){
+    private function getClientQuery()
+    {
         $query = Client::query();
-        
-        $typesFree = [0, 6, 7, 8]; 
+
+        $typesFree = [0, 6, 7, 8];
 
         $vendeurId = null;
         if ($this->vendeur !== '') {
             $vendeurId = $this->vendeur;
-        } 
+        }
 
         // Filtre par type
         if ($this->type !== '') {
-            if($vendeurId !== null || $this->type == 2){
-                if(!$this->isAdmin)
+            if ($vendeurId !== null || $this->type == 2) {
+                if (! $this->isAdmin) {
                     $vendeurId = $this->userId;
+                }
                 $query->where('type', $this->type);
-                
-                if($vendeurId !== null){
-					$query->where(function ($q) use($vendeurId) {
-						$q->where('rentre_par', $vendeurId)
-						->orWhere('partage_avec', $vendeurId);
-					});
-				}
-            }else{
-                if($this->type == 9){
+
+                if ($vendeurId !== null) {
+                    $query->where(function ($q) use ($vendeurId) {
+                        $q->where('rentre_par', $vendeurId)
+                            ->orWhere('partage_avec', $vendeurId);
+                    });
+                }
+            } else {
+                if ($this->type == 9) {
                     $query->where('type', '2');
                     /*->where(function ($q) {
-						$q->where(function ($subQ) {
-							$subQ->whereNull('rentre_par')
-								 ->whereNull('partage_avec');
-						})
-						->orWhereNotExists(function ($exQ) {
-							$exQ->select(DB::raw(1))
-								->from('ventes')
-								->whereColumn('ventes.id_client', 'clients.id')
-								->whereExists(function ($noActiveQ) {
-									$noActiveQ->select(DB::raw(1))
-										->from('users as u')
-										->whereColumn('u.id', 'ventes.id_commercial')
-										->where('u.active', 1);
-								});
-						});
-					});*/
-                }elseif($this->type == 1){
+                        $q->where(function ($subQ) {
+                            $subQ->whereNull('rentre_par')
+                                 ->whereNull('partage_avec');
+                        })
+                        ->orWhereNotExists(function ($exQ) {
+                            $exQ->select(DB::raw(1))
+                                ->from('ventes')
+                                ->whereColumn('ventes.id_client', 'clients.id')
+                                ->whereExists(function ($noActiveQ) {
+                                    $noActiveQ->select(DB::raw(1))
+                                        ->from('users as u')
+                                        ->whereColumn('u.id', 'ventes.id_commercial')
+                                        ->where('u.active', 1);
+                                });
+                        });
+                    });*/
+                } elseif ($this->type == 1) {
                     $query->where('type', '1')
-                    ->where(function ($q) use($vendeurId) {
-                        $q->where('rentre_par', $vendeurId)
-                        ->orWhere('partage_avec', $vendeurId)
-                        ->orWhereRaw('
+                        ->where(function ($q) use ($vendeurId) {
+                            $q->where('rentre_par', $vendeurId)
+                                ->orWhere('partage_avec', $vendeurId)
+                                ->orWhereRaw('
                             (
                                 SELECT MAX(rdv.date) 
                                 FROM rendez_vous rdv 
                                 WHERE rdv.id_client = clients.id 
                             ) <= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
                         ');
-                    });
-                }else{
+                        });
+                } else {
                     $query->where('type', $this->type);
-                
-                    if(!in_array($this->type, $typesFree)){
-                        $query->where(function ($q) use($vendeurId) {
+
+                    if (! in_array($this->type, $typesFree)) {
+                        $query->where(function ($q) use ($vendeurId) {
                             $q->where('rentre_par', $vendeurId)
-                            ->orWhere('partage_avec', $vendeurId);
+                                ->orWhere('partage_avec', $vendeurId);
                         });
                     }
                 }
             }
-        }else{
-            if($vendeurId !== null){
-                $query->where(function ($q) use($vendeurId) {
+        } else {
+            if ($vendeurId !== null) {
+                $query->where(function ($q) use ($vendeurId) {
                     $q->where('rentre_par', $vendeurId)
-                    ->orWhere('partage_avec', $vendeurId);
+                        ->orWhere('partage_avec', $vendeurId);
                 });
-            }else{
+            } else {
                 // Logique OR : typesFree (TOUS) OU (autres types ET filtre vendeur)
                 $query->where(function ($q) use ($typesFree, $vendeurId) {
                     // TOUS les deux cas OR sont dans cette closure
-                    $q->where(function ($subQ) use ($typesFree, $vendeurId) {
+                    $q->where(function ($subQ) use ($typesFree) {
                         // Branche 2: NON-free ET filtre vendeur
                         $subQ->whereIn('type', $typesFree);
                     })
-                    ->orWhere(function ($subQ) use ($typesFree, $vendeurId) {
-                        // Branche 2: NON-free ET filtre vendeur
-                        $subQ->whereNotIn('type', $typesFree)
-                        ->where(function ($subSubQ) use ($vendeurId) {
-                            $subSubQ->where('rentre_par', $vendeurId)
-                            ->orWhere('partage_avec', $vendeurId);
+                        ->orWhere(function ($subQ) use ($typesFree, $vendeurId) {
+                            // Branche 2: NON-free ET filtre vendeur
+                            $subQ->whereNotIn('type', $typesFree)
+                                ->where(function ($subSubQ) use ($vendeurId) {
+                                    $subSubQ->where('rentre_par', $vendeurId)
+                                        ->orWhere('partage_avec', $vendeurId);
+                                });
+                        })
+                        ->orWhere(function ($subQ) {
+                            // NOUVEAU : Branche 3: ORPHELINS (type=2, commerciaux désactivés)
+                            $subQ->where('type', 2)
+                                ->whereNotExists(function ($exQ) {
+                                    $exQ->select(DB::raw(1))
+                                        ->from('ventes')
+                                        ->whereColumn('ventes.id_client', 'clients.id')
+                                        ->whereExists(function ($noActiveQ) {
+                                            $noActiveQ->select(DB::raw(1))
+                                                ->from('users as u')
+                                                ->whereColumn('u.id', 'ventes.id_commercial')
+                                                ->where('u.active', 1);
+                                        });
+                                })
+                                ->whereNotExists(function ($exQ) {
+                                    $exQ->select(DB::raw(1))
+                                        ->from('users')
+                                        ->whereColumn('users.id', 'clients.rentre_par')
+                                        ->where('users.active', 1);
+                                })
+                                ->whereNotExists(function ($exQ) {
+                                    $exQ->select(DB::raw(1))
+                                        ->from('users')
+                                        ->whereColumn('users.id', 'clients.partage_avec')
+                                        ->where('users.active', 1);
+                                });
                         });
-                    })
-                    ->orWhere(function ($subQ) {
-                        // NOUVEAU : Branche 3: ORPHELINS (type=2, commerciaux désactivés)
-                        $subQ->where('type', 2)
-                        ->whereNotExists(function ($exQ) {
-                            $exQ->select(DB::raw(1))
-                            ->from('ventes')
-                            ->whereColumn('ventes.id_client', 'clients.id')
-                            ->whereExists(function ($noActiveQ) {
-                                $noActiveQ->select(DB::raw(1))
-                                ->from('users as u')
-                                ->whereColumn('u.id', 'ventes.id_commercial')
-                                ->where('u.active', 1);
-                            });
-                        })
-                        ->whereNotExists(function ($exQ) {
-                            $exQ->select(DB::raw(1))
-                                ->from('users')
-                                ->whereColumn('users.id', 'clients.rentre_par')
-                                ->where('users.active', 1);
-                        })
-                        ->whereNotExists(function ($exQ) {
-                            $exQ->select(DB::raw(1))
-                                ->from('users')
-                                ->whereColumn('users.id', 'clients.partage_avec')
-                                ->where('users.active', 1);
-                        });                   
-                    });
-                    if($vendeurId !== null){
-                    
-                        $q->orWhere(function($subQ) use ($vendeurId){
+                    if ($vendeurId !== null) {
+
+                        $q->orWhere(function ($subQ) use ($vendeurId) {
                             $subQ->where('type', '1')
-                            ->where(function ($q) use($vendeurId) {
-                                $q->where('rentre_par', $vendeurId)
-                                ->orWhere('partage_avec', $vendeurId)
-                                ->orWhereRaw('
+                                ->where(function ($q) use ($vendeurId) {
+                                    $q->where('rentre_par', $vendeurId)
+                                        ->orWhere('partage_avec', $vendeurId)
+                                        ->orWhereRaw('
                                     (
                                         SELECT MAX(rdv.date) 
                                         FROM rendez_vous rdv 
                                         WHERE rdv.id_client = clients.id 
                                     ) <= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
                                 ');
-                            });
+                                });
                         });
-                    }else{
+                    } else {
                         $q->orWhere(function ($subQ) {
                             $subQ->where('type', 1);
                         });
@@ -429,14 +480,15 @@ class ListingClient extends Component
 
         if ($this->date_debut && $this->date_fin && $this->date_debut > $this->date_fin) {
             session()->flash('error', 'La date de fin ne peut pas être antérieure à la date de début.');
+
             return;
         }
 
         // Filtre de recherche
         if ($this->search) {
             $query->where(function ($q) {
-                
-                $searchTerm = '%' . $this->search . '%';
+
+                $searchTerm = '%'.$this->search.'%';
                 $q->where('nom', 'like', $searchTerm)
                     ->orWhere('prenom', 'like', $searchTerm)
                     ->orWhere('telephone1', 'like', $searchTerm)
@@ -444,20 +496,20 @@ class ListingClient extends Component
                     ->orWhere('adresse', 'like', $searchTerm)
                     ->orWhere('mail', 'like', $searchTerm)
                     ->orWhere('cp', 'like', $searchTerm)
-                    ->orWhere('ville','like', $searchTerm)
+                    ->orWhere('ville', 'like', $searchTerm)
                     ->orWhereRaw("CONCAT(nom, ' ', prenom) like ?", [$searchTerm])
                     ->orWhereRaw("CONCAT(prenom, ' ', nom) like ?", [$searchTerm]);
             });
-			
-			if(!$this->isAdmin && !$this->isAdministratif){
-			
-				$query->where('clients.secteur', session('selectedSecteur'));
-			}
-			
-        }else{
-			
-			$query->where('clients.secteur', session('selectedSecteur'));
-		}
+
+            if (! $this->isAdmin && ! $this->isAdministratif) {
+
+                $query->where('clients.secteur', session('selectedSecteur'));
+            }
+
+        } else {
+
+            $query->where('clients.secteur', session('selectedSecteur'));
+        }
 
         // Filtre par commune
         if ($this->commune) {
@@ -483,26 +535,26 @@ class ListingClient extends Component
                 ->whereColumn('ventes.id_client', 'clients.id')
                 ->latest('date')
                 ->limit(1),
-            'duree_restante' => Vente::selectRaw("
+            'duree_restante' => Vente::selectRaw('
                 CASE
                     WHEN fin_financement IS NULL THEN NULL
                     WHEN fin_financement <= CURDATE() THEN 0
                     ELSE TIMESTAMPDIFF(DAY, CURDATE(), fin_financement)
                 END
-            ")
-            ->whereColumn('ventes.id_client', 'clients.id')
-            ->latest('date')
-            ->limit(1),
-            'dernier_commentaire' => Comment::select( 'commentaire' )  // Assure-toi du nom du modèle
+            ')
+                ->whereColumn('ventes.id_client', 'clients.id')
+                ->latest('date')
+                ->limit(1),
+            'dernier_commentaire' => Comment::select('commentaire')  // Assure-toi du nom du modèle
                 ->whereColumn('comments.client_id', 'clients.id')  // Nom table = 'comments' ?
                 ->orderByRaw('id DESC')  // date VARCHAR → conversion
                 ->limit(1),
-            'date_dernier_commentaire' => Comment::select( 'date' )  // Assure-toi du nom du modèle
+            'date_dernier_commentaire' => Comment::select('date')  // Assure-toi du nom du modèle
                 ->whereColumn('comments.client_id', 'clients.id')  // Nom table = 'comments' ?
                 ->orderByRaw('id DESC')  // date VARCHAR → conversion
-                ->limit(1)
+                ->limit(1),
         ]);
-        $query->addSelect(DB::raw("
+        $query->addSelect(DB::raw('
 			CASE
 				WHEN (
 					clients.rentre_par IS NULL
@@ -518,19 +570,17 @@ class ListingClient extends Component
 				THEN 1
 				ELSE 0
 			END AS is_orphelin
-		"));
+		'));
 
-        $query->when($this->type == 2, function ($q) {    
+        $query->when($this->type == 2, function ($q) {
             $q->havingRaw('is_orphelin = 0');
         });
 
-         $query->when($this->type == 9, function ($q) {    
+        $query->when($this->type == 9, function ($q) {
             $q->havingRaw('is_orphelin = 1');
         });
-        
 
-
-        //$query->ddSql();
+        // $query->ddSql();
 
         return $query;
     }
@@ -538,23 +588,23 @@ class ListingClient extends Component
     public function render()
     {
         $query = $this->getClientQuery();
-		
+
         $clients = $query
             ->orderBy($this->sortColumn, $this->sortDirection)
             ->paginate(100);
 
-        //$query->ddSql();
-        //dd($clients->total());
-        //dd($clients);
+        // $query->ddSql();
+        // dd($clients->total());
+        // dd($clients);
 
-        foreach($clients as &$client){
-            if($client->is_orphelin && $client->type == 2)
+        foreach ($clients as &$client) {
+            if ($client->is_orphelin && $client->type == 2) {
                 $client->type = 9;
-			
+            }
+
             $client->rentre_par_str = $client->rentre_par ? CommerciauxService::getCommercialById($client->rentre_par)->display_name : '';
             $client->partage_str = $client->partage_avec ? CommerciauxService::getCommercialById($client->partage_avec)->display_name : 'N/A';
         }
-
 
         $this->lastPage = $clients->lastPage();
 
@@ -573,7 +623,7 @@ class ListingClient extends Component
     {
         $page = (int) $this->goToPage;
         if ($page >= 1 && $page <= $this->lastPage) {
-            $this->pageErrorMessage = "";
+            $this->pageErrorMessage = '';
             $this->setPage($page);  // Méthode native Livewire
         } else {
             $this->pageErrorMessage = "Page invalide (1-$this->lastPage)";

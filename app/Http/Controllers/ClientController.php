@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Type;
 use App\Models\Alert;
 use App\Models\Client;
 use App\Models\ClientHistory;
 use App\Models\Comment;
+use App\Models\Secteur;
+use App\Models\Tracking;
 use App\Models\User;
 use App\Services\ProjectService;
 use App\Services\SourceService;
-use App\Enums\Type;
-use App\Models\Tracking;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use DateTime;
-use App\Models\Secteur;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 class ClientController extends Controller
 {
@@ -28,8 +33,7 @@ class ClientController extends Controller
     /**
      * Get autocomplete suggestions for clients by name, phone number, or email
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function autocomplete(Request $request)
     {
@@ -48,7 +52,7 @@ class ClientController extends Controller
 
         $currentUserId = auth()->id();
 
-        if (!$currentUserId) {
+        if (! $currentUserId) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -64,29 +68,29 @@ class ClientController extends Controller
             });
         });*/
 
-        $clientsQuery->where(function($q) use ($queryTerms, $query) {
+        $clientsQuery->where(function ($q) use ($queryTerms, $query) {
             if (count($queryTerms) === 1) {
-            $term = $queryTerms[0];
-            $q->where('clients.nom', 'LIKE', "%{$term}%")
-              ->orWhere('clients.prenom', 'LIKE', "%{$term}%")
-              ->orWhere('telephone1', 'LIKE', "%{$query}%")
-              ->orWhere('telephone2', 'LIKE', "%{$query}%")
-              ->orWhere('mail', 'LIKE', "%{$query}%");
+                $term = $queryTerms[0];
+                $q->where('clients.nom', 'LIKE', "%{$term}%")
+                    ->orWhere('clients.prenom', 'LIKE', "%{$term}%")
+                    ->orWhere('telephone1', 'LIKE', "%{$query}%")
+                    ->orWhere('telephone2', 'LIKE', "%{$query}%")
+                    ->orWhere('mail', 'LIKE', "%{$query}%");
             } else {
-            // If there are multiple terms, try different combinations
-            $q->where(function($subq) use ($queryTerms) {
-            $subq->where('clients.nom', 'LIKE', "%{$queryTerms[0]}%")
-                ->where('clients.prenom', 'LIKE', "%{$queryTerms[1]}%");
-            })
-            ->orWhere(function($subq) use ($queryTerms) {
-            $subq->where('clients.prenom', 'LIKE', "%{$queryTerms[0]}%")
-             ->where('clients.nom', 'LIKE', "%{$queryTerms[1]}%");
-            })
-            ->orWhere('clients.nom', 'LIKE', "%{$query}%")
-            ->orWhere('clients.prenom', 'LIKE', "%{$query}%")
-            ->orWhere('telephone1', 'LIKE', "%{$query}%")
-            ->orWhere('telephone2', 'LIKE', "%{$query}%")
-            ->orWhere('mail', 'LIKE', "%{$query}%");
+                // If there are multiple terms, try different combinations
+                $q->where(function ($subq) use ($queryTerms) {
+                    $subq->where('clients.nom', 'LIKE', "%{$queryTerms[0]}%")
+                        ->where('clients.prenom', 'LIKE', "%{$queryTerms[1]}%");
+                })
+                    ->orWhere(function ($subq) use ($queryTerms) {
+                        $subq->where('clients.prenom', 'LIKE', "%{$queryTerms[0]}%")
+                            ->where('clients.nom', 'LIKE', "%{$queryTerms[1]}%");
+                    })
+                    ->orWhere('clients.nom', 'LIKE', "%{$query}%")
+                    ->orWhere('clients.prenom', 'LIKE', "%{$query}%")
+                    ->orWhere('telephone1', 'LIKE', "%{$query}%")
+                    ->orWhere('telephone2', 'LIKE', "%{$query}%")
+                    ->orWhere('mail', 'LIKE', "%{$query}%");
             }
         });
 
@@ -94,12 +98,11 @@ class ClientController extends Controller
 
         // Get clients that haven't had a sale in the last 3 months
         $clientsWithoutRecentSalesQuery = clone $clientsQuery;
-        $clientsWithoutRecentSalesQuery->whereNotIn('id', function($query) use ($threeMonthsAgo) {
+        $clientsWithoutRecentSalesQuery->whereNotIn('id', function ($query) use ($threeMonthsAgo) {
             $query->select('id_client')
                 ->from('ventes')
                 ->where('date', '>=', $threeMonthsAgo);
         });
-
 
         // Get the final results
         $clients = $clientsQuery
@@ -113,14 +116,14 @@ class ClientController extends Controller
         foreach ($clients as $client) {
             $suggestions[] = [
                 'id' => $client->id,
-                'text' => $client->nom . ' ' . $client->prenom . ' - ' . $client->adresse . ' - ' . $client->ville,
+                'text' => $client->nom.' '.$client->prenom.' - '.$client->adresse.' - '.$client->ville,
                 'nom' => $client->nom,
                 'prenom' => $client->prenom,
                 'adresse' => $client->adresse,
                 'ville' => $client->ville,
                 'telephone' => $client->telephone1,
                 'portable' => $client->telephone2,
-                'mail' => $client->mail
+                'mail' => $client->mail,
             ];
         }
 
@@ -131,15 +134,14 @@ class ClientController extends Controller
     /**
      * Search for clients by name, phone number, or email
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function search(Request $request)
     {
         // Validate the request
         $validated = $request->validate([
             'query' => 'required|string|min:2',
-            'id' => 'nullable|integer'
+            'id' => 'nullable|integer',
         ]);
 
         $query = $validated['query'];
@@ -168,7 +170,7 @@ class ClientController extends Controller
         foreach ($clients as $client) {
             // Get the commercial who added the client
             $commercial = User::find($client->rentre_par);
-            $commercialName = $commercial ? $commercial->prenom . ' ' . $commercial->nom : 'Ancien commercial';
+            $commercialName = $commercial ? $commercial->prenom.' '.$commercial->nom : 'Ancien commercial';
 
             // Format the date when the client was added
             $addedDate = $client->rentre_le ? $client->rentre_le->format('d/m/Y') : 'Inconnue';
@@ -176,22 +178,22 @@ class ClientController extends Controller
             $points[] = [
                 'lat' => $client->gps_lat,
                 'lng' => $client->gps_lng,
-                'title' => $client->nom . ' ' . $client->prenom,
-                'content' => '<div style="padding: 5px;">' .
-                            '<strong>' . $client->nom . '</strong><br>' .
-                            $client->adresse . '<br>' .
-                            'Par: ' . $commercialName . '<br>' .
-                            'Ajouté: ' . $addedDate . '<br>' .
-                            '<a href="/clients/' . $client->id . '" style="color: blue; text-decoration: underline;">Voir la fiche</a>' .
+                'title' => $client->nom.' '.$client->prenom,
+                'content' => '<div style="padding: 5px;">'.
+                            '<strong>'.$client->nom.'</strong><br>'.
+                            $client->adresse.'<br>'.
+                            'Par: '.$commercialName.'<br>'.
+                            'Ajouté: '.$addedDate.'<br>'.
+                            '<a href="/clients/'.$client->id.'" style="color: blue; text-decoration: underline;">Voir la fiche</a>'.
                             (in_array($client->type, [0, 6, 7, 8]) ?
-                            '<form id="updateTypeForm-' . $client->id . '" class="update-type-form" style="margin-top: 10px;">' .
-                            '<select name="type" class="type-select" data-client-id="' . $client->id . '">' .
-                            '<option value="0"' . ($client->type == 0 ? ' selected' : '') . '>Précontact</option>' .
-                            '<option value="6"' . ($client->type == 6 ? ' selected' : '') . '>Refus</option>' .
-                            '<option value="7"' . ($client->type == 7 ? ' selected' : '') . '>Absent</option>' .
-                            '<option value="8"' . ($client->type == 8 ? ' selected' : '') . '>Relance</option>' .
-                            '</select>' .
-                            '</form>' : '') .
+                            '<form id="updateTypeForm-'.$client->id.'" class="update-type-form" style="margin-top: 10px;">'.
+                            '<select name="type" class="type-select" data-client-id="'.$client->id.'">'.
+                            '<option value="0"'.($client->type == 0 ? ' selected' : '').'>Précontact</option>'.
+                            '<option value="6"'.($client->type == 6 ? ' selected' : '').'>Refus</option>'.
+                            '<option value="7"'.($client->type == 7 ? ' selected' : '').'>Absent</option>'.
+                            '<option value="8"'.($client->type == 8 ? ' selected' : '').'>Relance</option>'.
+                            '</select>'.
+                            '</form>' : '').
                             '</div>',
                 'type' => $client->type, // Use client's actual type for marker color
                 'relance' => $client->relance,
@@ -205,8 +207,8 @@ class ClientController extends Controller
     /**
      * Display the specified client.
      *
-     * @param int $id
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\View\View|object
+     * @param  int  $id
+     * @return Factory|\Illuminate\Contracts\View\View|Application|View|object
      */
     public function show($id, Request $request)
     {
@@ -231,9 +233,8 @@ class ClientController extends Controller
     /**
      * Update the client type
      *
-     * @param Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @param  int  $id
+     * @return JsonResponse
      */
     public static function updateType(Request $request, $id)
     {
@@ -246,9 +247,9 @@ class ClientController extends Controller
         $client = Client::findOrFail($id);
 
         // Update the client type
-        if($client->type != 2 || !in_array($validated['type'], [7,6,3])){ // Si c'est un client on ne change pas son statut par annulé, absent ou refus
+        if ($client->type != 2 || ! in_array($validated['type'], [7, 6, 3])) { // Si c'est un client on ne change pas son statut par annulé, absent ou refus
 
-            if(in_array($client->type, [0,7,6,3]) ){ // Si le client n'est que annulé, absent, refus ou precontact alors le commercial qui change le statut le recupere
+            if (in_array($client->type, [0, 7, 6, 3])) { // Si le client n'est que annulé, absent, refus ou precontact alors le commercial qui change le statut le recupere
                 $client->rentre_par = Auth()->id();
                 $client->rentre_le = Carbon::now();
             }
@@ -257,18 +258,17 @@ class ClientController extends Controller
             $client->save();
         }
 
-
         $trackings = $client->trackings()->latest('datetime')->first();
-        if($trackings)
-            $trackings->update(['datetime'=>Carbon::now()]);
-        else{
+        if ($trackings) {
+            $trackings->update(['datetime' => Carbon::now()]);
+        } else {
             Tracking::create([
                 'id_client' => $client->id,
                 'id_commercial' => $client->rentre_par,
                 'datetime' => Carbon::now(),
                 'gps_lat' => $client->gps_lat,
                 'gps_lng' => $client->gps_lng,
-                'secteur' => $client->secteur
+                'secteur' => $client->secteur,
             ]);
         }
 
@@ -276,23 +276,23 @@ class ClientController extends Controller
         ClientHistory::create([
             'client_id' => $client->id,
             'commercial_id' => auth()->id(),
-            'status' => $validated['type']
+            'status' => $validated['type'],
         ]);
 
         $client_types = config('client_types');
 
         Comment::create([
             'client_id' => $client->id,
-            'user_id'=> auth()->id(),
+            'user_id' => auth()->id(),
             'date' => Carbon::now(),
-            'commentaire' => "Passage au statut " . $client_types[$validated['type']]
+            'commentaire' => 'Passage au statut '.$client_types[$validated['type']],
         ]);
 
         // Return a JSON response
         return response()->json([
             'success' => true,
             'message' => 'Type mis à jour avec succès',
-            'client' => $client
+            'client' => $client,
         ]);
     }
 
@@ -322,7 +322,7 @@ class ClientController extends Controller
         ]);
 
         // Create a new client
-        $client = new Client();
+        $client = new Client;
         $client->nom = $validated['nom'];
         $client->prenom = $validated['prenom'];
         $client->adresse = $validated['adresse'];
@@ -369,10 +369,11 @@ class ClientController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Client créé avec succès',
-                'client' => $client
+                'client' => $client,
             ]);
         }
         toastr()->success('Data has been saved successfully!');
+
         // For non-AJAX requests, redirect back to the map with a success message
         return redirect()->route('map')->with('success', 'Client créé avec succès');
     }
@@ -401,7 +402,7 @@ class ClientController extends Controller
             toastr()->success('Le commentaire a été ajouté avec succès.');
 
             // Redirect back to the client's page
-            //return redirect()->route('relances.contact.edit', ['clientId' => $request->client_id]);
+            // return redirect()->route('relances.contact.edit', ['clientId' => $request->client_id]);
             return redirect()->back();
         }
 
@@ -443,10 +444,10 @@ class ClientController extends Controller
 
         // Check if we're updating an existing client
         if ($request->has('client_id')) {
-            $client = \App\Models\Client::find($request->client_id);
-            if (!$client) {
+            $client = Client::find($request->client_id);
+            if (! $client) {
                 // If client not found, create a new one
-                $client = new \App\Models\Client();
+                $client = new Client;
                 $client->rentre_le = now();
                 $client->id_doublon = 0;
                 $client->bloque = 0;
@@ -454,7 +455,7 @@ class ClientController extends Controller
             }
         } else {
             // Create a new client
-            $client = new \App\Models\Client();
+            $client = new Client;
             $client->rentre_le = now();
             $client->id_doublon = 0;
             $client->bloque = 0;
@@ -474,7 +475,7 @@ class ClientController extends Controller
         $client->mail = $client->mail ?? ''; // Keep existing email if any
         $client->rentre_par = $validated['commercial'] ?? auth()->id();
         $client->partage_avec = $validated['partage_avec'] ?? null;
-        $client->debrief = ($validated['commentaire'] ?? '') . ($validated['signe'] ?? '');
+        $client->debrief = ($validated['commentaire'] ?? '').($validated['signe'] ?? '');
         $client->type = $validated['type']; // Use the validated type from form
         $client->type_habitation = $validated['type_habitation'] ?? '';
         $client->profession = $validated['profession_monsieur'] ?? '';
@@ -490,8 +491,8 @@ class ClientController extends Controller
         $client->projet = $validated['projet'] ?? '';
         $client->date_anniversaire = $validated['date_anniversaire'] ?? null;
         $client->accept_demarchage = $validated['accept_demarchage'] ?? false;
-		
-		// Store GPS coordinates for the client location
+
+        // Store GPS coordinates for the client location
         if (isset($validated['gps_lat']) && isset($validated['gps_lng'])) {
             $client->gps_lat = $validated['gps_lat'];
             $client->gps_lng = $validated['gps_lng'];
@@ -499,8 +500,8 @@ class ClientController extends Controller
 
         // Champs optionnels ou NULL par défaut - keep existing values if any
         $client->secteur = $validated['secteur_id'] ?? $client->secteur ?? session('selectedSecteur');
-        if(!$client->secteur){
-            
+        if (! $client->secteur) {
+
             $secteur = Secteur::findByCoords($client->gps_lat, $client->gps_lng);
             $client->secteur = $secteur?->id ?? session('selectedSecteur');
             /*if($client->secteur == 8)
@@ -508,13 +509,13 @@ class ClientController extends Controller
             if($client->secteur == 9)
                 $client->secteur = 1;*/
         }
-        
+
         $client->date_relance = $validated['date_relance'] ?? $client->date_relance;
 
         // Stockage unique dans 'profil_clients'
         if (empty($validated['profil_client'])) {
             $client->profil_clients = null;
-        }else{
+        } else {
             $client->profil_clients = $validated['profil_client'] === 'Autre'
                 ? $validated['profil_client_autre']
                 : $validated['profil_client'];
@@ -527,25 +528,25 @@ class ClientController extends Controller
 
         // Check if a client already exists at the same address location
         $exists = DB::table('clients')
-        ->where("adresse", $client->adresse)
-        ->where("cp", $client->cp)
-        ->where("ville", $client->ville)
-        ->where("appart", $client->appart)
-        ->first();
-        if($exists && !$client->id){
+            ->where('adresse', $client->adresse)
+            ->where('cp', $client->cp)
+            ->where('ville', $client->ville)
+            ->where('appart', $client->appart)
+            ->first();
+        if ($exists && ! $client->id) {
             // Early return => DOUBLON
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $request->has('client_id') ? 'Le contact a été mis à jour avec succès.' : 'Le contact a été créé avec succès.',
                     'client' => $exists->id,
-                    'doublon' => true
+                    'doublon' => true,
                 ]);
-            }else{
+            } else {
                 return redirect()
-                ->back()
-                ->with('error', 'Un client existe déjà à cette adresse.')
-                ->withInput();
+                    ->back()
+                    ->with('error', 'Un client existe déjà à cette adresse.')
+                    ->withInput();
             }
         }
 
@@ -568,19 +569,19 @@ class ClientController extends Controller
                         'distance_meters' => round((float) $distance, 2),
                         'author_position' => [
                             'latitude' => floatval($validated['user_lat']),
-                            'longitude' => floatval($validated['user_lng'])
+                            'longitude' => floatval($validated['user_lng']),
                         ],
                         'inserted_point' => [
                             'latitude' => floatval($validated['gps_lat']),
-                            'longitude' => floatval($validated['gps_lng'])
+                            'longitude' => floatval($validated['gps_lng']),
                         ],
                         'client_info' => [
                             'nom' => $validated['nom'],
                             'adresse' => $validated['adresse'] ?? null,
-                            'ville' => $validated['ville']
+                            'ville' => $validated['ville'],
                         ],
-                        'timestamp' => now()->toISOString()
-                    ]
+                        'timestamp' => now()->toISOString(),
+                    ],
                 ]);
             }
 
@@ -589,25 +590,25 @@ class ClientController extends Controller
                     'gps_lat' => "Vous n'êtes pas à l'endroit où vous mappez",
                 ]);
             }
-        }        
+        }
 
         $client->save();
 
-        if (!$request->has('client_id')) {
+        if (! $request->has('client_id')) {
             Tracking::create([
                 'id_client' => $client->id,
                 'id_commercial' => $client->rentre_par,
                 'datetime' => Carbon::now(),
                 'gps_lat' => $client->gps_lat,
                 'gps_lng' => $client->gps_lng,
-                'secteur' => $client->secteur
+                'secteur' => $client->secteur,
             ]);
         }
 
         if ($request->boolean('create_rdv_after')) {
             return redirect()->route('nouveau-rendez-vous', [
                 'id_client' => $client->id,
-                'success' => 'Contact créé ! Prêt pour le RDV.'
+                'success' => 'Contact créé ! Prêt pour le RDV.',
             ]);
         }
 
@@ -616,7 +617,7 @@ class ClientController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $request->has('client_id') ? 'Le contact a été mis à jour avec succès.' : 'Le contact a été créé avec succès.',
-                'client' => $client
+                'client' => $client,
             ]);
         }
 
@@ -663,8 +664,7 @@ class ClientController extends Controller
     /**
      * Display the form for creating a new client.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create(Request $request)
     {
@@ -673,12 +673,12 @@ class ClientController extends Controller
         $secteurs = DB::table('secteurs')->select('id', 'nom')->get();
         $users = User::join('secteur_commercials', 'users.id', '=', 'secteur_commercials.id_commercial')
             ->where('secteur_commercials.id_secteur', session('selectedSecteur'))
-            ->whereNotIn('role',["administratif"])
+            ->whereNotIn('role', ['administratif'])
             ->where('active', 1)
             ->get(['users.id', 'users.prenom', 'users.nom', 'users.active']);
-            
+
         // Get all users for the "Partagé avec" dropdown
-        //$allUsers = DB::table('users')->select('id', 'nom', 'prenom')->where("active",1)->where("secteur", session('selectedSecteur'))->get();
+        // $allUsers = DB::table('users')->select('id', 'nom', 'prenom')->where("active",1)->where("secteur", session('selectedSecteur'))->get();
         $groupes = DB::table('groupes')
             ->join('users', 'groupes.id_responsable', '=', 'users.id')
             ->select('groupes.id', 'groupes.id_responsable', 'users.nom', 'users.prenom')
@@ -690,7 +690,7 @@ class ClientController extends Controller
 
         if ($request->has('client_id')) {
             $client = Client::find($request->client_id);
-            //dd($client);
+            // dd($client);
             if ($client) {
                 // Load comments for this client
                 $comments = DB::table('comments')
@@ -701,8 +701,8 @@ class ClientController extends Controller
                     ->get();
             }
         }
-		
-		if (url()->previous() !== url()->current()) {
+
+        if (url()->previous() !== url()->current()) {
             session(['return_url' => url()->previous()]);
         }
 
@@ -711,7 +711,7 @@ class ClientController extends Controller
             'sources' => $sources,
             'secteurs' => $secteurs,
             'users' => $users,
-            /*'allUsers' => $allUsers,*/
+            /* 'allUsers' => $allUsers, */
             'groupes' => $groupes,
             'comments' => $comments,
             'nextNov20' => $this->nextNov20(),
@@ -719,11 +719,13 @@ class ClientController extends Controller
         ]);
     }
 
-    public static function nextNov20() {
+    public static function nextNov20()
+    {
         $date = new DateTime('November 20');
-        if ($date < new DateTime()) {
+        if ($date < new DateTime) {
             $date->modify('+1 year');
         }
+
         return $date->format('Y-m-d');
     }
 }

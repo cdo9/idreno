@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('ventes', function (Blueprint $table) {
             $table->enum('paiement', ['Comptant', 'Financement', 'Comptant et financement'])
-            ->nullable()
-            ->default(null)
-            ->change();
+                ->nullable()
+                ->default(null)
+                ->change();
         });
     }
 

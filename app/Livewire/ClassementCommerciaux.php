@@ -2,36 +2,53 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
+use App\Services\TableauChiffreService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use App\Models\User;
-use App\Services\TableauChiffreService;
 
 class ClassementCommerciaux extends Component
 {
     public $month;
+
     public $months = [];
+
     public $year;
+
     public $years = [];
+
     public $groupes = [];
+
     public $users = [];
+
     public $sortColumn = 'nom';
+
     public $sortDirection = 'asc';
+
     public $ventes = [];
+
     public $projets = [];
+
     public $isDirecteur = false;
+
     public $isTelepro = false;
+
     public $isAdmin = false;
+
     public $isActive = false;
+
     public $rdvs = [];
+
     public $totauxGlobaux;
+
     public $filtreVue = 'commerciaux';
-    
-    public function mount(){
+
+    public function mount()
+    {
         $user = Auth::user();
-        if ($user -> active === '1') {
+        if ($user->active === '1') {
             $this->isActive = true;
         }
         $this->isDirecteur = $user->hasRole('directeur');
@@ -56,12 +73,13 @@ class ClassementCommerciaux extends Component
             ->values()
             ->all();
 
-
     }
+
     public function applyFilters()
     {
         $this->loadRanking();
     }
+
     public function updatedMonth()
     {
         $this->loadRanking();
@@ -71,6 +89,7 @@ class ClassementCommerciaux extends Component
     {
         $this->loadRanking();
     }
+
     public function sortiIcon($column)
     {
         if ($this->sortColumn === $column) {
@@ -78,6 +97,7 @@ class ClassementCommerciaux extends Component
                 ? '<span class="fa fa-sort-up"></span>'
                 : '<span class="fa fa-sort-down"></span>';
         }
+
         return '<span class="fa fa-sort text-muted"></span>';
     }
 
@@ -91,6 +111,7 @@ class ClassementCommerciaux extends Component
         }
         $this->loadRanking();
     }
+
     private function getSortValue($user)
     {
         switch ($this->sortColumn) {
@@ -142,6 +163,7 @@ class ClassementCommerciaux extends Component
                 return $user->prenom;
         }
     }
+
     private function getGroupSortValue($groupe)
     {
         switch ($this->sortColumn) {
@@ -189,6 +211,7 @@ class ClassementCommerciaux extends Component
                 return $groupe->nom;
         }
     }
+
     private function sortUsers()
     {
         $this->users = $this->users
@@ -207,7 +230,7 @@ class ClassementCommerciaux extends Component
             ->where('statut', '!=', 3)
             ->sum('ca_ht');
     }
-	
+
     public function CASemaine($userId)
     {
         $semaines = TableauChiffreService::getSemainesDefinitions($this->year, $this->month);
@@ -216,7 +239,6 @@ class ClassementCommerciaux extends Component
         foreach ($semaines as [$startDay, $endDay]) {
             $startDate = Carbon::createFromDate($this->year, $this->month, $startDay)->toDateString();
             $endDate = Carbon::createFromDate($this->year, $this->month, $endDay)->toDateString();
-			
 
             $ca = DB::table('ventes')
                 ->where('id_commercial', $userId)
@@ -226,6 +248,7 @@ class ClassementCommerciaux extends Component
 
             $CAParSemaine[] = $ca;
         }
+
         return $CAParSemaine;
     }
 
@@ -258,6 +281,7 @@ class ClassementCommerciaux extends Component
 
         return $commune + $normal;
     }
+
     public function calculerRatioVentesUniques($userId)
     {
         $year = $this->year;
@@ -280,6 +304,7 @@ class ClassementCommerciaux extends Component
             ? $ventes->where('cpt', 1)->count() / $total
             : 0;
     }
+
     public function getTotalRowProperty()
     {
         return [
@@ -287,13 +312,14 @@ class ClassementCommerciaux extends Component
             'objectif_annuel' => collect($this->users)->sum('objectif_annuel'),
             'ca_annuel' => collect($this->users)->sum('ca_annuel'),
             'ca_month' => collect(range(1, 12))->mapWithKeys(function ($i) {
-                return [$i => collect($this->users)->sum(fn($u) => $u->ca_month[$i] ?? 0)];
+                return [$i => collect($this->users)->sum(fn ($u) => $u->ca_month[$i] ?? 0)];
             }),
             'caParSemaine' => collect(range(0, 4))->mapWithKeys(function ($i) {
-                return [$i => collect($this->users)->sum(fn($u) => $u->caParSemaine[$i] ?? 0)];
+                return [$i => collect($this->users)->sum(fn ($u) => $u->caParSemaine[$i] ?? 0)];
             }),
         ];
     }
+
     private function getObjectifAnnuelGroupe($users)
     {
         $total = 0;
@@ -347,7 +373,6 @@ class ClassementCommerciaux extends Component
         return $total;
     }
 
-
     private function getCaParSemaineGroupe($users)
     {
         $semaines = TableauChiffreService::getSemainesDefinitions($this->year, $this->month);
@@ -396,7 +421,6 @@ class ClassementCommerciaux extends Component
         return $caParMois;
     }
 
-
     private function calculateGroupIndicators($groupe, $startDate, $endDate)
     {
         $users = collect(User::select('users.*')
@@ -417,12 +441,13 @@ class ClassementCommerciaux extends Component
 
         return $groupe;
     }
+
     private function calculerClassementCaAnnuel()
     {
         $caAnnuelUsers = collect($this->users)->map(function ($user) {
             return [
                 'id' => $user->id,
-                'ca_annuel' => $user->ca_annuel
+                'ca_annuel' => $user->ca_annuel,
             ];
         })->sortByDesc('ca_annuel')->values();
 
@@ -444,12 +469,13 @@ class ClassementCommerciaux extends Component
 
         return $classement;
     }
+
     private function calculerClassementCaAnnuelGroupes()
     {
         $caAnnuelGroupes = collect($this->groupes)->map(function ($groupe) {
             return [
                 'id' => $groupe->id,
-                'ca_annuel' => $groupe->ca_annuel
+                'ca_annuel' => $groupe->ca_annuel,
             ];
         })->sortByDesc('ca_annuel')->values();
 
@@ -471,6 +497,7 @@ class ClassementCommerciaux extends Component
 
         return $classement;
     }
+
     public function loadGroupe($startDate, $endDate)
     {
         $groupes = DB::table('groupes')->orderBy('tri')->get();
@@ -479,17 +506,18 @@ class ClassementCommerciaux extends Component
             ->map(function ($groupe) use ($startDate, $endDate) {
                 return $this->calculateGroupIndicators($groupe, $startDate, $endDate);
             })
-            ->filter(fn($g) => $g->ca_annuel > 0)
+            ->filter(fn ($g) => $g->ca_annuel > 0)
             ->values();
 
         $this->groupes = $this->sortDirection === 'desc'
-            ? $groupesAvecData->sortByDesc(fn($g) => $this->getGroupSortValue($g))->values()
-            : $groupesAvecData->sortBy(fn($g) => $this->getGroupSortValue($g))->values();
+            ? $groupesAvecData->sortByDesc(fn ($g) => $this->getGroupSortValue($g))->values()
+            : $groupesAvecData->sortBy(fn ($g) => $this->getGroupSortValue($g))->values();
 
         $classementCaGroupes = $this->calculerClassementCaAnnuelGroupes();
 
         $this->groupes = $this->groupes->map(function ($groupe) use ($classementCaGroupes) {
             $groupe->rang_ca_annuel = $classementCaGroupes[$groupe->id] ?? 0;
+
             return $groupe;
         });
 
@@ -498,15 +526,13 @@ class ClassementCommerciaux extends Component
             'objectif_annuel' => $groupesAvecData->sum('objectif_annuel'),
             'ca_annuel' => $groupesAvecData->sum('ca_annuel'),
             'ca_month' => collect(range(1, 12))->mapWithKeys(function ($i) use ($groupesAvecData) {
-                return [$i => $groupesAvecData->sum(fn($g) => $g->ca_month[$i] ?? 0)];
+                return [$i => $groupesAvecData->sum(fn ($g) => $g->ca_month[$i] ?? 0)];
             }),
             'caParSemaine' => collect(range(1, 5))->mapWithKeys(function ($i) use ($groupesAvecData) {
-                return [$i => $groupesAvecData->sum(fn($g) => $g->caParSemaine[$i] ?? 0)];
+                return [$i => $groupesAvecData->sum(fn ($g) => $g->caParSemaine[$i] ?? 0)];
             }),
         ];
     }
-
-
 
     private function loadCommerciaux($startDate, $endDate)
     {
@@ -516,26 +542,26 @@ class ClassementCommerciaux extends Component
                     ->whereBetween('ventes.date', [$startDate, $endDate])
                     ->where('ventes.statut', '!=', 3);
             });
-            
-        if(!$this->isAdmin && !$this->isDirecteur){
-            $users->where("active", 1);
+
+        if (! $this->isAdmin && ! $this->isDirecteur) {
+            $users->where('active', 1);
         }
         $users = $users->distinct()
-        ->get()
-        ->map(function ($user) {
-            $user->objectif_ca = $user->objectif_ca ?? 0;
-            $user->ca_month = $this->calculerCaParMois($user->id);
-            $user->ca_annuel = $this->calculerCaAnnuel($user->id);
-            $user->caParSemaine = $this->CASemaine($user->id);
-            $user->ratio = $this->calculerRatioVentesUniques($user->id);
+            ->get()
+            ->map(function ($user) {
+                $user->objectif_ca = $user->objectif_ca ?? 0;
+                $user->ca_month = $this->calculerCaParMois($user->id);
+                $user->ca_annuel = $this->calculerCaAnnuel($user->id);
+                $user->caParSemaine = $this->CASemaine($user->id);
+                $user->ratio = $this->calculerRatioVentesUniques($user->id);
 
-            $user->objectif_annuel = DB::table('objectif_annuel_commercial')
-                ->where('id_user', $user->id)
-                ->where('year', $this->year)
-                ->value('value') ?? 0;
+                $user->objectif_annuel = DB::table('objectif_annuel_commercial')
+                    ->where('id_user', $user->id)
+                    ->where('year', $this->year)
+                    ->value('value') ?? 0;
 
-            return $user;
-        });
+                return $user;
+            });
 
         $this->users = $users;
 
@@ -543,6 +569,7 @@ class ClassementCommerciaux extends Component
 
         $this->users = $this->users->map(function ($user) use ($classementCa) {
             $user->rang_ca_annuel = $classementCa[$user->id] ?? 0;
+
             return $user;
         });
 
@@ -580,9 +607,6 @@ class ClassementCommerciaux extends Component
             $this->groupes = []; // vide les groupes
         }
     }
-
-
-
 
     public function render()
     {

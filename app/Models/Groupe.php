@@ -17,9 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $tri
  * @property int $secteur
  * @property User $user
- * @package App\Models
- * @property-read \App\Models\User $responsable
- * @property-read \App\Models\Secteur $secteurRel
+ * @property-read User $responsable
+ * @property-read Secteur $secteurRel
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe query()
@@ -28,36 +28,39 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe whereNom($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe whereSecteur($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Groupe whereTri($value)
+ *
  * @mixin \Eloquent
  */
 class Groupe extends Model
 {
-	protected $table = 'groupes';
-	public $timestamps = false;
+    protected $table = 'groupes';
 
-	protected $casts = [
-		'id_responsable' => 'int',
-		'tri' => 'int',
-		'secteur' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'id_responsable',
-		'nom',
-		'tri',
-		'secteur'
-	];
+    protected $casts = [
+        'id_responsable' => 'int',
+        'tri' => 'int',
+        'secteur' => 'int',
+    ];
 
-	/*public function user()
-	{
-		return $this->belongsTo(User::class, 'id_responsable');
-	}*/
+    protected $fillable = [
+        'id_responsable',
+        'nom',
+        'tri',
+        'secteur',
+    ];
 
-	public function secteurRel()
-	{
-		return $this->belongsTo(Secteur::class, 'secteur');
-	}
-	   public function responsable()
+    /*public function user()
+    {
+        return $this->belongsTo(User::class, 'id_responsable');
+    }*/
+
+    public function secteurRel()
+    {
+        return $this->belongsTo(Secteur::class, 'secteur');
+    }
+
+    public function responsable()
     {
         return $this->belongsTo(User::class, 'id_responsable');
     }

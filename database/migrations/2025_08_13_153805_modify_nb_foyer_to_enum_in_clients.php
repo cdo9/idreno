@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::table('clients', function (Blueprint $table) {
             // Modifier le champ nb en enum avec les nouvelles valeurs
             $table->enum('nb_foyer', ['0', '1', '2', '3+'])
-                  ->default(null)
-                  ->nullable()
-                  ->change();
+                ->default(null)
+                ->nullable()
+                ->change();
         });
     }
 

@@ -2,61 +2,90 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Projet;
 use App\Models\Client;
-use App\Models\User;
+use App\Models\Projet;
+use App\Services\CommerciauxService;
 use App\Services\ProjectService;
 use App\Services\SourceService;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-use App\Services\CommerciauxService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Livewire\Component;
 
 class RendezVousForm extends Component
 {
     // Form data
     public $rendezVousId = null;
+
     public $isEdit = false;
 
     // Client data - logique intégrée du ClientController
     public $selectedClientId = null;
+
     public $clientSearch = '';
+
     public $clients = [];
+
     public $showClientDropdown = false;
 
     // Form fields
     public $date_prise_rdv;
+
     public $date;
+
     public $date_confirmation;
+
     public $projet = '';
+
     public $projet2 = '';
+
     public $projet3 = '';
+
     public $source = '';
+
     public $priorite = 1;
+
     public $estimation = 0;
+
     public $rdv_confirme = 0;
+
     public $rdv_annule = 0;
+
     public $compte_rendu = '';
+
     public $raison = '';
+
     public $heure_rdv = '';
+
     public $couple_present = 'oui';
+
     public $date_realisation_du_projet = '';
+
     public $temps_disponible = 'oui';
+
     public $quantite1 = '0';
+
     public $quantite2 = '0';
+
     public $quantite3 = '';
+
     public $secteur = 1;
+
     public $pourquoi = '';
+
     public $partage_avec = '';
 
     // Options for dropdowns
     public $users = [];
+
     public $priorities = [];
+
     public $sources = [];
+
     public $projects = [];
 
-    public $googleCalendarUrl  = "";
+    public $googleCalendarUrl = '';
 
     protected $rules = [
         'selectedClientId' => 'required',
@@ -71,7 +100,7 @@ class RendezVousForm extends Component
         'quantite2' => 'nullable|integer|min:0',
         'date_realisation_du_projet' => 'required|integer',
         'pourquoi' => 'required|string|max:255',
-        'partage_avec' => 'nullable|exists:users,id'
+        'partage_avec' => 'nullable|exists:users,id',
     ];
 
     protected $messages = [
@@ -89,7 +118,7 @@ class RendezVousForm extends Component
         'quantite2.min' => 'La quantité doit être positive ou nulle.',
         'date_realisation_du_projet.required' => 'La date de réalisation du projet est obligatoire.',
         'pourquoi.required' => 'Veuillez indiquer pourquoi ce projet.',
-        'partage_avec.exists' => 'L\'utilisateur sélectionné n\'existe pas.'
+        'partage_avec.exists' => 'L\'utilisateur sélectionné n\'existe pas.',
     ];
 
     public function mount($rendezVousId = null)
@@ -98,14 +127,15 @@ class RendezVousForm extends Component
             session(['return_url' => url()->previous()]);
         }
         $this->rendezVousId = $rendezVousId;
-        $this->isEdit = !is_null($rendezVousId);
+        $this->isEdit = ! is_null($rendezVousId);
 
         $this->secteur = session('selectedSecteur');
 
         $selectedClientId = request()->query('id_client');
 
-        if($selectedClientId)
+        if ($selectedClientId) {
             $this->selectClient($selectedClientId);
+        }
 
         $this->loadOptions();
 
@@ -154,7 +184,7 @@ class RendezVousForm extends Component
             1 => 'Basse',
             2 => 'Normale',
             3 => 'Haute',
-            4 => 'Urgente'
+            4 => 'Urgente',
         ];
 
         // Stocker les sources organisées par catégorie (actif, passif, télépro)
@@ -166,7 +196,7 @@ class RendezVousForm extends Component
         $rendezVous = Projet::with('client')->findOrFail($this->rendezVousId);
 
         $this->selectedClientId = $rendezVous->id_client;
-        $this->clientSearch = ($rendezVous->client->nom ?? '') . ' ' . ($rendezVous->client->prenom ?? '');
+        $this->clientSearch = ($rendezVous->client->nom ?? '').' '.($rendezVous->client->prenom ?? '');
         $this->date_prise_rdv = $rendezVous->date_ajout;
         // Ensure date is properly formatted for the date input (YYYY-MM-DD)
         $this->date = $rendezVous->date ? date('Y-m-d', strtotime($rendezVous->date)) : null;
@@ -192,11 +222,10 @@ class RendezVousForm extends Component
         $this->pourquoi = $rendezVous->pourquoi ?? '';
         $this->partage_avec = $rendezVous->partage_avec ?? '';
 
-        if($this->couple_present != 'oui' && $this->couple_present != "non" && $this->couple_present != "seul")
-            $this->couple_present = "non";
+        if ($this->couple_present != 'oui' && $this->couple_present != 'non' && $this->couple_present != 'seul') {
+            $this->couple_present = 'non';
+        }
     }
-
-
 
     // ique de recherche de clients basée sur ClientController::autocomplete
     public function updatedClientSearch()
@@ -277,7 +306,7 @@ class RendezVousForm extends Component
             Log::error('Error searching clients: ' . $e->getMessage());
             $this->clients = [];
         }*/
-            
+
         $query = $this->clientSearch;
         $this->clients = Client::searchFull($query);
     }
@@ -289,13 +318,13 @@ class RendezVousForm extends Component
 
             if ($client) {
                 $this->selectedClientId = $clientId;
-                $this->clientSearch = $client->nom . ' ' . $client->prenom;
+                $this->clientSearch = $client->nom.' '.$client->prenom;
                 $this->showClientDropdown = false;
 
                 Log::info('Client selected', ['client_id' => $clientId, 'client_name' => $this->clientSearch]);
             }
         } catch (\Exception $e) {
-            Log::error('Error selecting client: ' . $e->getMessage());
+            Log::error('Error selecting client: '.$e->getMessage());
         }
     }
 
@@ -306,7 +335,6 @@ class RendezVousForm extends Component
             Log::info('Sector ID before saving', ['secteur' => $this->secteur]);
 
             DB::beginTransaction();
-
 
             // Validation complète basée sur la logique du controller
             $this->validate([
@@ -360,9 +388,9 @@ class RendezVousForm extends Component
                 'quantite1' => $this->quantite1 ?? '0',
                 'quantite2' => $this->quantite2 ?? '0',
                 'quantite3' => $this->quantite3 ?? '',
-                'secteur' => (int)($this->secteur),
+                'secteur' => (int) ($this->secteur),
                 'pourquoi' => $this->pourquoi ?? '',
-                'partage_avec' => (!empty($this->partage_avec)) ? $this->partage_avec : null,
+                'partage_avec' => (! empty($this->partage_avec)) ? $this->partage_avec : null,
             ];
 
             if ($this->isEdit) {
@@ -370,11 +398,11 @@ class RendezVousForm extends Component
                 $rendezVous = Projet::findOrFail($this->rendezVousId);
 
                 // Filtrer les valeurs nulles comme dans le controller
-                $updateData = array_filter($data, function($value) {
+                $updateData = array_filter($data, function ($value) {
                     return $value !== null;
                 });
 
-                if($updateData['date'] != $rendezVous->date){ // Date de RDV modifiée
+                if ($updateData['date'] != $rendezVous->date) { // Date de RDV modifiée
                     $updateData['date_confirmation'] = null;
                     $updateData['rdv_confirme'] = 0;
 
@@ -387,8 +415,7 @@ class RendezVousForm extends Component
 
                 $rendezVous->fill($updateData);
                 $rendezVous->save();
-				
-				
+
                 $this->googleCalendarUrl = RendezVous::generateCalendarLink($rendezVous);
 
                 $message = 'Rendez-vous mis à jour avec succès!';
@@ -396,7 +423,7 @@ class RendezVousForm extends Component
                 Log::info('Rendez-vous updated via Livewire', ['id' => $this->rendezVousId]);
             } else {
                 // Logique de création du controller - utilisation directe des propriétés
-                $projet = new Projet();
+                $projet = new Projet;
                 $projet->id_client = $data['id_client'];
                 $projet->priorite = $data['priorite'];
                 $projet->projet = $data['projet'];
@@ -423,21 +450,19 @@ class RendezVousForm extends Component
                 Log::info('Sector value before assignment', [
                     'data_secteur' => $data['secteur'],
                     'secteur' => $this->secteur,
-                    'secteur_type' => gettype($this->secteur)
+                    'secteur_type' => gettype($this->secteur),
                 ]);
 
                 // Explicitly cast to integer to ensure correct data type
-                $projet->secteur = (int)$data['secteur'];
+                $projet->secteur = (int) $data['secteur'];
                 $projet->pourquoi = $data['pourquoi'];
-                $projet->partage_avec = (!empty($data['partage_avec'])) ? $data['partage_avec'] : null;
+                $projet->partage_avec = (! empty($data['partage_avec'])) ? $data['partage_avec'] : null;
 
                 // Log the sector value after assignment
                 Log::info('Sector value after assignment', [
                     'projet_secteur' => $projet->secteur,
-                    'projet_secteur_type' => gettype($projet->secteur)
+                    'projet_secteur_type' => gettype($projet->secteur),
                 ]);
-
-                
 
                 // ========== VÉRIFICATION DU DOUBLON ==========
                 $dateRendezVous = Carbon::parse($data['date']);
@@ -449,27 +474,26 @@ class RendezVousForm extends Component
 
                 if ($rendezVousExistant) {
                     DB::rollBack();
-                    
+
                     Log::warning('Duplicate rendez-vous attempt', [
                         'id_client' => $data['id_client'],
                         'date' => $dateRendezVous->format('Y-m-d'),
-                        'existing_id' => $rendezVousExistant->id
+                        'existing_id' => $rendezVousExistant->id,
                     ]);
-                    
-                    session()->flash('error', 'Un rendez-vous existe déjà pour ce client à cette date (' . $dateRendezVous->format('d/m/Y') . ')');
-                    
+
+                    session()->flash('error', 'Un rendez-vous existe déjà pour ce client à cette date ('.$dateRendezVous->format('d/m/Y').')');
+
                     // Si vous utilisez Livewire
                     $this->dispatch('rendez-vous-error', [
-                        'message' => 'Un rendez-vous existe déjà pour ce client à cette date (' . $dateRendezVous->format('d/m/Y') . ')'
+                        'message' => 'Un rendez-vous existe déjà pour ce client à cette date ('.$dateRendezVous->format('d/m/Y').')',
                     ]);
-                    
+
                     return;
                 }
                 // ========== FIN VÉRIFICATION DU DOUBLON ==========
-                [$projet->rdv_confirme, $projet->date_confirmation] = 
+                [$projet->rdv_confirme, $projet->date_confirmation] =
                     $this->setIs48hConfirmationDate($dateRendezVous);
 
-                
                 $this->checkClientState($projet);
 
                 $projet->save();
@@ -483,7 +507,7 @@ class RendezVousForm extends Component
                     'secteur' => $projet->secteur,
                     'secteur_type' => gettype($projet->secteur),
                     'secteur_from_form' => $this->secteur,
-                    'secteur_from_form_type' => gettype($this->secteur)
+                    'secteur_from_form_type' => gettype($this->secteur),
                 ]);
             }
 
@@ -492,24 +516,24 @@ class RendezVousForm extends Component
             session()->flash('success', $message);
 
             $this->dispatch('rendez-vous-saved', [
-                'message' => $message
+                'message' => $message,
             ]);
+
             return;
             /*dd(session('return_url', url()->current()));
             return redirect()->to(session('return_url', url()->current()))->with('success', $message);*/
-                
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             DB::rollBack();
-            Log::error('Validation error saving rendez-vous via Livewire: ' . $e->getMessage());
+            Log::error('Validation error saving rendez-vous via Livewire: '.$e->getMessage());
             // Let Laravel handle the validation errors automatically
             throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error saving rendez-vous via Livewire: ' . $e->getMessage());
+            Log::error('Error saving rendez-vous via Livewire: '.$e->getMessage());
 
             // Add error message to specific fields or use a general error
-            session()->flash('error', 'Erreur lors de la sauvegarde: ' . $e->getMessage());
+            session()->flash('error', 'Erreur lors de la sauvegarde: '.$e->getMessage());
         }
     }
 
@@ -523,7 +547,8 @@ class RendezVousForm extends Component
         return view('livewire.rendez-vous-form');
     }
 
-    private function setIs48hConfirmationDate($dateRendezVous){
+    private function setIs48hConfirmationDate($dateRendezVous)
+    {
 
         $maintenant = Carbon::today();
 
@@ -542,15 +567,16 @@ class RendezVousForm extends Component
         return [$rdvConfirme, $dateConfirmation];
     }
 
-    private function checkClientState($projet){
+    private function checkClientState($projet)
+    {
         $client = Client::findOrFail($projet->id_client);
-        if(in_array($client->type, [6,7,8,0,3])){
+        if (in_array($client->type, [6, 7, 8, 0, 3])) {
             $client->type = 1;
         }
-		if($projet->partage_avec != null){
+        if ($projet->partage_avec != null) {
             $client->partage_avec = $projet->partage_avec;
         }
-		
+
         $client->save();
     }
 }
