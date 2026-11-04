@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -400,42 +401,42 @@ class User extends Authenticatable
         'date_entretien',
     ];
 
-    public function evaluations()
+    public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class, 'id_vendeur');
     }
 
-    public function groupes()
+    public function groupes(): HasMany
     {
         return $this->hasMany(Groupe::class, 'id_responsable');
     }
 
-    public function objectif_annuel_commercials()
+    public function objectif_annuel_commercials(): HasMany
     {
         return $this->hasMany(ObjectifAnnuelCommercial::class, 'id_user');
     }
 
-    public function objectifs()
+    public function objectifs(): HasMany
     {
         return $this->hasMany(Objectif::class, 'id_commercial');
     }
 
-    public function poses()
+    public function poses(): HasMany
     {
         return $this->hasMany(Pose::class, 'id_commercial_visite');
     }
 
-    public function prospections()
+    public function prospections(): HasMany
     {
         return $this->hasMany(Prospection::class, 'id_commercial');
     }
 
-    public function rendez_vous()
+    public function rendez_vous(): HasMany
     {
         return $this->hasMany(RendezVous::class, 'id_commercial');
     }
 
-    public function secteur_commercials()
+    public function secteur_commercials(): HasMany
     {
         return $this->hasMany(SecteurCommercial::class, 'id_commercial')
             ->whereHas('secteur', function ($query) {
@@ -457,12 +458,12 @@ class User extends Authenticatable
         return in_array($secteur_id, $this->has_secteurs, true);
     }
 
-    public function trackings()
+    public function trackings(): HasMany
     {
         return $this->hasMany(Tracking::class, 'id_commercial');
     }
 
-    public function ventes()
+    public function ventes(): HasMany
     {
         return $this->hasMany(Vente::class, 'id_commercial');
     }

@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Source
@@ -39,12 +40,12 @@ class Source extends Model
         'nom',
     ];
 
-    public function clients()
+    public function clients(): HasMany
     {
         return $this->hasMany(Client::class, 'id_source');
     }
 
-    public function ventes()
+    public function ventes(): HasMany
     {
         return $this->hasMany(Vente::class, 'id_source');
     }

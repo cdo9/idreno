@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Groupe
@@ -50,17 +51,17 @@ class Groupe extends Model
         'secteur',
     ];
 
-    /*public function user()
+    /*public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_responsable');
     }*/
 
-    public function secteurRel()
+    public function secteurRel(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }
 
-    public function responsable()
+    public function responsable(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_responsable');
     }

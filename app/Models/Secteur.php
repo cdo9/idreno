@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Secteur
@@ -69,72 +70,72 @@ class Secteur extends Model
         'coords',
     ];
 
-    public function clients()
+    public function clients(): HasMany
     {
         return $this->hasMany(Client::class, 'secteur');
     }
 
-    public function evaluations()
+    public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class, 'secteur');
     }
 
-    public function groupes()
+    public function groupes(): HasMany
     {
         return $this->hasMany(Groupe::class, 'secteur');
     }
 
-    public function objectif_annuel_commercials()
+    public function objectif_annuel_commercials(): HasMany
     {
         return $this->hasMany(ObjectifAnnuelCommercial::class, 'secteur');
     }
 
-    public function objectifs()
+    public function objectifs(): HasMany
     {
         return $this->hasMany(Objectif::class, 'secteur');
     }
 
-    public function parc_autos()
+    public function parc_autos(): HasMany
     {
         return $this->hasMany(ParcAuto::class, 'secteur');
     }
 
-    public function poses()
+    public function poses(): HasMany
     {
         return $this->hasMany(Pose::class, 'secteur');
     }
 
-    public function projets()
+    public function projets(): HasMany
     {
         return $this->hasMany(Projet::class, 'secteur');
     }
 
-    public function prospection_communes()
+    public function prospection_communes(): HasMany
     {
         return $this->hasMany(ProspectionCommune::class, 'secteur');
     }
 
-    public function prospections()
+    public function prospections(): HasMany
     {
         return $this->hasMany(Prospection::class, 'secteur');
     }
 
-    public function rendez_vous()
+    public function rendez_vous(): HasMany
     {
         return $this->hasMany(RendezVous::class, 'secteur');
     }
 
-    public function secteur_commercials()
+    public function secteur_commercials(): HasMany
     {
         return $this->hasMany(SecteurCommercial::class, 'id_secteur');
     }
 
-    public function trackings()
+    public function trackings(): HasMany
     {
         return $this->hasMany(Tracking::class, 'secteur');
     }
 
-    public function ventes()
+    public function ventes(): HasMany
     {
         return $this->hasMany(Vente::class, 'secteur');
     }

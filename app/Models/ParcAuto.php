@@ -9,6 +9,8 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class ParcAuto
@@ -53,12 +55,12 @@ class ParcAuto extends Model
         'secteur',
     ];
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }
 
-    public function parc_kms()
+    public function parc_kms(): HasMany
     {
         return $this->hasMany(ParcKm::class, 'auto_id');
     }

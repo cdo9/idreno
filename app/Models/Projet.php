@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Projet
@@ -122,12 +123,12 @@ class Projet extends Model
         'partage_avec',
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'id_client');
     }
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }

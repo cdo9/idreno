@@ -9,6 +9,8 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class RendezVou
@@ -85,22 +87,22 @@ class RendezVous extends Model
         'secteur',
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'id_client');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_commercial');
     }
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }
 
-    public function ventes()
+    public function ventes(): HasMany
     {
         return $this->hasMany(Vente::class, 'id_rdv');
     }

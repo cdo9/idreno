@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class Evaluation
@@ -60,17 +61,17 @@ class Evaluation extends Model
         'secteur',
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'id_argu');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_vendeur');
     }
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }

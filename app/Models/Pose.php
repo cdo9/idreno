@@ -9,6 +9,9 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class Pose
@@ -89,32 +92,32 @@ class Pose extends Model
         'secteur',
     ];
 
-    public function client()
+    public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'id_client');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_commercial_visite');
     }
 
-    public function vente()
+    public function vente(): BelongsTo
     {
         return $this->belongsTo(Vente::class, 'id_vente');
     }
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }
 
-    public function pose_detail()
+    public function pose_detail(): HasOne
     {
         return $this->hasOne(PoseDetail::class, 'id_pose');
     }
 
-    public function poseurs()
+    public function poseurs(): BelongsToMany
     {
         return $this->belongsToMany(
             Poseur::class,

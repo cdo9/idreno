@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class PoseDetail
@@ -42,12 +43,12 @@ class PoseDetail extends Model
         'id_poseur',
     ];
 
-    public function pose()
+    public function pose(): BelongsTo
     {
         return $this->belongsTo(Pose::class, 'id_pose');
     }
 
-    public function poseur()
+    public function poseur(): BelongsTo
     {
         return $this->belongsTo(Poseur::class, 'id_poseur');
     }

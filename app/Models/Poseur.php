@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Class Poseur
@@ -40,7 +41,7 @@ class Poseur extends Model
         'archive',
     ];
 
-    public function pose_detail()
+    public function pose_detail(): HasOne
     {
         return $this->hasOne(PoseDetail::class, 'id_poseur');
     }

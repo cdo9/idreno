@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class ParcKm
@@ -46,7 +47,7 @@ class ParcKm extends Model
         'km',
     ];
 
-    public function parc_auto()
+    public function parc_auto(): BelongsTo
     {
         return $this->belongsTo(ParcAuto::class, 'auto_id');
     }

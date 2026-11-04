@@ -9,6 +9,9 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 use Laravel\Scout\Searchable;
 
@@ -291,72 +294,72 @@ class Client extends Model
         'accept_demarchage',
     ];
 
-    public function source()
+    public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class, 'id_source');
     }
 
-    public function secteur()
+    public function secteur(): BelongsTo
     {
         return $this->belongsTo(Secteur::class, 'secteur');
     }
 
-    public function evaluations()
+    public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class, 'id_argu');
     }
 
-    public function poses()
+    public function poses(): HasMany
     {
         return $this->hasMany(Pose::class, 'id_client');
     }
 
-    public function projets()
+    public function projets(): HasMany
     {
         return $this->hasMany(Projet::class, 'id_client');
     }
 
-    public function rendez_vous()
+    public function rendez_vous(): HasMany
     {
         return $this->hasMany(RendezVous::class, 'id_client');
     }
 
-    public function dernierRdv()
+    public function dernierRdv(): HasOne
     {
         return $this->hasOne(Projet::class, 'id_client')->latest('date');
     }
 
-    public function trackings()
+    public function trackings(): HasMany
     {
         return $this->hasMany(Tracking::class, 'id_client');
     }
 
-    public function ventes()
+    public function ventes(): HasMany
     {
         return $this->hasMany(Vente::class, 'id_client');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'rentre_par');
     }
 
-    public function partageUser()
+    public function partageUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'partage_avec');
     }
 
-    public function comments()
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class, 'client_id');
     }
 
-    public function dernierCommentaire()
+    public function dernierCommentaire(): HasOne
     {
         return $this->hasOne(Comment::class)->latest('id');
     }
 
-    public function clientHistory()
+    public function clientHistory(): HasMany
     {
         return $this->hasMany(ClientHistory::class, 'client_id');
     }
