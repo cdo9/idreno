@@ -7,7 +7,9 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Database\Factories\VenteFactory;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -101,6 +103,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Vente extends Model
 {
+    /** @use HasFactory<VenteFactory> */
+    use HasFactory;
+
     protected $table = 'ventes';
 
     public $timestamps = false;

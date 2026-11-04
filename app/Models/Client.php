@@ -7,7 +7,9 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Database\Factories\ClientFactory;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -147,7 +149,8 @@ use Laravel\Scout\Searchable;
  */
 class Client extends Model
 {
-    use Searchable;
+    /** @use HasFactory<ClientFactory> */
+    use HasFactory, Searchable;
 
     /**
      * Get the indexable data array for the model.

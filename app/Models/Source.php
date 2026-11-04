@@ -6,7 +6,9 @@
 
 namespace App\Models;
 
+use Database\Factories\SourceFactory;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -32,6 +34,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Source extends Model
 {
+    /** @use HasFactory<SourceFactory> */
+    use HasFactory;
+
     protected $table = 'sources';
 
     public $timestamps = false;
